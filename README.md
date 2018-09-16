@@ -54,7 +54,7 @@ Goals:
     - example:
         ```js
         variable="sample_id"
-        position="bottom"
+        orientation="bottom"
         ```
 - axes should be brush-able
     - brushing along an axis should trigger a zoom event
