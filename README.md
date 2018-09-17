@@ -27,7 +27,7 @@ Goals:
     - scales will be ES6 classes with different APIs depending on whether categorical, continuous, etc...
     - scales will always expose a domain
     - scales will always expose a domain-var-to-color function
-        - the color scale (or even individual colors) used should also be able to be updated programmatically
+        - the color scale (or even individual colors) should also be able to be changed programmatically
     - scales will always expose a domain-var-to-human-readable-text function
     - categorical scales will always expose a sort function that takes in a comparator function
     - scales will always expose a filter function (and a corresponding filter-reset function)
@@ -65,4 +65,25 @@ Goals:
         :width="windowWidth"
         height="300"
         ```
-- plot container components should be responsible for keeping axis and plot `width` and `height` props in sync if they are dynamic
+- plots should accept margin props
+    - example:
+        ```js
+        marginTop="10"
+        marginLeft="50"
+        marginRight="20"
+        marginBottom="0"
+        ```
+- container components should be responsible for keeping axis and plot width, height, and margin props in sync if they are dynamic
+- plots should emit click events, specifying variables in a predefined order to a prop-supplied callback
+    - example:
+    ```js
+    @click="chooseSample" // will be called with chooseSample(x, y, color) if the predefined ordering is [x, y, color]
+    ```
+- plots should have tooltips
+    - tooltips should obtain human-readable variable names from the appropriate scale
+- plots should dispatch applicable hover events
+    - dispatching should be done through the scale
+    - example:
+        - hovering on a section of a bar on a stacked bar plot would cause dispatches for (at least) the `x` and `color` variables
+- the internals of the drawing of the plots should be abstracted away as much as possible
+    - details of SVG, canvas, etc. implementation should be contained
