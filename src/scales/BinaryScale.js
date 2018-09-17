@@ -1,4 +1,4 @@
-import * as d3 from 'd3';
+import { descending as d3_descending } from "d3-array";
 import CategoricalScale from './CategoricalScale.js';
 
 export default class BinaryScale extends CategoricalScale {
@@ -19,7 +19,7 @@ export default class BinaryScale extends CategoricalScale {
     }
 
     comparator(a, b) {
-        return d3.descending(
+        return d3_descending(
             (a == "nan" ? -1 : +a), 
             (b == "nan" ? -1 : +b)
         );

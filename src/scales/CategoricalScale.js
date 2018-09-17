@@ -1,4 +1,5 @@
-import * as d3 from 'd3';
+import { descending as d3_descending } from "d3-array";
+import { scaleOrdinal as d3_scaleOrdinal } from 'd3-scale';
 import AbstractScale from './AbstractScale.js';
 
 export default class CategoricalScale extends AbstractScale {
@@ -38,7 +39,7 @@ export default class CategoricalScale extends AbstractScale {
      * @returns {function} Function that converts domain value -> humanDomain value
      */
     get humanScale() {
-        return d3.scaleOrdinal()
+        return d3_scaleOrdinal()
             .domain(this.domain)
             .range(this.humanDomain);
     }
@@ -63,7 +64,7 @@ export default class CategoricalScale extends AbstractScale {
     }
 
     comparator(a, b) {
-        return d3.descending(
+        return d3_descending(
             (a == "nan" ? -1 : this.domain.indexOf(a)), 
             (b == "nan" ? -1 : this.domain.indexOf(b))
         );

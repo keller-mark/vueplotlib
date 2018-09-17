@@ -1,4 +1,5 @@
-import * as d3 from 'd3';
+import { interpolateYlOrRd as d3_interpolateYlOrRd } from 'd3-scale-chromatic';
+import { descending as d3_descending } from 'd3-array';
 import AbstractScale from './AbstractScale.js';
 
 export default class ContinuousScale extends AbstractScale {
@@ -8,7 +9,7 @@ export default class ContinuousScale extends AbstractScale {
     }
 
     get colorScale() {
-        return d3.interpolateYlOrRd;
+        return d3_interpolateYlOrRd;
     }
 
     color(domainValue) {
@@ -19,7 +20,7 @@ export default class ContinuousScale extends AbstractScale {
     }
 
     comparator(a, b) {
-        return d3.descending(
+        return d3_descending(
             (a == "nan" ? -1 : +a), 
             (b == "nan" ? -1 : +b)
         );

@@ -22,7 +22,10 @@
 </template>
 
 <script>
-import * as d3 from 'd3';
+import { scaleBand as d3_scaleBand, scaleLinear as d3_scaleLinear } from 'd3-scale';
+import { select as d3_select } from 'd3-selection';
+import { stack as d3_stack, stackOrderNone as d3_stackOrderNone, stackOffsetNone as d3_stackOffsetNone } from 'd3-shape';
+
 import mixin from './../mixin.js';
 
 let uuid = 0;
@@ -73,7 +76,7 @@ export default {
             // dispatch.call("link-donor-destroy");
         },
         removePlot() {
-            d3.select(this.plotSelector).select("svg").remove();
+            d3_select(this.plotSelector).select("svg").remove();
         },
         drawPlot() {
             let vm = this;
@@ -84,25 +87,25 @@ export default {
             const yScale = vm.getScale(vm.y);
             const cScale = vm.getScale(vm.c);
 
-            const x = d3.scaleBand()
+            const x = d3_scaleBand()
                 .domain(xScale.domain)
                 .range([0, vm.width]);
             
-            const y = d3.scaleLinear()
+            const y = d3_scaleLinear()
                 .domain(yScale.domain)
                 .range([vm.height, 0]);
 
             const barWidth = xScale.domain.length / vm.width;
               
-            const stack = d3.stack()
+            const stack = d3_stack()
                 .keys(cScale.domain)
                 .value((d, key) => { return d[vm.y][key] || 0; })
-                .order(d3.stackOrderNone)
-                .offset(d3.stackOffsetNone);
+                .order(d3_stackOrderNone)
+                .offset(d3_stackOffsetNone);
 
             const series = stack(data);
 
-            let container = d3.select(this.plotSelector)
+            let container = d3_select(this.plotSelector)
                 .append("svg")
                     .attr("width", (vm.width + vm.marginLeft + vm.marginRight))
                     .attr("height", (vm.height + vm.marginTop + vm.marginBottom))

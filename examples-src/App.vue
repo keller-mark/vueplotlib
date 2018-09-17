@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import * as d3 from 'd3';
+import { set as d3_set } from 'd3-collection';
 // Plots
 import StackedBarPlot from '../src/components/StackedBarPlot.vue';
 // Data
@@ -49,7 +49,7 @@ import ContinuousScale from '../src/scales/ContinuousScale.js';
 const sampleIdScale = new CategoricalScale(
   'sample_id', 
   'Sample', 
-  d3.set(exposuresData.map(el => el.sample_id)).values()
+  d3_set(exposuresData.map(el => el.sample_id)).values()
 );
 const exposureScale = new ContinuousScale(
   'exposure',

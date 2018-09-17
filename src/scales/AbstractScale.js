@@ -1,4 +1,4 @@
-import * as d3 from 'd3';
+import { interpolateRdYlBu as d3_interpolateRdYlBu } from "d3-scale-chromatic";
 
 export default class AbstractScale {
 
@@ -49,7 +49,7 @@ export default class AbstractScale {
      * @returns {function} Function that converts a value between [0, 1] to a color
      */
     get colorScale() {
-        return d3.interpolateRdYlBu;
+        return d3_interpolateRdYlBu;
     }
 
     /**
