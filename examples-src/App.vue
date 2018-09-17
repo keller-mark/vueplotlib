@@ -4,7 +4,7 @@
       data="exposures_data"
       x="sample_id" 
       y="exposure"
-      color="signature"
+      c="signature"
       width="600"
       height="300"
       marginTop="10"

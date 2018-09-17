@@ -10044,6 +10044,9 @@ exports.default = {
     },
 
     methods: {
+        tooltip: function tooltip(x, y, c) {
+            console.log('tooltip:', x, y, c);
+        },
         tooltipDestroy: function tooltipDestroy() {
             this.tooltipHide();
         },
@@ -10052,16 +10055,44 @@ exports.default = {
         },
         drawPlot: function drawPlot() {
             var vm = this;
+            vm.removePlot();
 
             var data = vm.getData(vm.data);
             var xScale = vm.getScale(vm.x);
             var yScale = vm.getScale(vm.y);
             var cScale = vm.getScale(vm.c);
 
-            console.log(data);
-            console.log(xScale);
+            var x = d3.scaleBand().domain(xScale.domain).range([0, vm.width]);
+
+            var y = d3.scaleLinear().domain(yScale.domain).range([vm.height, 0]);
+
+            var barWidth = xScale.domain.length / vm.width;
+
+            var stack = d3.stack().keys(cScale.domain).value(function (d, key) {
+                return d[vm.y][key] || 0;
+            }).order(d3.stackOrderNone).offset(d3.stackOffsetNone);
+
+            var series = stack(data);
 
             var container = d3.select(this.plotSelector).append("svg").attr("width", vm.width + vm.marginLeft + vm.marginRight).attr("height", vm.height + vm.marginTop + vm.marginBottom).append("g").attr("transform", "translate(" + vm.marginLeft + "," + vm.marginTop + ")").on('mouseleave', vm.tooltipDestroy);
+
+            var layer = container.append("g").selectAll(".layer").data(series).enter().append("g").attr("class", "layer").style("fill", function (d) {
+                return cScale.color(d["key"]);
+            }).on('mousemove', function (d) {
+                vm.tooltip(null, null, d["key"]);
+            });
+
+            layer.selectAll("rect").data(function (d) {
+                return d;
+            }).enter().append("rect").attr("class", "bar").attr("x", function (d, i) {
+                return x(data[i][vm.x]);
+            }).attr("y", function (d) {
+                return y(d[1]);
+            }).attr("height", function (d) {
+                return y(d[0]) - y(d[1]);
+            }).attr("width", barWidth).style("cursor", "pointer").on('mouseover', function (d, i) {
+                vm.tooltip(data[i][vm.x], data[i][vm.y], d[1] - d[0]);
+            }).on('click', function (d, i) {});
         }
     }
 };

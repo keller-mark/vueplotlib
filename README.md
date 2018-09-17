@@ -9,12 +9,12 @@ This was inspired by the following projects:
 
 
 Goals: 
-- [ ] props should declare visual encodings of data
+- [x] props should declare visual encodings of data
     - example: the StackedBarPlot component will accept the following props:
         ```js
         x="sample_id"
         y="exposure"
-        color="signature"
+        c="signature" // color
         ```
 - [x] props should declare where to find the data
     - data will never be passed directly to a plot - instead it will be globally accessible by a key
@@ -41,7 +41,7 @@ Goals:
         ```js
         x="sample_id"
         ```
-- [ ] plots should assume which type of scale is on which axis
+- [x] plots should assume which type of scale is on which axis
     - for example, a bar plot (with vertical bars) would assume a continuous y scale and a categorical x
 - [ ] a global event bus should alert plots when a scale has been mutated
     - these alerts should specify which scale has been updated using a key
