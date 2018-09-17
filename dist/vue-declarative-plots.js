@@ -10091,7 +10091,7 @@ exports.default = {
             }).attr("height", function (d) {
                 return y(d[0]) - y(d[1]);
             }).attr("width", barWidth).style("cursor", "pointer").on('mouseover', function (d, i) {
-                vm.tooltip(data[i][vm.x], data[i][vm.y], d[1] - d[0]);
+                vm.tooltip(data[i][vm.x], d[1] - d[0], null);
             }).on('click', function (d, i) {});
         }
     }

@@ -78,7 +78,7 @@ Goals:
 - [ ] plots should emit click events, specifying variables in a predefined order to a prop-supplied callback
     - example:
     ```js
-    @click="chooseSample" // will be called with chooseSample(x, y, color) if the predefined ordering is [x, y, color]
+    @click="chooseSample" // will be called with chooseSample(x, y, c) if the predefined ordering is [x, y, c]
     ```
 - [ ] plots should have tooltips
     - tooltips should obtain human-readable variable names from the appropriate scale

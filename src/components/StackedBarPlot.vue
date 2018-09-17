@@ -94,7 +94,6 @@ export default {
 
             const barWidth = xScale.domain.length / vm.width;
               
-
             const stack = d3.stack()
                 .keys(cScale.domain)
                 .value((d, key) => { return d[vm.y][key] || 0; })
@@ -105,8 +104,8 @@ export default {
 
             let container = d3.select(this.plotSelector)
                 .append("svg")
-                    .attr("width", vm.width + vm.marginLeft + vm.marginRight)
-                    .attr("height", vm.height + vm.marginTop + vm.marginBottom)
+                    .attr("width", (vm.width + vm.marginLeft + vm.marginRight))
+                    .attr("height", (vm.height + vm.marginTop + vm.marginBottom))
                 .append("g")
                     .attr("transform", "translate(" + vm.marginLeft + "," + vm.marginTop + ")")
                     .on('mouseleave', vm.tooltipDestroy);
@@ -132,7 +131,7 @@ export default {
                     .attr("width", barWidth)
                     .style("cursor", "pointer")
                     .on('mouseover', (d, i) => { 
-                        vm.tooltip(data[i][vm.x], data[i][vm.y], (d[1] - d[0])); 
+                        vm.tooltip(data[i][vm.x], (d[1] - d[0]), null); 
                     })
                     .on('click', (d, i) => {
                         // TODO
