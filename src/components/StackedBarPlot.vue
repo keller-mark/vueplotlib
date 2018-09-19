@@ -1,7 +1,6 @@
 <template>
     <div>
-        <div :id="this.plotElemID" class="vdp-plot" :style="{'height': this.height + 'px', 'width': this.width + 'px'}"></div>
-
+        <div :id="this.plotElemID" class="vdp-plot" :style="{'height': (this.height + this.marginBottom + this.marginTop) + 'px', 'width': (this.width + this.marginLeft + this.marginRight) + 'px'}"></div>
         <div :id="this.tooltipElemID" class="vdp-tooltip" :style="this.tooltipPositionAttribute">
             <table>
                 <tr>
@@ -95,7 +94,8 @@ export default {
                 .domain(yScale.domain)
                 .range([vm.height, 0]);
 
-            const barWidth = xScale.domain.length / vm.width;
+            const barWidth = vm.width / xScale.domain.length;
+            console.log('barWidth:', barWidth);
               
             const stack = d3_stack()
                 .keys(cScale.domain)
@@ -146,5 +146,6 @@ export default {
 </script>
 
 <style>
+
 
 </style>

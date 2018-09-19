@@ -5,21 +5,51 @@
       <svg id="github" xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
     </a>
     <h3>&lt;StackedBarPlot/&gt;</h3>
-    <StackedBarPlot 
-      data="exposures_data"
-      x="sample_id" 
-      y="exposure"
-      c="signature"
-      :width="600"
-      :height="300"
-      :marginTop="10"
-      :marginLeft="0"
-      :marginRight="0"
-      :marginBottom="10"
-      :getData="getData"
-      :getScale="getScale"
-    />
-    <pre>&lt;StackedBarPlot<br/>
+    <PlotContainer>
+        <Axis
+          slot="axis-left"
+          variable="exposure"
+          orientation="left" 
+          :tickRotation="0"
+          :width="1"
+          :height="300"
+          :marginTop="10"
+          :marginLeft="50"
+          :marginRight="0"
+          :marginBottom="10"
+          :getScale="getScale"
+        />
+        <StackedBarPlot 
+          slot="plot"
+          data="exposures_data"
+          x="sample_id" 
+          y="exposure"
+          c="signature"
+          :width="800"
+          :height="300"
+          :marginTop="10"
+          :marginLeft="0"
+          :marginRight="0"
+          :marginBottom="0"
+          :getData="getData"
+          :getScale="getScale"
+        />
+        <Axis
+          slot="axis-bottom"
+          variable="sample_id"
+          orientation="bottom" 
+          :tickRotation="-65"
+          :width="800"
+          :height="50"
+          :marginTop="0"
+          :marginLeft="50"
+          :marginRight="0"
+          :marginBottom="0"
+          :getScale="getScale"
+        />
+    </PlotContainer>
+    <pre>
+&lt;StackedBarPlot<br/>
   data=&quot;exposures_data&quot;<br/>
   x=&quot;sample_id&quot;<br/>
   y=&quot;exposure&quot;<br/>
@@ -39,7 +69,10 @@
 <script>
 import { set as d3_set } from 'd3-collection';
 // Plots
+import PlotContainer from '../src/components/PlotContainer.vue';
+import Axis from '../src/components/Axis.vue';
 import StackedBarPlot from '../src/components/StackedBarPlot.vue';
+
 // Data
 import exposuresData from './data/exposures.json';
 // Scales
@@ -86,6 +119,8 @@ const getScale = function(scaleKey) {
 export default {
   name: 'app',
   components: {
+    PlotContainer,
+    Axis,
     StackedBarPlot
   },
   data() {
@@ -128,6 +163,15 @@ a {
   float: right;
   top: 10px;
   display: inline-block;
+  position: relative;
+}
+
+.clearfix {
+  float: none;
+  clear: both;
+}
+
+.plot-group {
   position: relative;
 }
 </style>

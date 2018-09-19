@@ -5157,7 +5157,8 @@ exports.default = {
 
             var y = (0, _d3Scale.scaleLinear)().domain(yScale.domain).range([vm.height, 0]);
 
-            var barWidth = xScale.domain.length / vm.width;
+            var barWidth = vm.width / xScale.domain.length;
+            console.log('barWidth:', barWidth);
 
             var stack = (0, _d3Shape.stack)().keys(cScale.domain).value(function (d, key) {
                 return d[vm.y][key] || 0;
@@ -10523,11 +10524,13 @@ exports.default = {
 /***/ (function(module, exports) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', [_c('div', {
+  return _c('div', {
+    staticClass: "vdp-container"
+  }, [_c('div', {
     staticClass: "vdp-plot",
     style: ({
-      'height': this.height + 'px',
-      'width': this.width + 'px'
+      'height': (this.height + this.marginBottom + this.marginTop) + 'px',
+      'width': (this.width + this.marginLeft + this.marginRight) + 'px'
     }),
     attrs: {
       "id": this.plotElemID
