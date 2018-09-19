@@ -8,11 +8,18 @@
     <PlotContainer
       :pWidth="800"
       :pHeight="300"
-      :pMarginTop="10"
+      :pMarginTop="100"
       :pMarginLeft="100"
-      :pMarginRight="50"
+      :pMarginRight="100"
       :pMarginBottom="100"
     >
+      <Axis
+        slot="axisTop"
+        variable="sample_id"
+        orientation="top" 
+        :tickRotation="65"
+        :getScale="getScale"
+      />
       <Axis
         slot="axisLeft"
         variable="exposure"
@@ -27,6 +34,13 @@
         y="exposure"
         c="signature"
         :getData="getData"
+        :getScale="getScale"
+      />
+      <Axis
+        slot="axisRight"
+        variable="exposure"
+        orientation="right" 
+        :tickRotation="0"
         :getScale="getScale"
       />
       <Axis

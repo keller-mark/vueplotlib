@@ -5,7 +5,8 @@
         :style="{
             'height': this.computedHeight + 'px', 
             'width': this.computedWidth + 'px',
-            'top': this.computedTop + 'px'
+            'top': this.computedTop + 'px',
+            'left': this.computedLeft + 'px'
         }"></div>
 </template>
 
@@ -87,13 +88,17 @@ export default {
         },
         computedTop: function() {
             const orientation = this.orientation.toLowerCase();
-            if(orientation === "left" || orientation === "right") {
-                return 0;
-            } else if(orientation === "top") {
-                return 0;
-            } else if(orientation === "bottom") {
+            if(orientation === "bottom") {
                 return this.pMarginTop + this.pHeight;
             }
+            return 0;
+        },
+        computedLeft: function() {
+            const orientation = this.orientation.toLowerCase();
+            if(orientation === "right") {
+                return this.pMarginLeft + this.pWidth;
+            }
+            return 0;
         },
         computedTranslateX: function() {
             const orientation = this.orientation.toLowerCase();
@@ -106,7 +111,11 @@ export default {
         },
         computedTranslateY: function() {
             const orientation = this.orientation.toLowerCase();
-            if(orientation === "left" || orientation === "right") {
+            if(orientation === "left") {
+                return this.pMarginTop;
+            } else if(orientation === "right") {
+                return this.pMarginTop;
+            } else if(orientation === "top") {
                 return this.pMarginTop;
             }
             return 0;
@@ -197,9 +206,7 @@ export default {
             const textBboxZoomedIn = ticksZoomedIn.select("text").node().getBBox();
 
             ticksZoomedIn.selectAll("text")	
-                    .style("text-anchor", "end")
-                    .attr("x", "-.8em") // TODO: update this
-                    .attr("y", ".15em") // TODO: update this
+                    .style("text-anchor", (orientation === "left" || orientation === "bottom" ? "end" : "start"))
                     .attr("transform", "rotate(" + vm.tickRotation + ")");
             
             // Get the width/height of the zoomed-in axis, before removing the text
@@ -228,6 +235,10 @@ export default {
                 zoomedOutTranslateX -= (axisBboxZoomedIn.width + betweenAxisMargin);
             } else if(orientation === "bottom") {
                 zoomedOutTranslateY += (axisBboxZoomedIn.height + betweenAxisMargin);
+            } else if(orientation === "top") {
+                zoomedOutTranslateY -= (axisBboxZoomedIn.height + betweenAxisMargin);
+            } else if(orientation === "right") {
+                zoomedOutTranslateX += (axisBboxZoomedIn.width + betweenAxisMargin);
             }
             
             const containerZoomedOut = container.append("g")
@@ -238,9 +249,7 @@ export default {
             const textBboxZoomedOut = ticksZoomedOut.select("text").node().getBBox();
 
             ticksZoomedOut.selectAll("text")	
-                    .style("text-anchor", "end")
-                    .attr("x", "-.8em") // TODO: update this
-                    .attr("y", ".15em") // TODO: update this
+                    .style("text-anchor", (orientation === "left" || orientation === "bottom" ? "end" : "start"))
                     .attr("transform", "rotate(" + vm.tickRotation + ")");
             
             if(varScale.type === AbstractScale.types.DISCRETE) {
@@ -265,7 +274,13 @@ export default {
             const zoomStateRect = containerZoomedOut.append("rect");
             
             if(orientation === "left" || orientation === "right") {
-                if(varScale.type === AbstractScale.types.CONTINUOUS) {
+                let zoomRectTranslateX;
+                if(orientation === "left") {
+                    zoomRectTranslateX = (-axisBboxZoomedOut.width-betweenAxisMargin);
+                } else if(orientation === "right") {
+                    zoomRectTranslateX = 0;
+                }
+                if(varScale.type === AbstractScale.types.CONTINUOUS) {  
                     let start = varScale.domainFiltered[0];
                     let end = varScale.domainFiltered[1];
                     console.log(start, end)
@@ -276,14 +291,10 @@ export default {
                         .attr("y", scaleZoomedOut(end))
                         .attr("fill", "silver")
                         .attr("fill-opacity", 0.5)
-                        .attr("transform", "translate(" + (-axisBboxZoomedOut.width-betweenAxisMargin) + ",0)");
+                        .attr("transform", "translate(" + zoomRectTranslateX + ",0)");
                 }
-
-                
                     
             }
-
-
 
 
             let axisContainerSize;
@@ -307,8 +318,14 @@ export default {
                         vm.drawAxis(); // TODO: emit filter event instead
                     }
                 }
+                let brushExtent;
+                if(orientation === "left") {
+                    brushExtent = [[-axisContainerSize - betweenAxisMargin, 0], [0, vm.pHeight]];
+                } else if(orientation === "right") {
+                    brushExtent = [[0, 0], [axisContainerSize + betweenAxisMargin, vm.pHeight]];
+                }
                 brush = d3_brushY()
-                    .extent([[-axisContainerSize - betweenAxisMargin, 0], [0, vm.pHeight]])
+                    .extent(brushExtent)
                     .on("end." + vm.axisElemID, brushed);
                 
             } else if(orientation === "bottom" || orientation === "top") {
