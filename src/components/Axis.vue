@@ -202,6 +202,9 @@ export default {
                     .attr("y", ".15em") // TODO: update this
                     .attr("transform", "rotate(" + vm.tickRotation + ")");
             
+            // Get the width/height of the zoomed-in axis, before removing the text
+            const axisBboxZoomedIn = container.select(".axis-zoomed-in").node().getBBox();
+            
             if(varScale.type === AbstractScale.types.DISCRETE) {
                 const barWidth = vm.pWidth / varScale.domainFiltered.length;
                 if(barWidth < textBboxZoomedIn.height) {
@@ -218,9 +221,6 @@ export default {
              */
 
             const betweenAxisMargin = 4;
-
-            // Get the width/height of the zoomed-in axis
-            const axisBboxZoomedIn = container.select(".axis-zoomed-in").node().getBBox();
 
             let zoomedOutTranslateX = vm.computedTranslateX;
             let zoomedOutTranslateY = vm.computedTranslateY;
@@ -251,30 +251,60 @@ export default {
                 }
             }
 
+           
+
             /**
              * Add brushing to the zoomed-out axis
              */
 
             const axisBboxZoomedOut = container.select(".axis-zoomed-out").node().getBBox();
+
+             /**
+             * Display current zoom state as overlay on zoomed-out axis
+             */
+            const zoomStateRect = containerZoomedOut.append("rect");
+            
+            if(orientation === "left" || orientation === "right") {
+                if(varScale.type === AbstractScale.types.CONTINUOUS) {
+                    let start = varScale.domainFiltered[0];
+                    let end = varScale.domainFiltered[1];
+                    console.log(start, end)
+                    zoomStateRect
+                        .attr("width", axisBboxZoomedOut.width+betweenAxisMargin)
+                        .attr("height", scaleZoomedOut(start) - scaleZoomedOut(end))
+                        .attr("x", 0)
+                        .attr("y", scaleZoomedOut(end))
+                        .attr("fill", "silver")
+                        .attr("fill-opacity", 0.5)
+                        .attr("transform", "translate(" + (-axisBboxZoomedOut.width-betweenAxisMargin) + ",0)");
+                }
+
+                
+                    
+            }
+
+
+
+
             let axisContainerSize;
             let brush, brushed;
             if(orientation === "left" || orientation === "right") {
                 axisContainerSize = axisBboxZoomedOut.width;
                 if(varScale.type === AbstractScale.types.CONTINUOUS) {
                     brushed = () => {
-                        var s = d3_event.selection || scaleZoomedOut.range().slice().reverse();
-                        var s2 = s.map(scaleZoomedOut.invert, scaleZoomedOut);
-                        console.log(s);
-                        console.log(s2);
+                        let s = d3_event.selection || scaleZoomedOut.range().slice().reverse();
+                        let s2 = s.map(scaleZoomedOut.invert, scaleZoomedOut);
                         varScale.zoom(s2[1], s2[0]);
                         vm.drawAxis(); // TODO: emit filter event instead
                     }
                 } else if(varScale.type === AbstractScale.types.DISCRETE) {
                     brushed = () => {
-                        var s = d3_event.target.extent();
-                        //symbol.classed("selected", function(d) { return s[0] <= (d = x(d)) && d <= s[1]; });
-                        
-                        console.log(s);
+                        let s = d3_event.selection || scaleZoomedOut.range().slice().reverse();
+                        let eachBand = vm.pWidth / varScale.domain.length;
+                        let startIndex = Math.floor((s[0] / eachBand));
+                        let endIndex = Math.ceil((s[1] / eachBand));
+                        varScale.zoom(startIndex, endIndex)
+                        vm.drawAxis(); // TODO: emit filter event instead
                     }
                 }
                 brush = d3_brushY()
@@ -287,20 +317,17 @@ export default {
                     brushed = () => {
                         var s = d3_event.selection || scaleZoomedOut.range();
                         var s2 = s.map(scaleZoomedOut.invert, scaleZoomedOut);
-                        console.log(s);
-                        console.log(s2);
-                        varScale.zoom(s2[0], s2[1]);
+                        varScale.zoom(s2);
                         vm.drawAxis(); // TODO: emit filter event instead
                     }
                 } else if(varScale.type === AbstractScale.types.DISCRETE) {
                     brushed = () => {
-                        var s = d3_event.selection || scaleZoomedOut.range();
-                        console.log(s);
-                        var eachBand = vm.pWidth / varScale.domain.length;
-                        var startIndex = Math.floor((s[0] / eachBand));
-                        var endIndex = Math.ceil((s[1] / eachBand));
+                        let s = d3_event.selection || scaleZoomedOut.range();
+                        let eachBand = vm.pWidth / varScale.domain.length;
+                        let startIndex = Math.floor((s[0] / eachBand));
+                        let endIndex = Math.ceil((s[1] / eachBand));
                         varScale.zoom(startIndex, endIndex)
-                        vm.drawAxis();
+                        vm.drawAxis(); // TODO: emit filter event instead
                     }
                 }
                 brush = d3_brushX()
