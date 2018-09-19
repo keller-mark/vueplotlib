@@ -10,7 +10,7 @@
       :pHeight="300"
       :pMarginTop="10"
       :pMarginLeft="50"
-      :pMarginRight="0"
+      :pMarginRight="50"
       :pMarginBottom="50"
     >
       <Axis
@@ -37,21 +37,38 @@
         :getScale="getScale"
       />
     </PlotContainer>
-    <pre>
-&lt;StackedBarPlot<br/>
-  data=&quot;exposures_data&quot;<br/>
-  x=&quot;sample_id&quot;<br/>
-  y=&quot;exposure&quot;<br/>
-  c=&quot;signature&quot;<br/>
-  :width=&quot;600&quot;<br/>
-  :height=&quot;300&quot;<br/>
-  :marginTop=&quot;10&quot;<br/>
-  :marginLeft=&quot;0&quot;<br/>
-  :marginRight=&quot;10&quot;<br/>
-  :marginBottom=&quot;10&quot;<br/>
-  :getData=&quot;getData&quot;<br/>
-  :getScale=&quot;getScale&quot;<br/>
-/&gt;</pre>
+    <pre>&lt;PlotContainer<br/>
+  :pWidth=&quot;800&quot;<br/>
+  :pHeight=&quot;300&quot;<br/>
+  :pMarginTop=&quot;10&quot;<br/>
+  :pMarginLeft=&quot;50&quot;<br/>
+  :pMarginRight=&quot;50&quot;<br/>
+  :pMarginBottom=&quot;50&quot;<br/>
+&gt;<br/>
+  &lt;Axis<br/>
+    slot=&quot;axisLeft&quot;<br/>
+    variable=&quot;exposure&quot;<br/>
+    orientation=&quot;left&quot;<br/>
+    :tickRotation=&quot;0&quot;<br/>
+    :getScale=&quot;getScale&quot;<br/>
+  /&gt;<br/>
+  &lt;StackedBarPlot<br/>
+    slot=&quot;plot&quot;<br/>
+    data=&quot;exposures_data&quot;<br/>
+    x=&quot;sample_id&quot;<br/>
+    y=&quot;exposure&quot;<br/>
+    c=&quot;signature&quot;<br/>
+    :getData=&quot;getData&quot;<br/>
+    :getScale=&quot;getScale&quot;<br/>
+  /&gt;<br/>
+  &lt;Axis<br/>
+    slot=&quot;axisBottom&quot;<br/>
+    variable=&quot;sample_id&quot;<br/>
+    orientation=&quot;bottom&quot;<br/>
+    :tickRotation=&quot;-65&quot;<br/>
+    :getScale=&quot;getScale&quot;<br/>
+  /&gt;<br/>
+&lt;/PlotContainer&gt;</pre>
   </div>
 </template>
 

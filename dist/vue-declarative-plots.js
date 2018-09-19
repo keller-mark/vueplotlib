@@ -5166,7 +5166,7 @@ exports.default = {
 
             var series = stack(data);
 
-            var container = (0, _d3Selection.select)(this.plotSelector).append("svg").attr("width", vm.pWidth + vm.pMarginLeft + vm.pMarginRight).attr("height", vm.pHeight + vm.pMarginTop + vm.pMarginBottom).append("g").attr("transform", "translate(" + vm.pMarginLeft + "," + vm.pMarginTop + ")").on('mouseleave', vm.tooltipDestroy);
+            var container = (0, _d3Selection.select)(this.plotSelector).append("svg").attr("width", vm.pWidth + vm.pMarginLeft + vm.pMarginRight).attr("height", vm.pHeight + vm.pMarginTop + vm.pMarginBottom).append("g").on('mouseleave', vm.tooltipDestroy);
 
             var layer = container.append("g").selectAll(".layer").data(series).enter().append("g").attr("class", "layer").style("fill", function (d) {
                 return cScale.color(d["key"]);
@@ -10527,8 +10527,10 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
   return _c('div', [_c('div', {
     staticClass: "vdp-plot",
     style: ({
-      'height': (this.pHeight + this.pMarginBottom + this.pMarginTop) + 'px',
-      'width': (this.pWidth + this.pMarginLeft + this.pMarginRight) + 'px'
+      'height': (this.pHeight) + 'px',
+      'width': (this.pWidth) + 'px',
+      'top': (this.pMarginTop) + 'px',
+      'left': (this.pMarginLeft) + 'px'
     }),
     attrs: {
       "id": this.plotElemID

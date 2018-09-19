@@ -1,6 +1,15 @@
 <template>
     <div>
-        <div :id="this.plotElemID" class="vdp-plot" :style="{'height': (this.pHeight + this.pMarginBottom + this.pMarginTop) + 'px', 'width': (this.pWidth + this.pMarginLeft + this.pMarginRight) + 'px'}"></div>
+        <div 
+            :id="this.plotElemID" 
+            class="vdp-plot" 
+            :style="{
+                'height': (this.pHeight) + 'px', 
+                'width': (this.pWidth) + 'px',
+                'top': (this.pMarginTop) + 'px',
+                'left': (this.pMarginLeft) + 'px'
+            }"
+        ></div>
         <div :id="this.tooltipElemID" class="vdp-tooltip" :style="this.tooltipPositionAttribute">
             <table>
                 <tr>
@@ -110,7 +119,6 @@ export default {
                     .attr("width", (vm.pWidth + vm.pMarginLeft + vm.pMarginRight))
                     .attr("height", (vm.pHeight + vm.pMarginTop + vm.pMarginBottom))
                 .append("g")
-                    .attr("transform", "translate(" + vm.pMarginLeft + "," + vm.pMarginTop + ")")
                     .on('mouseleave', vm.tooltipDestroy);
             
             let layer = container.append("g").selectAll(".layer")
