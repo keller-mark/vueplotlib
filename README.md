@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/keller-mark/vue-declarative-plots.svg?branch=master)](https://travis-ci.org/keller-mark/vue-declarative-plots)
+
 # vue-declarative-plots
 
 This repository will serve as a place for reusable Vue plot components (using D3).
