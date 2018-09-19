@@ -104,7 +104,6 @@ export default {
                 .range([vm.pHeight, 0]);
 
             const barWidth = vm.pWidth / xScale.domain.length;
-            console.log('barWidth:', barWidth);
               
             const stack = d3_stack()
                 .keys(cScale.domain)

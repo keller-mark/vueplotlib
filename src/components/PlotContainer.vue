@@ -1,4 +1,10 @@
 <script>
+/**
+ * Function that takes in array of VNodes and adds props from a provided props object.
+ * @param {array} slotArray Array of named slot VNodes.
+ * @param {object} newProps Object mapping prop keys to values.
+ * @return {array} The updated array of VNode with the added props.
+ */
 const addProp = function(slotArray, newProps) {
     if (slotArray) {
         slotArray = slotArray.map((vnode) => {

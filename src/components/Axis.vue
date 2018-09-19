@@ -13,6 +13,8 @@
 import { scaleBand as d3_scaleBand, scaleLinear as d3_scaleLinear } from 'd3-scale';
 import { select as d3_select } from 'd3-selection';
 import { axisTop as d3_axisTop, axisLeft as d3_axisLeft, axisRight as d3_axisRight, axisBottom as d3_axisBottom } from 'd3-axis';
+import { brushX as d3_brushX, brushY as d3_brushY } from 'd3-brush';
+import { event as d3_event } from 'd3';
 
 import AbstractScale from './../scales/AbstractScale.js';
 
@@ -157,29 +159,85 @@ export default {
                 axisFunction = d3_axisBottom;
             }
 
-            let scale;
+            let scaleZoomedOut, scaleZoomedIn;
             if(varScale.type === AbstractScale.types.DISCRETE) {
-                scale = d3_scaleBand()
+                scaleZoomedOut = d3_scaleBand()
                     .domain(varScale.domain)
                     .range(range);
+                scaleZoomedIn = d3_scaleBand()
+                    .domain(varScale.domainFiltered)
+                    .range(range);
             } else if(varScale.type === AbstractScale.types.CONTINUOUS) {
-                scale = d3_scaleLinear()
+                scaleZoomedOut = d3_scaleLinear()
                     .domain(varScale.domain)
+                    .range(range);
+                scaleZoomedIn = d3_scaleLinear()
+                    .domain(varScale.domainFiltered)
                     .range(range);
                 // TODO: options for log, etc...
             }
 
+            /**
+             * Create the SVG elements
+             */
+
             const container = d3_select(vm.axisSelector)
                 .append("svg")
                     .attr("width", vm.computedWidth)
-                    .attr("height", vm.computedHeight)
-                .append("g")
+                    .attr("height", vm.computedHeight);
+            
+            const containerZoomedIn = container.append("g")
+                    .attr("class", "axis-zoomed-in")
                     .attr("transform", "translate(" + vm.computedTranslateX + "," + vm.computedTranslateY + ")");
             
-            const ticks = container.call(axisFunction(scale));
-            const bbox = ticks.select("text").node().getBBox();
+            /**
+             * The zoomed-in axis
+             */
+            const ticksZoomedIn = containerZoomedIn.call(axisFunction(scaleZoomedIn));
+            const textBboxZoomedIn = ticksZoomedIn.select("text").node().getBBox();
 
-            ticks.selectAll("text")	
+            ticksZoomedIn.selectAll("text")	
+                    .style("text-anchor", "end")
+                    .attr("x", "-.8em") // TODO: update this
+                    .attr("y", ".15em") // TODO: update this
+                    .attr("transform", "rotate(" + vm.tickRotation + ")");
+            
+            if(varScale.type === AbstractScale.types.DISCRETE) {
+                const barWidth = vm.pWidth / varScale.domainFiltered.length;
+                if(barWidth < textBboxZoomedIn.height) {
+                    ticksZoomedIn.selectAll("text")
+                        .remove();
+                }
+            }
+
+
+            
+
+            /**
+             * The zoomed-out axis
+             */
+
+            const betweenAxisMargin = 4;
+
+            // Get the width/height of the zoomed-in axis
+            const axisBboxZoomedIn = container.select(".axis-zoomed-in").node().getBBox();
+
+            let zoomedOutTranslateX = vm.computedTranslateX;
+            let zoomedOutTranslateY = vm.computedTranslateY;
+            if(orientation === "left") {
+                zoomedOutTranslateX -= (axisBboxZoomedIn.width + betweenAxisMargin);
+            } else if(orientation === "bottom") {
+                zoomedOutTranslateY += (axisBboxZoomedIn.height + betweenAxisMargin);
+            }
+            
+            const containerZoomedOut = container.append("g")
+                    .attr("class", "axis-zoomed-out")
+                    .attr("transform", "translate(" + zoomedOutTranslateX + "," + zoomedOutTranslateY + ")");
+            
+            const ticksZoomedOut = containerZoomedOut.call(axisFunction(scaleZoomedOut));
+            const textBboxZoomedOut = ticksZoomedOut.select("text").node().getBBox();
+
+            ticksZoomedOut.selectAll("text")	
                     .style("text-anchor", "end")
                     .attr("x", "-.8em") // TODO: update this
                     .attr("y", ".15em") // TODO: update this
@@ -187,13 +245,73 @@ export default {
             
             if(varScale.type === AbstractScale.types.DISCRETE) {
                 const barWidth = vm.pWidth / varScale.domain.length;
-                if(barWidth < bbox.height) {
-                    ticks.selectAll("text")
+                if(barWidth < textBboxZoomedOut.height) {
+                    ticksZoomedOut.selectAll("text")
                         .remove();
                 }
-                
             }
-            
+
+            /**
+             * Add brushing to the zoomed-out axis
+             */
+
+            const axisBboxZoomedOut = container.select(".axis-zoomed-out").node().getBBox();
+            let axisContainerSize;
+            let brush, brushed;
+            if(orientation === "left" || orientation === "right") {
+                axisContainerSize = axisBboxZoomedOut.width;
+                if(varScale.type === AbstractScale.types.CONTINUOUS) {
+                    brushed = () => {
+                        var s = d3_event.selection || scaleZoomedOut.range().slice().reverse();
+                        var s2 = s.map(scaleZoomedOut.invert, scaleZoomedOut);
+                        console.log(s);
+                        console.log(s2);
+                        varScale.zoom(s2[1], s2[0]);
+                        vm.drawAxis(); // TODO: emit filter event instead
+                    }
+                } else if(varScale.type === AbstractScale.types.DISCRETE) {
+                    brushed = () => {
+                        var s = d3_event.target.extent();
+                        //symbol.classed("selected", function(d) { return s[0] <= (d = x(d)) && d <= s[1]; });
+                        
+                        console.log(s);
+                    }
+                }
+                brush = d3_brushY()
+                    .extent([[-axisContainerSize - betweenAxisMargin, 0], [0, vm.pHeight]])
+                    .on("end." + vm.axisElemID, brushed);
+                
+            } else if(orientation === "bottom" || orientation === "top") {
+                axisContainerSize = axisBboxZoomedOut.height;
+                if(varScale.type === AbstractScale.types.CONTINUOUS) {
+                    brushed = () => {
+                        var s = d3_event.selection || scaleZoomedOut.range();
+                        var s2 = s.map(scaleZoomedOut.invert, scaleZoomedOut);
+                        console.log(s);
+                        console.log(s2);
+                        varScale.zoom(s2[0], s2[1]);
+                        vm.drawAxis(); // TODO: emit filter event instead
+                    }
+                } else if(varScale.type === AbstractScale.types.DISCRETE) {
+                    brushed = () => {
+                        var s = d3_event.selection || scaleZoomedOut.range();
+                        console.log(s);
+                        var eachBand = vm.pWidth / varScale.domain.length;
+                        var startIndex = Math.floor((s[0] / eachBand));
+                        var endIndex = Math.ceil((s[1] / eachBand));
+                        varScale.zoom(startIndex, endIndex)
+                        vm.drawAxis();
+                    }
+                }
+                brush = d3_brushX()
+                    .extent([[0, 0], [vm.pWidth, axisContainerSize + betweenAxisMargin]])
+                    .on("end." + vm.axisElemID, brushed);
+            }
+
+            containerZoomedOut.append("g")
+                .attr("class", "brush")
+                .call(brush);
+
 
             
         }
@@ -204,6 +322,13 @@ export default {
 <style>
 .vdp-axis {
     position: absolute;
+}
+
+.axis-zoomed-out line, .axis-zoomed-out path {
+    stroke: silver;
+}
+.axis-zoomed-out text {
+    fill: silver;
 }
 
 </style>

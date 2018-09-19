@@ -60,7 +60,8 @@ Goals:
         ```
 - [ ] axes should be brush-able
     - brushing along an axis should trigger a zoom event
-    - axes, if their corresponding scale has been "zoomed", should display a "zoomed out"/full view beside the "zoomed-in" view in order to show context
+    - axes, if their corresponding scale has been "zoomed", should display a "zoomed out"/full view beside the "zoomed-in" view in order to show [context](https://bl.ocks.org/mbostock/34f08d5e11952a80609169b7917d4172)
+    - categorical axes should [snap](https://bl.ocks.org/mbostock/6232537)
 - [x] plots and axes should accept `width` and `height` props
     - container components should be responsible for keeping plot and axis props in sync if they are dynamic
     - example:

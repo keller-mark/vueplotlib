@@ -5158,7 +5158,6 @@ exports.default = {
             var y = (0, _d3Scale.scaleLinear)().domain(yScale.domain).range([vm.pHeight, 0]);
 
             var barWidth = vm.pWidth / xScale.domain.length;
-            console.log('barWidth:', barWidth);
 
             var stack = (0, _d3Shape.stack)().keys(cScale.domain).value(function (d, key) {
                 return d[vm.y][key] || 0;

@@ -44,14 +44,9 @@ export default class CategoricalScale extends AbstractScale {
             .range(this.humanDomain);
     }
 
-    /**
-     * Convert a domain value to a humanDomain value
-     * @param {*} domainValue A domain value
-     * @returns {*} The corresponding humanDomain value
-     */
     toHuman(domainValue) {
         if(AbstractScale.isUnknown(domainValue)) {
-            return "Unknown";
+            return AbstractScale.unknownString;
         }
         return this.humanScale(domainValue);
     }
@@ -68,6 +63,25 @@ export default class CategoricalScale extends AbstractScale {
             (a == "nan" ? -1 : this.domain.indexOf(a)), 
             (b == "nan" ? -1 : this.domain.indexOf(b))
         );
+    }
+
+    /**
+     * Zooms the scale.
+     * @param {int} newMinIndex Index of the new minimum element (inclusive)
+     * @param {int} newMaxIndex Index of the new maximum element (inclusive)
+     */
+    zoom(newMinIndex, newMaxIndex) {
+        console.log(newMinIndex, newMaxIndex);
+        this._domainFiltered = this._domain.slice(newMinIndex, newMaxIndex + 1);
+        console.log(this._domainFiltered);
+    }
+
+    /**
+     * Filters the scale.
+     * @param {array} indicesToKeep Array of indices of elements to include.
+     */
+    filter(indicesToKeep) {
+        this._domainFiltered = indicesToKeep.map(index => this._domain[index]);
     }
 
 }
