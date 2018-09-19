@@ -4706,7 +4706,7 @@ exports = module.exports = __webpack_require__(100)();
 
 
 // module
-exports.push([module.i, "", ""]);
+exports.push([module.i, ".vdp-plot{position:absolute}", ""]);
 
 // exports
 
@@ -5153,11 +5153,11 @@ exports.default = {
             var yScale = vm.getScale(vm.y);
             var cScale = vm.getScale(vm.c);
 
-            var x = (0, _d3Scale.scaleBand)().domain(xScale.domain).range([0, vm.width]);
+            var x = (0, _d3Scale.scaleBand)().domain(xScale.domain).range([0, vm.pWidth]);
 
-            var y = (0, _d3Scale.scaleLinear)().domain(yScale.domain).range([vm.height, 0]);
+            var y = (0, _d3Scale.scaleLinear)().domain(yScale.domain).range([vm.pHeight, 0]);
 
-            var barWidth = vm.width / xScale.domain.length;
+            var barWidth = vm.pWidth / xScale.domain.length;
             console.log('barWidth:', barWidth);
 
             var stack = (0, _d3Shape.stack)().keys(cScale.domain).value(function (d, key) {
@@ -5166,7 +5166,7 @@ exports.default = {
 
             var series = stack(data);
 
-            var container = (0, _d3Selection.select)(this.plotSelector).append("svg").attr("width", vm.width + vm.marginLeft + vm.marginRight).attr("height", vm.height + vm.marginTop + vm.marginBottom).append("g").attr("transform", "translate(" + vm.marginLeft + "," + vm.marginTop + ")").on('mouseleave', vm.tooltipDestroy);
+            var container = (0, _d3Selection.select)(this.plotSelector).append("svg").attr("width", vm.pWidth + vm.pMarginLeft + vm.pMarginRight).attr("height", vm.pHeight + vm.pMarginTop + vm.pMarginBottom).append("g").attr("transform", "translate(" + vm.pMarginLeft + "," + vm.pMarginTop + ")").on('mouseleave', vm.tooltipDestroy);
 
             var layer = container.append("g").selectAll(".layer").data(series).enter().append("g").attr("class", "layer").style("fill", function (d) {
                 return cScale.color(d["key"]);
@@ -10446,22 +10446,22 @@ exports.default = {
         'data': {
             type: String
         },
-        'width': {
+        'pWidth': {
             type: Number
         },
-        'height': {
+        'pHeight': {
             type: Number
         },
-        'marginTop': {
+        'pMarginTop': {
             type: Number
         },
-        'marginLeft': {
+        'pMarginLeft': {
             type: Number
         },
-        'marginRight': {
+        'pMarginRight': {
             type: Number
         },
-        'marginBottom': {
+        'pMarginBottom': {
             type: Number
         },
         'getData': {
@@ -10524,13 +10524,11 @@ exports.default = {
 /***/ (function(module, exports) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', {
-    staticClass: "vdp-container"
-  }, [_c('div', {
+  return _c('div', [_c('div', {
     staticClass: "vdp-plot",
     style: ({
-      'height': (this.height + this.marginBottom + this.marginTop) + 'px',
-      'width': (this.width + this.marginLeft + this.marginRight) + 'px'
+      'height': (this.pHeight + this.pMarginBottom + this.pMarginTop) + 'px',
+      'width': (this.pWidth + this.pMarginLeft + this.pMarginRight) + 'px'
     }),
     attrs: {
       "id": this.plotElemID

@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div :id="this.plotElemID" class="vdp-plot" :style="{'height': (this.height + this.marginBottom + this.marginTop) + 'px', 'width': (this.width + this.marginLeft + this.marginRight) + 'px'}"></div>
+        <div :id="this.plotElemID" class="vdp-plot" :style="{'height': (this.pHeight + this.pMarginBottom + this.pMarginTop) + 'px', 'width': (this.pWidth + this.pMarginLeft + this.pMarginRight) + 'px'}"></div>
         <div :id="this.tooltipElemID" class="vdp-tooltip" :style="this.tooltipPositionAttribute">
             <table>
                 <tr>
@@ -88,13 +88,13 @@ export default {
 
             const x = d3_scaleBand()
                 .domain(xScale.domain)
-                .range([0, vm.width]);
+                .range([0, vm.pWidth]);
             
             const y = d3_scaleLinear()
                 .domain(yScale.domain)
-                .range([vm.height, 0]);
+                .range([vm.pHeight, 0]);
 
-            const barWidth = vm.width / xScale.domain.length;
+            const barWidth = vm.pWidth / xScale.domain.length;
             console.log('barWidth:', barWidth);
               
             const stack = d3_stack()
@@ -107,10 +107,10 @@ export default {
 
             let container = d3_select(this.plotSelector)
                 .append("svg")
-                    .attr("width", (vm.width + vm.marginLeft + vm.marginRight))
-                    .attr("height", (vm.height + vm.marginTop + vm.marginBottom))
+                    .attr("width", (vm.pWidth + vm.pMarginLeft + vm.pMarginRight))
+                    .attr("height", (vm.pHeight + vm.pMarginTop + vm.pMarginBottom))
                 .append("g")
-                    .attr("transform", "translate(" + vm.marginLeft + "," + vm.marginTop + ")")
+                    .attr("transform", "translate(" + vm.pMarginLeft + "," + vm.pMarginTop + ")")
                     .on('mouseleave', vm.tooltipDestroy);
             
             let layer = container.append("g").selectAll(".layer")
@@ -146,6 +146,7 @@ export default {
 </script>
 
 <style>
-
-
+.vdp-plot {
+    position: absolute;
+}
 </style>

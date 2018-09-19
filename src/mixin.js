@@ -3,22 +3,22 @@ export default {
         'data': {
             type: String
         },
-        'width': {
+        'pWidth': {
             type: Number
         },
-        'height': {
+        'pHeight': {
             type: Number
         },
-        'marginTop': {
+        'pMarginTop': {
             type: Number
         },
-        'marginLeft': {
+        'pMarginLeft': {
             type: Number
         },
-        'marginRight': {
+        'pMarginRight': {
             type: Number
         },
-        'marginBottom': {
+        'pMarginBottom': {
             type: Number
         },
         'getData': {

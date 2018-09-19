@@ -3,8 +3,9 @@
         :id="this.axisElemID" 
         class="vdp-axis" 
         :style="{
-            'height': (this.height + this.marginBottom + this.marginTop) + 'px', 
-            'width': (this.width + this.marginLeft + this.marginRight) + 'px'
+            'height': this.computedHeight + 'px', 
+            'width': this.computedWidth + 'px',
+            'top': this.computedTop + 'px'
         }"></div>
 </template>
 
@@ -28,22 +29,22 @@ export default {
         'tickRotation': {
             type: Number
         },
-        'width': {
+        'pWidth': {
             type: Number
         },
-        'height': {
+        'pHeight': {
             type: Number
         },
-        'marginTop': {
+        'pMarginTop': {
             type: Number
         },
-        'marginLeft': {
+        'pMarginLeft': {
             type: Number
         },
-        'marginRight': {
+        'pMarginRight': {
             type: Number
         },
-        'marginBottom': {
+        'pMarginBottom': {
             type: Number
         },
         'getScale': {
@@ -61,13 +62,59 @@ export default {
         },
         axisSelector: function() {
             return "#" + this.axisElemID;
+        },
+        computedWidth: function() {
+            const orientation = this.orientation.toLowerCase();
+            if(orientation === "bottom" || orientation === "top") {
+                return this.pMarginLeft + this.pWidth + this.pMarginRight;
+            } else if(orientation === "left") {
+                return this.pMarginLeft;
+            } else if(orientation === "right") {
+                return this.pMarginRight;
+            }
+        },
+        computedHeight: function() {
+            const orientation = this.orientation.toLowerCase();
+            if(orientation === "left" || orientation === "right") {
+                return this.pMarginTop + this.pHeight + this.pMarginBottom;
+            } else if(orientation === "top") {
+                return this.pMarginTop;
+            } else if(orientation === "bottom") {
+                return this.pMarginBottom;
+            }
+        },
+        computedTop: function() {
+            const orientation = this.orientation.toLowerCase();
+            if(orientation === "left" || orientation === "right") {
+                return 0;
+            } else if(orientation === "top") {
+                return 0;
+            } else if(orientation === "bottom") {
+                return this.pMarginTop + this.pHeight;
+            }
+        },
+        computedTranslateX: function() {
+            const orientation = this.orientation.toLowerCase();
+            if(orientation === "left") {
+                return this.pMarginLeft - 1;
+            } else if(orientation === "bottom" || orientation === "top") {
+                return this.pMarginLeft;
+            }
+            return 0;
+        },
+        computedTranslateY: function() {
+            const orientation = this.orientation.toLowerCase();
+            if(orientation === "left" || orientation === "right") {
+                return this.pMarginTop;
+            }
+            return 0;
         }
     },
     watch: {
-        width: function () {
+        pWidth: function () {
             this.drawAxis();
         },
-        height: function () {
+        pHeight: function () {
             this.drawAxis();
         }
     },
@@ -94,9 +141,9 @@ export default {
 
             let range;
             if(orientation === "bottom" || orientation === "top") {
-                range = [0, vm.width];
+                range = [0, vm.pWidth];
             } else if(orientation === "left" || orientation === "right") {
-                range = [vm.height, 0];
+                range = [vm.pHeight, 0];
             }
 
             let axisFunction;
@@ -124,10 +171,10 @@ export default {
 
             const container = d3_select(vm.axisSelector)
                 .append("svg")
-                    .attr("width", (vm.width + vm.marginLeft + vm.marginRight))
-                    .attr("height", (vm.height + vm.marginTop + vm.marginBottom))
+                    .attr("width", vm.computedWidth)
+                    .attr("height", vm.computedHeight)
                 .append("g")
-                    .attr("transform", "translate(" + vm.marginLeft + "," + vm.marginTop + ")");
+                    .attr("transform", "translate(" + vm.computedTranslateX + "," + vm.computedTranslateY + ")");
             
             const ticks = container.call(axisFunction(scale));
             const bbox = ticks.select("text").node().getBBox();
@@ -139,7 +186,7 @@ export default {
                     .attr("transform", "rotate(" + vm.tickRotation + ")");
             
             if(varScale.type === AbstractScale.types.DISCRETE) {
-                const barWidth = vm.width / varScale.domain.length;
+                const barWidth = vm.pWidth / varScale.domain.length;
                 if(barWidth < bbox.height) {
                     ticks.selectAll("text")
                         .remove();
@@ -155,6 +202,8 @@ export default {
 </script>
 
 <style>
-
+.vdp-axis {
+    position: absolute;
+}
 
 </style>
