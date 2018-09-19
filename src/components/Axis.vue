@@ -116,7 +116,7 @@ export default {
             } else if(orientation === "right") {
                 return this.pMarginTop;
             } else if(orientation === "top") {
-                return this.pMarginTop;
+                return this.pMarginTop - 1;
             }
             return 0;
         }
@@ -252,6 +252,9 @@ export default {
                     .style("text-anchor", (orientation === "left" || orientation === "bottom" ? "end" : "start"))
                     .attr("transform", "rotate(" + vm.tickRotation + ")");
             
+            // Get the width/height of the zoomed-out axis, before removing the text
+            const axisBboxZoomedOut = container.select(".axis-zoomed-out").node().getBBox();
+            
             if(varScale.type === AbstractScale.types.DISCRETE) {
                 const barWidth = vm.pWidth / varScale.domain.length;
                 if(barWidth < textBboxZoomedOut.height) {
@@ -266,7 +269,7 @@ export default {
              * Add brushing to the zoomed-out axis
              */
 
-            const axisBboxZoomedOut = container.select(".axis-zoomed-out").node().getBBox();
+            
 
              /**
              * Display current zoom state as overlay on zoomed-out axis
@@ -283,7 +286,6 @@ export default {
                 if(varScale.type === AbstractScale.types.CONTINUOUS) {  
                     let start = varScale.domainFiltered[0];
                     let end = varScale.domainFiltered[1];
-                    console.log(start, end)
                     zoomStateRect
                         .attr("width", axisBboxZoomedOut.width+betweenAxisMargin)
                         .attr("height", scaleZoomedOut(start) - scaleZoomedOut(end))
@@ -320,9 +322,9 @@ export default {
                 }
                 let brushExtent;
                 if(orientation === "left") {
-                    brushExtent = [[-axisContainerSize - betweenAxisMargin, 0], [0, vm.pHeight]];
+                    brushExtent = [[-axisContainerSize-betweenAxisMargin, 0], [0, vm.pHeight]];
                 } else if(orientation === "right") {
-                    brushExtent = [[0, 0], [axisContainerSize + betweenAxisMargin, vm.pHeight]];
+                    brushExtent = [[0, 0], [axisContainerSize+betweenAxisMargin, vm.pHeight]];
                 }
                 brush = d3_brushY()
                     .extent(brushExtent)
@@ -347,8 +349,14 @@ export default {
                         vm.drawAxis(); // TODO: emit filter event instead
                     }
                 }
+                let brushExtent;
+                if(orientation === "top") {
+                    brushExtent = [[0, -axisContainerSize-betweenAxisMargin], [vm.pWidth, 0]];
+                } else if(orientation === "bottom") {
+                    brushExtent = [[0, 0], [vm.pWidth, axisContainerSize+betweenAxisMargin]];
+                }
                 brush = d3_brushX()
-                    .extent([[0, 0], [vm.pWidth, axisContainerSize + betweenAxisMargin]])
+                    .extent(brushExtent)
                     .on("end." + vm.axisElemID, brushed);
             }
 

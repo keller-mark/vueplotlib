@@ -17,7 +17,7 @@
         slot="axisTop"
         variable="sample_id"
         orientation="top" 
-        :tickRotation="65"
+        :tickRotation="-65"
         :getScale="getScale"
       />
       <Axis
