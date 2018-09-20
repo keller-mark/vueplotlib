@@ -24,7 +24,7 @@
         slot="axisLeft"
         variable="exposure"
         side="left" 
-        :tickRotation="0"
+        :tickRotation="-35"
         :getScale="getScale"
       />
       <StackedBarPlot 
@@ -40,7 +40,7 @@
         slot="axisRight"
         variable="exposure"
         side="right" 
-        :tickRotation="0"
+        :tickRotation="-35"
         :getScale="getScale"
       />
       <Axis

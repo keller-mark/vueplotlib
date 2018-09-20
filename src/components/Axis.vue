@@ -209,9 +209,25 @@ export default {
             const ticksZoomedIn = containerZoomedIn.call(axisFunction(scaleZoomedIn));
             const textBboxZoomedIn = ticksZoomedIn.select("text").node().getBBox();
 
+            const tickTransformFunction = (d, i, v) => {
+                let tickBbox = v[i].getBBox();
+                let tickRotateX = 0;
+                let tickRotateY = 0;
+                if(vm._side === SIDES.TOP) {
+                    tickRotateY = -tickBbox.height;
+                } else if(vm._side === SIDES.BOTTOM) {
+                    tickRotateY = tickBbox.height;
+                } else if(vm._side === SIDES.LEFT) {
+                    tickRotateX = -tickBbox.height;
+                } else if(vm._side === SIDES.RIGHT) {
+                    tickRotateX = tickBbox.height;
+                }
+                return "rotate(" + vm.tickRotation + "," + tickRotateX + "," + tickRotateY + ")";
+            }
+
             ticksZoomedIn.selectAll("text")	
                     .style("text-anchor", (vm._side === SIDES.LEFT || vm._side === SIDES.BOTTOM ? "end" : "start"))
-                    .attr("transform", "rotate(" + vm.tickRotation + ")");
+                    .attr("transform", tickTransformFunction);
             
             // Get the width/height of the zoomed-in axis, before removing the text
             const axisBboxZoomedIn = container.select(".axis-zoomed-in").node().getBBox();
@@ -254,7 +270,7 @@ export default {
 
             ticksZoomedOut.selectAll("text")	
                     .style("text-anchor", (vm._side === SIDES.LEFT || vm._side === SIDES.BOTTOM ? "end" : "start"))
-                    .attr("transform", "rotate(" + vm.tickRotation + ")");
+                    .attr("transform", tickTransformFunction);
             
             // Get the width/height of the zoomed-out axis, before removing the text
             const axisBboxZoomedOut = container.select(".axis-zoomed-out").node().getBBox();
