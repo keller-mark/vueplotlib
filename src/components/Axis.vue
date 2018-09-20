@@ -274,7 +274,6 @@ export default {
              /**
              * Display current zoom state as overlay on zoomed-out axis
              */
-            const zoomStateRect = containerZoomedOut.append("rect");
             
             if(orientation === "left" || orientation === "right") {
                 let zoomRectTranslateX;
@@ -286,7 +285,7 @@ export default {
                 if(varScale.type === AbstractScale.types.CONTINUOUS) {  
                     let start = varScale.domainFiltered[0];
                     let end = varScale.domainFiltered[1];
-                    zoomStateRect
+                    containerZoomedOut.append("rect")
                         .attr("width", axisBboxZoomedOut.width+betweenAxisMargin)
                         .attr("height", scaleZoomedOut(start) - scaleZoomedOut(end))
                         .attr("x", 0)
@@ -296,6 +295,26 @@ export default {
                         .attr("transform", "translate(" + zoomRectTranslateX + ",0)");
                 }
                     
+            } else if(orientation === "bottom" || orientation === "top") {
+                let zoomRectTranslateY;
+                if(orientation === "top") {
+                    zoomRectTranslateY = (-axisBboxZoomedOut.height-betweenAxisMargin);
+                } else if(orientation === "bottom") {
+                    zoomRectTranslateY = 0;
+                }
+                if(varScale.type === AbstractScale.types.DISCRETE) {  
+                    let eachBand = vm.pWidth / varScale.domain.length;
+                    for(let domainFilteredItem of varScale.domainFiltered) {
+                        containerZoomedOut.append("rect")
+                            .attr("width", eachBand)
+                            .attr("height", axisBboxZoomedOut.height)
+                            .attr("x", scaleZoomedOut(domainFilteredItem))
+                            .attr("y", 0)
+                            .attr("fill", "silver")
+                            .attr("fill-opacity", 0.5)
+                            .attr("transform", "translate(0," + zoomRectTranslateY + ")");
+                    }
+                }
             }
 
 
