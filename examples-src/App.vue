@@ -16,14 +16,14 @@
       <Axis
         slot="axisTop"
         variable="sample_id"
-        orientation="top" 
+        side="top" 
         :tickRotation="-65"
         :getScale="getScale"
       />
       <Axis
         slot="axisLeft"
         variable="exposure"
-        orientation="left" 
+        side="left" 
         :tickRotation="0"
         :getScale="getScale"
       />
@@ -39,14 +39,14 @@
       <Axis
         slot="axisRight"
         variable="exposure"
-        orientation="right" 
+        side="right" 
         :tickRotation="0"
         :getScale="getScale"
       />
       <Axis
         slot="axisBottom"
         variable="sample_id"
-        orientation="bottom" 
+        side="bottom" 
         :tickRotation="-65"
         :getScale="getScale"
       />

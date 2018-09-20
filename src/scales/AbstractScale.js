@@ -2,7 +2,7 @@ import { interpolateRdYlBu as d3_interpolateRdYlBu } from "d3-scale-chromatic";
 
 export default class AbstractScale {
 
-    static types = Object.freeze({ DISCRETE:1, CONTINUOUS:2 });
+    static types = Object.freeze({ DISCRETE: 1, CONTINUOUS: 2 });
     static unknownColor = "#E3E3E3";
     static unknownString = "Unknown";
 

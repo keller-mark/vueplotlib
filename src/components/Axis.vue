@@ -19,6 +19,9 @@ import { event as d3_event } from 'd3';
 
 import AbstractScale from './../scales/AbstractScale.js';
 
+const SIDES = Object.freeze({ "TOP": 1, "LEFT": 2, "RIGHT": 3, "BOTTOM": 4 });
+const ORIENTATIONS = Object.freeze({ "VERTICAL": 1, "HORIZONTAL": 2 }); // vertical = left/right, horizontal = top/bottom
+
 let uuid = 0;
 export default {
     name: 'Axis',
@@ -26,7 +29,7 @@ export default {
         'variable': {
             type: String
         },
-        'orientation': {
+        'side': {
             type: String
         },
         'tickRotation': {
@@ -67,55 +70,49 @@ export default {
             return "#" + this.axisElemID;
         },
         computedWidth: function() {
-            const orientation = this.orientation.toLowerCase();
-            if(orientation === "bottom" || orientation === "top") {
+            if(this._side === SIDES.BOTTOM || this._side === SIDES.TOP) {
                 return this.pMarginLeft + this.pWidth + this.pMarginRight;
-            } else if(orientation === "left") {
+            } else if(this._side === SIDES.LEFT) {
                 return this.pMarginLeft;
-            } else if(orientation === "right") {
+            } else if(this._side === SIDES.RIGHT) {
                 return this.pMarginRight;
             }
         },
         computedHeight: function() {
-            const orientation = this.orientation.toLowerCase();
-            if(orientation === "left" || orientation === "right") {
+            if(this._side === SIDES.LEFT || this._side === SIDES.RIGHT) {
                 return this.pMarginTop + this.pHeight + this.pMarginBottom;
-            } else if(orientation === "top") {
+            } else if(this._side === SIDES.TOP) {
                 return this.pMarginTop;
-            } else if(orientation === "bottom") {
+            } else if(this._side === SIDES.BOTTOM) {
                 return this.pMarginBottom;
             }
         },
         computedTop: function() {
-            const orientation = this.orientation.toLowerCase();
-            if(orientation === "bottom") {
+            if(this._side === SIDES.BOTTOM) {
                 return this.pMarginTop + this.pHeight;
             }
             return 0;
         },
         computedLeft: function() {
-            const orientation = this.orientation.toLowerCase();
-            if(orientation === "right") {
+            if(this._side === SIDES.RIGHT) {
                 return this.pMarginLeft + this.pWidth;
             }
             return 0;
         },
         computedTranslateX: function() {
-            const orientation = this.orientation.toLowerCase();
-            if(orientation === "left") {
+            if(this._side === SIDES.LEFT) {
                 return this.pMarginLeft - 1;
-            } else if(orientation === "bottom" || orientation === "top") {
+            } else if(this._side === SIDES.BOTTOM || this._side === SIDES.TOP) {
                 return this.pMarginLeft;
             }
             return 0;
         },
         computedTranslateY: function() {
-            const orientation = this.orientation.toLowerCase();
-            if(orientation === "left") {
+            if(this._side === SIDES.LEFT) {
                 return this.pMarginTop;
-            } else if(orientation === "right") {
+            } else if(this._side === SIDES.RIGHT) {
                 return this.pMarginTop;
-            } else if(orientation === "top") {
+            } else if(this._side === SIDES.TOP) {
                 return this.pMarginTop - 1;
             }
             return 0;
@@ -134,9 +131,15 @@ export default {
         uuid += 1;
     },
     created() {
+        let sideString = this.side.toUpperCase();
+        console.assert(Object.keys(SIDES).includes(sideString));
+        this._side = SIDES[sideString];
+        this._orientation = (this._side === SIDES.TOP || this._side === SIDES.BOTTOM ? ORIENTATIONS.HORIZONTAL : ORIENTATIONS.VERTICAL);
+        
         // TODO: Subscribe to event publishers here
     },
     mounted() {
+
         this.drawAxis();
     },
     methods: {
@@ -148,23 +151,24 @@ export default {
             vm.removeAxis();
             
             const varScale = vm.getScale(vm.variable);
-            const orientation = vm.orientation.toLowerCase();
+            console.assert(varScale instanceof AbstractScale);
+            
 
             let range;
-            if(orientation === "bottom" || orientation === "top") {
+            if(vm._orientation === ORIENTATIONS.HORIZONTAL) {
                 range = [0, vm.pWidth];
-            } else if(orientation === "left" || orientation === "right") {
+            } else if(vm._orientation === ORIENTATIONS.VERTICAL) {
                 range = [vm.pHeight, 0];
             }
 
             let axisFunction;
-            if(orientation === "top") {
+            if(vm._side === SIDES.TOP) {
                 axisFunction = d3_axisTop;
-            } else if(orientation === "left") {
+            } else if(vm._side === SIDES.LEFT) {
                 axisFunction = d3_axisLeft;
-            } else if(orientation === "right") {
+            } else if(vm._side === SIDES.RIGHT) {
                 axisFunction = d3_axisRight;
-            } else if(orientation === "bottom") {
+            } else if(vm._side === SIDES.BOTTOM) {
                 axisFunction = d3_axisBottom;
             }
 
@@ -206,7 +210,7 @@ export default {
             const textBboxZoomedIn = ticksZoomedIn.select("text").node().getBBox();
 
             ticksZoomedIn.selectAll("text")	
-                    .style("text-anchor", (orientation === "left" || orientation === "bottom" ? "end" : "start"))
+                    .style("text-anchor", (vm._side === SIDES.LEFT || vm._side === SIDES.BOTTOM ? "end" : "start"))
                     .attr("transform", "rotate(" + vm.tickRotation + ")");
             
             // Get the width/height of the zoomed-in axis, before removing the text
@@ -231,13 +235,13 @@ export default {
 
             let zoomedOutTranslateX = vm.computedTranslateX;
             let zoomedOutTranslateY = vm.computedTranslateY;
-            if(orientation === "left") {
+            if(vm._side === SIDES.LEFT) {
                 zoomedOutTranslateX -= (axisBboxZoomedIn.width + betweenAxisMargin);
-            } else if(orientation === "bottom") {
+            } else if(vm._side === SIDES.BOTTOM) {
                 zoomedOutTranslateY += (axisBboxZoomedIn.height + betweenAxisMargin);
-            } else if(orientation === "top") {
+            } else if(vm._side === SIDES.TOP) {
                 zoomedOutTranslateY -= (axisBboxZoomedIn.height + betweenAxisMargin);
-            } else if(orientation === "right") {
+            } else if(vm._side === SIDES.RIGHT) {
                 zoomedOutTranslateX += (axisBboxZoomedIn.width + betweenAxisMargin);
             }
             
@@ -249,7 +253,7 @@ export default {
             const textBboxZoomedOut = ticksZoomedOut.select("text").node().getBBox();
 
             ticksZoomedOut.selectAll("text")	
-                    .style("text-anchor", (orientation === "left" || orientation === "bottom" ? "end" : "start"))
+                    .style("text-anchor", (vm._side === SIDES.LEFT || vm._side === SIDES.BOTTOM ? "end" : "start"))
                     .attr("transform", "rotate(" + vm.tickRotation + ")");
             
             // Get the width/height of the zoomed-out axis, before removing the text
@@ -275,11 +279,11 @@ export default {
              * Display current zoom state as overlay on zoomed-out axis
              */
             
-            if(orientation === "left" || orientation === "right") {
+            if(vm._orientation === ORIENTATIONS.VERTICAL) {
                 let zoomRectTranslateX;
-                if(orientation === "left") {
+                if(vm._side === SIDES.LEFT) {
                     zoomRectTranslateX = (-axisBboxZoomedOut.width-betweenAxisMargin);
-                } else if(orientation === "right") {
+                } else if(vm._side === SIDES.RIGHT) {
                     zoomRectTranslateX = 0;
                 }
                 if(varScale.type === AbstractScale.types.CONTINUOUS) {  
@@ -295,11 +299,11 @@ export default {
                         .attr("transform", "translate(" + zoomRectTranslateX + ",0)");
                 }
                     
-            } else if(orientation === "bottom" || orientation === "top") {
+            } else if(vm._orientation === ORIENTATIONS.HORIZONTAL) {
                 let zoomRectTranslateY;
-                if(orientation === "top") {
+                if(vm._side === SIDES.TOP) {
                     zoomRectTranslateY = (-axisBboxZoomedOut.height-betweenAxisMargin);
-                } else if(orientation === "bottom") {
+                } else if(vm._side === SIDES.BOTTOM) {
                     zoomRectTranslateY = 0;
                 }
                 if(varScale.type === AbstractScale.types.DISCRETE) {  
@@ -320,7 +324,7 @@ export default {
 
             let axisContainerSize;
             let brush, brushed;
-            if(orientation === "left" || orientation === "right") {
+            if(vm._orientation === ORIENTATIONS.VERTICAL) {
                 axisContainerSize = axisBboxZoomedOut.width;
                 if(varScale.type === AbstractScale.types.CONTINUOUS) {
                     brushed = () => {
@@ -340,16 +344,16 @@ export default {
                     }
                 }
                 let brushExtent;
-                if(orientation === "left") {
+                if(vm._side === SIDES.LEFT) {
                     brushExtent = [[-axisContainerSize-betweenAxisMargin, 0], [0, vm.pHeight]];
-                } else if(orientation === "right") {
+                } else if(vm._side === SIDES.RIGHT) {
                     brushExtent = [[0, 0], [axisContainerSize+betweenAxisMargin, vm.pHeight]];
                 }
                 brush = d3_brushY()
                     .extent(brushExtent)
                     .on("end." + vm.axisElemID, brushed);
                 
-            } else if(orientation === "bottom" || orientation === "top") {
+            } else if(vm._orientation === ORIENTATIONS.HORIZONTAL) {
                 axisContainerSize = axisBboxZoomedOut.height;
                 if(varScale.type === AbstractScale.types.CONTINUOUS) {
                     brushed = () => {
@@ -369,9 +373,9 @@ export default {
                     }
                 }
                 let brushExtent;
-                if(orientation === "top") {
+                if(vm._side === SIDES.TOP) {
                     brushExtent = [[0, -axisContainerSize-betweenAxisMargin], [vm.pWidth, 0]];
-                } else if(orientation === "bottom") {
+                } else if(vm._side === SIDES.BOTTOM) {
                     brushExtent = [[0, 0], [vm.pWidth, axisContainerSize+betweenAxisMargin]];
                 }
                 brush = d3_brushX()
