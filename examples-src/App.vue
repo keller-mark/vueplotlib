@@ -51,38 +51,7 @@
         :getScale="getScale"
       />
     </PlotContainer>
-    <pre>&lt;PlotContainer<br/>
-  :pWidth=&quot;800&quot;<br/>
-  :pHeight=&quot;300&quot;<br/>
-  :pMarginTop=&quot;10&quot;<br/>
-  :pMarginLeft=&quot;50&quot;<br/>
-  :pMarginRight=&quot;50&quot;<br/>
-  :pMarginBottom=&quot;50&quot;<br/>
-&gt;<br/>
-  &lt;Axis<br/>
-    slot=&quot;axisLeft&quot;<br/>
-    variable=&quot;exposure&quot;<br/>
-    orientation=&quot;left&quot;<br/>
-    :tickRotation=&quot;0&quot;<br/>
-    :getScale=&quot;getScale&quot;<br/>
-  /&gt;<br/>
-  &lt;StackedBarPlot<br/>
-    slot=&quot;plot&quot;<br/>
-    data=&quot;exposures_data&quot;<br/>
-    x=&quot;sample_id&quot;<br/>
-    y=&quot;exposure&quot;<br/>
-    c=&quot;signature&quot;<br/>
-    :getData=&quot;getData&quot;<br/>
-    :getScale=&quot;getScale&quot;<br/>
-  /&gt;<br/>
-  &lt;Axis<br/>
-    slot=&quot;axisBottom&quot;<br/>
-    variable=&quot;sample_id&quot;<br/>
-    orientation=&quot;bottom&quot;<br/>
-    :tickRotation=&quot;-65&quot;<br/>
-    :getScale=&quot;getScale&quot;<br/>
-  /&gt;<br/>
-&lt;/PlotContainer&gt;</pre>
+    <button @click="sort">Sort</button>
   </div>
 </template>
 
@@ -94,6 +63,7 @@ import Axis from '../src/components/Axis.vue';
 import StackedBarPlot from '../src/components/StackedBarPlot.vue';
 
 // Data
+import DataContainer from '../src/data/DataContainer.js';
 import exposuresData from './data/exposures.json';
 // Scales
 import CategoricalScale from '../src/scales/CategoricalScale.js';
@@ -115,11 +85,10 @@ const signatureScale = new CategoricalScale(
   ["COSMIC 1","COSMIC 2","COSMIC 3","COSMIC 4","COSMIC 5","COSMIC 6","COSMIC 7","COSMIC 8","COSMIC 9","COSMIC 10","COSMIC 11","COSMIC 12","COSMIC 13","COSMIC 14","COSMIC 15","COSMIC 16","COSMIC 17","COSMIC 18","COSMIC 19","COSMIC 20","COSMIC 21","COSMIC 22","COSMIC 23","COSMIC 24","COSMIC 25","COSMIC 26","COSMIC 27","COSMIC 28","COSMIC 29","COSMIC 30","5* A"]
 );
 
-
 const getData = function(dataKey) {
   switch(dataKey) {
     case 'exposures_data':
-      return exposuresData;
+      return new DataContainer('exposures_data', 'SBS Exposures', exposuresData);
     default:
       return {}
   }
@@ -149,11 +118,12 @@ export default {
       getScale: getScale
     }
   },
-  computed: {
-
-  },
-  mounted() {
-    
+  methods: {
+    sort() {
+      let data = getData('exposures_data');
+      let scale = getScale('sample_id');
+      scale.sort(data, "exposure", "COSMIC 2", false);
+    }
   }
 }
 </script>

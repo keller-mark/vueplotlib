@@ -35,6 +35,8 @@ import { select as d3_select } from 'd3-selection';
 import { stack as d3_stack, stackOrderNone as d3_stackOrderNone, stackOffsetNone as d3_stackOffsetNone } from 'd3-shape';
 
 import AbstractScale from './../scales/AbstractScale.js';
+import DataContainer from './../data/DataContainer.js';
+
 import mixin from './../mixin.js';
 
 let uuid = 0;
@@ -66,11 +68,13 @@ export default {
         uuid += 1;
     },
     created() {
+        // Set data
+        this._dataContainer = this.getData(this.data);
+        console.assert(this._dataContainer instanceof DataContainer);
         // Set scale variables
         this._xScale = this.getScale(this.x);
         this._yScale = this.getScale(this.y);
         this._cScale = this.getScale(this.c);
-
         console.assert(this._xScale instanceof AbstractScale);
         console.assert(this._yScale instanceof AbstractScale);
         console.assert(this._cScale instanceof AbstractScale);
@@ -80,7 +84,7 @@ export default {
         this._yScale.onUpdate(this.uuid, this.drawPlot);
         this._cScale.onUpdate(this.uuid, this.drawPlot);
 
-        // TODO: subscribe to data mutations as well
+        // TODO: subscribe to data mutations as well?
     },
     mounted() {
         this.drawPlot();
@@ -105,7 +109,7 @@ export default {
             let vm = this;
             vm.removePlot();
             
-            let data = vm.getData(vm.data);
+            let data = this._dataContainer.dataCopy;
             const xScale = this._xScale;
             const yScale = this._yScale;
             const cScale = this._cScale;

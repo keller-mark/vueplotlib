@@ -122,4 +122,20 @@ export default class AbstractScale {
     emitUpdate() {
         this._dispatch.call(DISPATCH_EVENT_UPDATE);
     }
+
+    /**
+     * Set the domain directly.
+     * @param {array} newDomain An array of new domain values.
+     */
+    setDomain(newDomain) {
+        this._domain = newDomain;
+    }
+
+    /**
+     * Set the filtered domain directly.
+     * @param {array} newDomainFiltered An array of new filtered domain values.
+     */
+    setDomainFiltered(newDomainFiltered) {
+        this._domainFiltered = newDomainFiltered;
+    }
 }
