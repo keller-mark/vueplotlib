@@ -136,8 +136,8 @@ export default {
 
             let container = d3_select(this.plotSelector)
                 .append("svg")
-                    .attr("width", (vm.pWidth + vm.pMarginLeft + vm.pMarginRight))
-                    .attr("height", (vm.pHeight + vm.pMarginTop + vm.pMarginBottom))
+                    .attr("width", vm.pWidth)
+                    .attr("height", vm.pHeight)
                 .append("g")
                     .on('mouseleave', vm.tooltipDestroy);
             

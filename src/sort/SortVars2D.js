@@ -10,7 +10,9 @@ Think of SortBy with a 2D "on" like this:
             'exposure': [
                 { 
                     'type': '1D', 
-                    'variables':["COSMIC 1"] 
+                    'variables':{
+                        'signature': ["COSMIC 1"] 
+                    }
                 }
             ]
         } 
@@ -23,6 +25,7 @@ export default class SortVars2D extends AbstractSortVars {
      * @param {object} variables Object mapping variable keys to SortVars1D objects.
      */
     constructor(variables) {
+        super();
         this._variables = variables;
     }
 

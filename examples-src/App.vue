@@ -51,7 +51,14 @@
         :getScale="getScale"
       />
     </PlotContainer>
-    <button @click="sort">Sort</button>
+
+    <h3>&lt;SortOptions/&gt;</h3>
+    <SortOptions 
+      variable="sample_id" 
+      :by="sampleSortBy" 
+      :getScale="getScale" 
+      :getData="getData"
+    />
   </div>
 </template>
 
@@ -65,9 +72,18 @@ import StackedBarPlot from '../src/components/StackedBarPlot.vue';
 // Data
 import DataContainer from '../src/data/DataContainer.js';
 import exposuresData from './data/exposures.json';
+
 // Scales
 import CategoricalScale from '../src/scales/CategoricalScale.js';
 import ContinuousScale from '../src/scales/ContinuousScale.js';
+
+// Sort
+import SortOptions from '../src/components/SortOptions.vue';
+import SortBy from '../src/sort/SortBy.js';
+import SortVars1D from '../src/sort/SortVars1D.js';
+import SortVars2D from '../src/sort/SortVars2D.js';
+
+
 
 const sampleIdScale = new CategoricalScale(
   'sample_id', 
@@ -105,17 +121,26 @@ const getScale = function(scaleKey) {
   }
 };
 
+const sampleSortBy = new SortBy(
+  "exposures_data", 
+  new SortVars2D({
+    "exposure": new SortVars1D(["signature"])
+  })
+);
+
 export default {
   name: 'app',
   components: {
     PlotContainer,
     Axis,
-    StackedBarPlot
+    StackedBarPlot,
+    SortOptions
   },
   data() {
     return {
       getData: getData,
-      getScale: getScale
+      getScale: getScale,
+      sampleSortBy: sampleSortBy
     }
   },
   methods: {
