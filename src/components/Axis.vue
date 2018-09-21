@@ -131,15 +131,19 @@ export default {
         uuid += 1;
     },
     created() {
+        // Set side and orientation enum values from side prop
         let sideString = this.side.toUpperCase();
         console.assert(Object.keys(SIDES).includes(sideString));
         this._side = SIDES[sideString];
         this._orientation = (this._side === SIDES.TOP || this._side === SIDES.BOTTOM ? ORIENTATIONS.HORIZONTAL : ORIENTATIONS.VERTICAL);
         
-        // TODO: Subscribe to event publishers here
+        // Set the scale variable
+        this._varScale = this.getScale(this.variable);
+        console.assert(this._varScale instanceof AbstractScale);
+        // Subscribe to event publishers
+        this._varScale.onUpdate(this.uuid, this.drawAxis);
     },
     mounted() {
-
         this.drawAxis();
     },
     methods: {
@@ -150,8 +154,8 @@ export default {
             const vm = this;
             vm.removeAxis();
             
-            const varScale = vm.getScale(vm.variable);
-            console.assert(varScale instanceof AbstractScale);
+            const varScale = vm._varScale;
+            
             
 
             let range;
@@ -347,7 +351,6 @@ export default {
                         let s = d3_event.selection || scaleZoomedOut.range().slice().reverse();
                         let s2 = s.map(scaleZoomedOut.invert, scaleZoomedOut);
                         varScale.zoom(s2[1], s2[0]);
-                        vm.drawAxis(); // TODO: emit filter event instead
                     }
                 } else if(varScale.type === AbstractScale.types.DISCRETE) {
                     brushed = () => {
@@ -356,7 +359,6 @@ export default {
                         let startIndex = Math.floor((s[0] / eachBand));
                         let endIndex = Math.ceil((s[1] / eachBand));
                         varScale.zoom(startIndex, endIndex)
-                        vm.drawAxis(); // TODO: emit filter event instead
                     }
                 }
                 let brushExtent;
@@ -376,7 +378,6 @@ export default {
                         var s = d3_event.selection || scaleZoomedOut.range();
                         var s2 = s.map(scaleZoomedOut.invert, scaleZoomedOut);
                         varScale.zoom(s2);
-                        vm.drawAxis(); // TODO: emit filter event instead
                     }
                 } else if(varScale.type === AbstractScale.types.DISCRETE) {
                     brushed = () => {
@@ -385,7 +386,6 @@ export default {
                         let startIndex = Math.floor((s[0] / eachBand));
                         let endIndex = Math.ceil((s[1] / eachBand));
                         varScale.zoom(startIndex, endIndex)
-                        vm.drawAxis(); // TODO: emit filter event instead
                     }
                 }
                 let brushExtent;

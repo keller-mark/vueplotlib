@@ -1,4 +1,7 @@
 import { interpolateRdYlBu as d3_interpolateRdYlBu } from "d3-scale-chromatic";
+import { dispatch as d3_dispatch } from "d3-dispatch";
+
+const DISPATCH_EVENT_UPDATE = "update";
 
 export default class AbstractScale {
 
@@ -17,6 +20,7 @@ export default class AbstractScale {
         this._name = name;
         this._domain = domain;
         this._domainFiltered = domain.slice();
+        this._dispatch = d3_dispatch(DISPATCH_EVENT_UPDATE);
     }
     
     /**
@@ -101,5 +105,21 @@ export default class AbstractScale {
         }
         // The default implementation does nothing except the unknown check
         return domainValue;
+    }
+
+    /**
+     * Subscribe to update events.
+     * @param {string} componentId 
+     * @param {function} callback 
+     */
+    onUpdate(componentId, callback) {
+        this._dispatch.on(DISPATCH_EVENT_UPDATE + "." + componentId, callback);
+    }
+
+    /**
+     * Emit the update event.
+     */
+    emitUpdate() {
+        this._dispatch.call(DISPATCH_EVENT_UPDATE);
     }
 }

@@ -71,9 +71,8 @@ export default class CategoricalScale extends AbstractScale {
      * @param {int} newMaxIndex Index of the new maximum element (inclusive)
      */
     zoom(newMinIndex, newMaxIndex) {
-        console.log(newMinIndex, newMaxIndex);
         this._domainFiltered = this._domain.slice(newMinIndex, newMaxIndex + 1);
-        console.log(this._domainFiltered);
+        this.emitUpdate();
     }
 
     /**
@@ -82,6 +81,7 @@ export default class CategoricalScale extends AbstractScale {
      */
     filter(indicesToKeep) {
         this._domainFiltered = indicesToKeep.map(index => this._domain[index]);
+        this.emitUpdate();
     }
 
 }
