@@ -11,7 +11,7 @@
             }"
         ></canvas>
         <canvas 
-            :id="this.plotElemID + '_hidden'" 
+            :id="this.hiddenPlotElemID" 
             class="vdp-plot-hidden" 
             :style="{
                 'height': (this.pHeight) + 'px', 
@@ -45,6 +45,7 @@ import { select as d3_select } from 'd3-selection';
 import { stack as d3_stack, stackOrderNone as d3_stackOrderNone, stackOffsetNone as d3_stackOffsetNone } from 'd3-shape';
 import { mouse as d3_mouse } from 'd3';
 import { debounce } from 'lodash';
+import { TOOLTIP_DEBOUNCE } from './../constants.js';
 
 import AbstractScale from './../scales/AbstractScale.js';
 import DataContainer from './../data/DataContainer.js';
@@ -170,7 +171,7 @@ export default {
             const canvas = d3_select(this.plotSelector);
             const context = canvas.node().getContext('2d');
 
-            const canvasHidden = d3_select(this.plotSelector + '_hidden');
+            const canvasHidden = d3_select(this.hiddenPlotSelector);
             const contextHidden = canvasHidden.node().getContext('2d');
 
             const ratio = vm.getRetinaRatio(context);
@@ -183,13 +184,14 @@ export default {
             context.scale(ratio, ratio);
 
             canvasHidden
-                .attr("width", vm.pWidth)
-                .attr("height", vm.pHeight);
+                .attr("width", scaledWidth)
+                .attr("height", scaledHeight);
+            contextHidden.scale(ratio, ratio);
 
             /**
              * Set up the color mappings
              */
-            let colToNode = {};
+            const colToNode = {};
 
             /*
              * Generates the next color in the sequence, 
@@ -204,7 +206,7 @@ export default {
                     ret.push((nextCol & 0xff00) >> 8); // G 
                     ret.push((nextCol & 0xff0000) >> 16); // B
 
-                    nextCol += 1; // This is exagerated for this example and would ordinarily be 1.
+                    nextCol += 10;
                 }
                 let col = "rgb(" + ret.join(',') + ")";
                 return col;
@@ -216,7 +218,7 @@ export default {
             series.forEach((layer) => {
                 context.fillStyle = cScale.color(layer["key"]); 
                 layer.forEach((d) => {
-                    let col = genColor();
+                    const col = genColor();
                     colToNode[col] = { "x": d.data[vm.x], "y": d.data[vm.y][layer["key"]], "c": layer["key"] };
                     contextHidden.fillStyle = col;
                     let height = y(d[0]) - y(d[1]);
@@ -231,22 +233,20 @@ export default {
             /**
              * Listen for mouse events
              */
-            let canvasNode = canvas.node();
+            const canvasNode = canvas.node();
 
-            let debouncedTooltipDestroy = debounce(vm.tooltipDestroy, 250);
+            const debouncedTooltipDestroy = debounce(vm.tooltipDestroy, TOOLTIP_DEBOUNCE);
             canvas.on("mousemove", () => {
-
-                let mouse = d3_mouse(canvasNode);
-                let mouseX = mouse[0];
-                let mouseY = mouse[1];
+                const mouse = d3_mouse(canvasNode);
+                const mouseX = mouse[0];
+                const mouseY = mouse[1];
 
                 // Get the corresponding pixel color on the hidden canvas
-                // and look up the node in our map.
-                let col = contextHidden.getImageData(mouseX, mouseY, vm.pWidth, vm.pHeight).data;
-                let colString = "rgb(" + col[0] + "," + col[1] + ","+ col[2] + ")";
+                const col = contextHidden.getImageData(mouseX * ratio, mouseY * ratio, scaledWidth, scaledHeight).data;
+                const colString = "rgb(" + col[0] + "," + col[1] + ","+ col[2] + ")";
+                // Look up the node in our map
+                const node = colToNode[colString];
 
-
-                let node = colToNode[colString];
                 if(node) {
                     vm.tooltip(mouseX, mouseY, node["x"], node["y"], node["c"]); 
                 } else {
@@ -254,8 +254,6 @@ export default {
                 }
             });
             
-
-           
         }
     }
 }

@@ -40,11 +40,17 @@ export default {
         plotElemID: function() {
             return 'plot_' + this.uuid;
         },
+        hiddenPlotElemID: function() {
+            return 'plot_h_' + this.uuid;
+        },
         tooltipElemID: function() {
             return 'tooltip_' + this.uuid;
         },
         plotSelector: function() {
             return "#" + this.plotElemID;
+        },
+        hiddenPlotSelector: function() {
+            return "#" + this.hiddenPlotElemID;
         },
         tooltipSelector: function() {
             return "#" + this.tooltipElemID;
