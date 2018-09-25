@@ -1,8 +1,10 @@
-import StackedBarPlot from './components/StackedBarPlot.vue'
+import StackedBarPlotSVG from './components/StackedBarPlotSVG.vue'
+import StackedBarPlotCanvas from './components/StackedBarPlotCanvas.vue'
 
 
 if (typeof window !== 'undefined' && window.Vue) {
-    Vue.component(StackedBarPlot.name, StackedBarPlot)
+    Vue.component(StackedBarPlotSVG.name, StackedBarPlotSVG);
+    Vue.component(StackedBarPlotCanvas.name, StackedBarPlotCanvas)
 }
 
-export { StackedBarPlot }
+export { StackedBarPlotSVG, StackedBarPlotCanvas }
