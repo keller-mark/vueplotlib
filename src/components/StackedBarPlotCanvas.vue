@@ -23,15 +23,15 @@
         <div :id="this.tooltipElemID" class="vdp-tooltip" :style="this.tooltipPositionAttribute">
             <table>
                 <tr>
-                    <th>X<!-- TODO: get this from the scale --></th>
+                    <th>{{ this._xScale.name }}</th>
                     <td>{{ this.tooltipInfo.x }}</td>
                 </tr>
                 <tr>
-                    <th>C<!-- TODO: get this from the scale --></th>
+                    <th>{{ this._cScale.name }}</th>
                     <td>{{ this.tooltipInfo.c }}</td>
                 </tr>
                 <tr>
-                    <th>Y<!-- TODO: get this from the scale --></th>
+                    <th>{{ this._yScale.name }}</th>
                     <td>{{ this.tooltipInfo.y }}</td>
                 </tr>
             </table>
@@ -44,6 +44,7 @@ import { scaleBand as d3_scaleBand, scaleLinear as d3_scaleLinear } from 'd3-sca
 import { select as d3_select } from 'd3-selection';
 import { stack as d3_stack, stackOrderNone as d3_stackOrderNone, stackOffsetNone as d3_stackOffsetNone } from 'd3-shape';
 import { mouse as d3_mouse } from 'd3';
+import { debounce } from 'lodash';
 
 import AbstractScale from './../scales/AbstractScale.js';
 import DataContainer from './../data/DataContainer.js';
@@ -114,15 +115,20 @@ export default {
 
             return devicePixelRatio / backingStoreRatio;
         },
-        tooltip: function(x, y, c) {
-            console.log('tooltip:', x, y, c);
+        tooltip: function(mouseX, mouseY, x, y, c) {
+            // Set values
+            this.tooltipInfo.x = x;
+            this.tooltipInfo.y = y;
+            this.tooltipInfo.c = c;
 
-            // TODO set position
+            // Set position
+            this.tooltipPosition.left = mouseX + this.pMarginLeft;
+            this.tooltipPosition.top = mouseY + this.pMarginTop;
             // TODO dispatch
         },
         tooltipDestroy: function() {
             this.tooltipHide();
-            
+
             // TODO: Destroy all dispatches here
             // dispatch.call("link-donor-destroy");
         },
@@ -130,7 +136,7 @@ export default {
             d3_select(this.plotSelector).select("svg").remove();
         },
         drawPlot() {
-            let vm = this;
+            const vm = this;
             
             let data = this._dataContainer.dataCopy;
             const xScale = this._xScale;
@@ -226,6 +232,8 @@ export default {
              * Listen for mouse events
              */
             let canvasNode = canvas.node();
+
+            let debouncedTooltipDestroy = debounce(vm.tooltipDestroy, 250);
             canvas.on("mousemove", () => {
 
                 let mouse = d3_mouse(canvasNode);
@@ -240,7 +248,9 @@ export default {
 
                 let node = colToNode[colString];
                 if(node) {
-                    vm.tooltip(node["x"], node["y"], node["c"]); 
+                    vm.tooltip(mouseX, mouseY, node["x"], node["y"], node["c"]); 
+                } else {
+                    debouncedTooltipDestroy();
                 }
             });
             
@@ -258,5 +268,15 @@ export default {
 .vdp-plot-hidden {
     position: absolute;
     display: none;
+}
+
+.vdp-tooltip {
+    position: absolute;
+    border: 1px solid rgb(205, 205, 205);
+    background-color: rgba(255, 255, 255, 0.95);
+    z-index: 1;
+    padding: 0.25rem;
+    border-radius: 3px;
+    transform: translate(10%, -50%);
 }
 </style>
