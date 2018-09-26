@@ -42,6 +42,7 @@ import { stack as d3_stack, stackOrderNone as d3_stackOrderNone, stackOffsetNone
 import { mouse as d3_mouse } from 'd3';
 import { debounce } from 'lodash';
 import { TOOLTIP_DEBOUNCE } from './../constants.js';
+import { getRetinaRatio } from './../helpers.js';
 
 import AbstractScale from './../scales/AbstractScale.js';
 import DataContainer from './../data/DataContainer.js';
@@ -92,19 +93,6 @@ export default {
         this.drawPlot();
     },
     methods: {
-        getRetinaRatio(c) {
-            var devicePixelRatio = window.devicePixelRatio || 1
-            var backingStoreRatio = [
-                c.webkitBackingStorePixelRatio,
-                c.mozBackingStorePixelRatio,
-                c.msBackingStorePixelRatio,
-                c.oBackingStorePixelRatio,
-                c.backingStorePixelRatio,
-                1
-            ].reduce(function(a, b) { return a || b })
-
-            return devicePixelRatio / backingStoreRatio;
-        },
         tooltip: function(mouseX, mouseY, x, y) {
             // Set values
             this.tooltipInfo.x = x; // TODO: scale .toHuman
@@ -151,7 +139,7 @@ export default {
             const canvasHidden = d3_select(this.hiddenPlotSelector);
             const contextHidden = canvasHidden.node().getContext('2d');
 
-            const ratio = vm.getRetinaRatio(context);
+            const ratio = getRetinaRatio(context);
             const scaledWidth = vm.pWidth * ratio;
             const scaledHeight = vm.pHeight * ratio;
 
