@@ -49,6 +49,9 @@ Goals:
     - these alerts should specify which scale has been updated using a key
     - plot components should listen for these updates and re-draw if necessary
     - scales may be mutated upon filter or zoom
+- [ ] data should be immutable
+    - even small variations of data sets should be stored in a separate `DataContainer` instance
+    - this way, plots are only concerned with subscribing (and then re-drawing) to scale updates
 - [x] plots should NOT draw their own axes
     - axes should be independent of plots
     - axes should be contained in their own components
