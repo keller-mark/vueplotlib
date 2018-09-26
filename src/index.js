@@ -1,10 +1,14 @@
-import StackedBarPlotSVG from './components/StackedBarPlotSVG.vue'
-import StackedBarPlotCanvas from './components/StackedBarPlotCanvas.vue'
+import PlotContainer from './components/PlotContainer.vue'
+import Axis from './components/Axis.vue'
+import StackedBarPlot from './components/StackedBarPlot.vue'
+import BarPlot from './components/BarPlot.vue'
 
 
 if (typeof window !== 'undefined' && window.Vue) {
-    Vue.component(StackedBarPlotSVG.name, StackedBarPlotSVG);
-    Vue.component(StackedBarPlotCanvas.name, StackedBarPlotCanvas)
+    Vue.component(PlotContainer.name, PlotContainer);
+    Vue.component(Axis.name, Axis);
+    Vue.component(StackedBarPlot.name, StackedBarPlot);
+    Vue.component(BarPlot.name, BarPlot)
 }
 
-export { StackedBarPlotSVG, StackedBarPlotCanvas }
+export { PlotContainer, Axis, StackedBarPlot, BarPlot }

@@ -4,22 +4,15 @@
     <a href="https://github.com/keller-mark/vue-declarative-plots" title="View on GitHub">
       <svg id="github" xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
     </a>
-    <h3>&lt;StackedBarPlotCanvas/&gt;</h3>
+    <h3>&lt;StackedBarPlot/&gt;</h3>
     <PlotContainer
       :pWidth="800"
       :pHeight="300"
-      :pMarginTop="100"
+      :pMarginTop="10"
       :pMarginLeft="100"
-      :pMarginRight="100"
+      :pMarginRight="10"
       :pMarginBottom="100"
     >
-      <Axis
-        slot="axisTop"
-        variable="sample_id"
-        side="top" 
-        :tickRotation="-65"
-        :getScale="getScale"
-      />
       <Axis
         slot="axisLeft"
         variable="exposure"
@@ -27,20 +20,13 @@
         :tickRotation="-35"
         :getScale="getScale"
       />
-      <StackedBarPlotCanvas
+      <StackedBarPlot
         slot="plot"
         data="exposures_data"
         x="sample_id" 
         y="exposure"
         c="signature"
         :getData="getData"
-        :getScale="getScale"
-      />
-      <Axis
-        slot="axisRight"
-        variable="exposure"
-        side="right" 
-        :tickRotation="-35"
         :getScale="getScale"
       />
       <Axis
@@ -59,6 +45,39 @@
       :getScale="getScale" 
       :getData="getData"
     />
+
+    <h3>&lt;BarPlot/&gt;</h3>
+    <PlotContainer
+      :pWidth="500"
+      :pHeight="300"
+      :pMarginTop="10"
+      :pMarginLeft="100"
+      :pMarginRight="10"
+      :pMarginBottom="100"
+    >
+      <Axis
+        slot="axisLeft"
+        variable="exposure"
+        side="left" 
+        :tickRotation="-35"
+        :getScale="getScale"
+      />
+      <BarPlot
+        slot="plot"
+        data="exposures_single_data"
+        x="signature" 
+        y="exposure"
+        :getData="getData"
+        :getScale="getScale"
+      />
+      <Axis
+        slot="axisBottom"
+        variable="signature"
+        side="bottom" 
+        :tickRotation="-65"
+        :getScale="getScale"
+      />
+    </PlotContainer>
   </div>
 </template>
 
@@ -67,13 +86,17 @@ import { set as d3_set } from 'd3-collection';
 // Plots
 import PlotContainer from '../src/components/PlotContainer.vue';
 import Axis from '../src/components/Axis.vue';
-import StackedBarPlotSVG from '../src/components/StackedBarPlotSVG.vue';
-import StackedBarPlotCanvas from '../src/components/StackedBarPlotCanvas.vue';
+
+import StackedBarPlot from '../src/components/StackedBarPlot.vue';
+import BarPlot from '../src/components/BarPlot.vue';
 
 
 // Data
 import DataContainer from '../src/data/DataContainer.js';
+
 import exposuresData from './data/exposures.json';
+import exposuresSingleData from './data/exposures_single.json';
+
 
 // Scales
 import CategoricalScale from '../src/scales/CategoricalScale.js';
@@ -81,6 +104,7 @@ import ContinuousScale from '../src/scales/ContinuousScale.js';
 
 // Sort
 import SortOptions from '../src/components/SortOptions.vue';
+
 import SortBy from '../src/sort/SortBy.js';
 import SortVars1D from '../src/sort/SortVars1D.js';
 import SortVars2D from '../src/sort/SortVars2D.js';
@@ -92,11 +116,13 @@ const sampleIdScale = new CategoricalScale(
   'Sample', 
   d3_set(exposuresData.map(el => el.sample_id)).values()
 );
+
 const exposureScale = new ContinuousScale(
   'exposure',
   'Exposure',
   [0, 90000]
 );
+
 const signatureScale = new CategoricalScale(
   'signature',
   'Signature',
@@ -107,6 +133,8 @@ const getData = function(dataKey) {
   switch(dataKey) {
     case 'exposures_data':
       return new DataContainer('exposures_data', 'SBS Exposures', exposuresData);
+    case 'exposures_single_data':
+      return new DataContainer('exposures_single_data', 'SBS Exposures for SA542425', exposuresSingleData);
     default:
       return {}
   }
@@ -135,7 +163,8 @@ export default {
   components: {
     PlotContainer,
     Axis,
-    StackedBarPlotCanvas,
+    StackedBarPlot,
+    BarPlot,
     SortOptions
   },
   data() {
@@ -146,11 +175,7 @@ export default {
     }
   },
   methods: {
-    sort() {
-      let data = getData('exposures_data');
-      let scale = getScale('sample_id');
-      scale.sort(data, "exposure", "COSMIC 2", false);
-    }
+
   }
 }
 </script>
