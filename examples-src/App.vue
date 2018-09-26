@@ -76,6 +76,7 @@
         side="bottom" 
         :tickRotation="-65"
         :getScale="getScale"
+        :disableBrushing="true"
       />
     </PlotContainer>
   </div>
