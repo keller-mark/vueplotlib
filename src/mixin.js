@@ -84,6 +84,9 @@ export default {
         },
         drawPlot: function() {
             // stub
+        },
+        downloadPlot: function() {
+            return document.getElementById(this.plotElemID).toDataURL("image/png");
         }
     }
 }

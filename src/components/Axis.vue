@@ -17,6 +17,8 @@ import { axisTop as d3_axisTop, axisLeft as d3_axisLeft, axisRight as d3_axisRig
 import { brushX as d3_brushX, brushY as d3_brushY } from 'd3-brush';
 import { event as d3_event } from 'd3';
 
+import { saveSvgAsPng } from 'save-svg-as-png';
+
 import AbstractScale from './../scales/AbstractScale.js';
 
 const SIDES = Object.freeze({ "TOP": 1, "LEFT": 2, "RIGHT": 3, "BOTTOM": 4 });
@@ -442,8 +444,11 @@ export default {
                 .attr("y", labelY)
                 .attr("transform", "rotate(" + labelRotate + ")");
             
-            
-            
+        },
+        downloadAxis() {
+            console.log(saveSvgAsPng);
+            // TODO
+
         }
     }
 }
