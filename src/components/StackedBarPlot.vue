@@ -103,7 +103,7 @@ export default {
         this.drawPlot();
     },
     methods: {
-        getRetinaRatio(c) {
+        getRetinaRatio(c) { // TODO: move to mixin
             var devicePixelRatio = window.devicePixelRatio || 1
             var backingStoreRatio = [
                 c.webkitBackingStorePixelRatio,
@@ -118,9 +118,9 @@ export default {
         },
         tooltip: function(mouseX, mouseY, x, y, c) {
             // Set values
-            this.tooltipInfo.x = x;
-            this.tooltipInfo.y = y;
-            this.tooltipInfo.c = c;
+            this.tooltipInfo.x = x; // TODO: scale .toHuman
+            this.tooltipInfo.y = y; // TODO: scale .toHuman
+            this.tooltipInfo.c = c; // TODO: scale .toHuman
 
             // Set position
             this.tooltipPosition.left = mouseX + this.pMarginLeft;

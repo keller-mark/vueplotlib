@@ -49,16 +49,16 @@ Goals:
     - these alerts should specify which scale has been updated using a key
     - plot components should listen for these updates and re-draw if necessary
     - scales may be mutated upon filter or zoom
-- [ ] plots should NOT draw their own axes
+- [x] plots should NOT draw their own axes
     - axes should be independent of plots
     - axes should be contained in their own components
-- [ ] axes should accept props specifying which scale to use, and where to draw
+- [x] axes should accept props specifying which scale to use, and where to draw
     - example:
         ```js
         variable="sample_id"
-        orientation="bottom"
+        side="bottom"
         ```
-- [ ] axes should be brush-able
+- [x] axes should be brush-able
     - brushing along an axis should trigger a zoom event
     - axes, if their corresponding scale has been "zoomed", should display a "zoomed out"/full view beside the "zoomed-in" view in order to show [context](https://bl.ocks.org/mbostock/34f08d5e11952a80609169b7917d4172)
     - categorical axes should [snap](https://bl.ocks.org/mbostock/6232537)
@@ -66,28 +66,28 @@ Goals:
     - container components should be responsible for keeping plot and axis props in sync if they are dynamic
     - example:
         ```js
-        :width="windowWidth"
-        height="300"
+        :pWidth="windowWidth"
+        :pHeight="300"
         ```
 - [x] plots should accept margin props
     - container components should be responsible for keeping margin props in sync if they are dynamic
     - example:
         ```js
-        marginTop="10"
-        marginLeft="50"
-        marginRight="20"
-        marginBottom="0"
+        :pMarginTop="10"
+        :pMarginLeft="50"
+        :pMarginRight="20"
+        :pMarginBottom="0"
         ```
 - [ ] plots should emit click events, specifying variables in a predefined order to a prop-supplied callback
     - example:
     ```js
     @click="chooseSample" // will be called with chooseSample(x, y, c) if the predefined ordering is [x, y, c]
     ```
-- [ ] plots should have tooltips
+- [x] plots should have tooltips
     - tooltips should obtain human-readable variable names from the appropriate scale
 - [ ] plots should dispatch applicable hover events
     - dispatching should be done through the scale
     - example:
         - hovering on a section of a bar on a stacked bar plot would cause dispatches for (at least) the `x` and `color` variables
-- [ ] the internals of the drawing of the plots should be abstracted away as much as possible
+- [x] the internals of the drawing of the plots should be abstracted away as much as possible
     - details of SVG, canvas, etc. implementation should be contained
