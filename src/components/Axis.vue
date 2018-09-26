@@ -404,6 +404,45 @@ export default {
                 .call(brush);
 
 
+            /**
+             * Axis label text
+             */
+
+            const containerLabel = container.append("g")
+                    .attr("class", "axis-label")
+                    .attr("transform", "translate(" + zoomedOutTranslateX + "," + zoomedOutTranslateY + ")");
+            
+            const labelText = containerLabel.append("text")
+                .style("text-anchor", "middle")
+                .text(varScale.name);
+
+            const labelTextBbox = labelText.node().getBBox();
+
+            let labelX, labelY, labelRotate;
+            if(vm._side === SIDES.LEFT) {
+                labelY = -(axisBboxZoomedOut.width + (labelTextBbox.height / 2));
+                labelX = -(vm.pHeight / 2);
+                labelRotate = -90;
+            } else if(vm._side === SIDES.BOTTOM) {
+                labelX = (vm.pWidth / 2);
+                labelY = (axisBboxZoomedOut.height + (labelTextBbox.height / 2) + betweenAxisMargin);
+                labelRotate = 0;
+            } else if(vm._side === SIDES.TOP) {
+                labelX = (vm.pWidth / 2);
+                labelY = -(axisBboxZoomedOut.height + (labelTextBbox.height / 2));
+                labelRotate = 0;
+            } else if(vm._side === SIDES.RIGHT) {
+                labelY = -(axisBboxZoomedOut.width + (labelTextBbox.height / 2));
+                labelX = (vm.pHeight / 2);
+                labelRotate = 90;
+            }
+
+            labelText
+                .attr("x", labelX)
+                .attr("y", labelY)
+                .attr("transform", "rotate(" + labelRotate + ")");
+            
+            
             
         }
     }

@@ -9,9 +9,9 @@
       :pWidth="800"
       :pHeight="300"
       :pMarginTop="10"
-      :pMarginLeft="100"
+      :pMarginLeft="120"
       :pMarginRight="10"
-      :pMarginBottom="100"
+      :pMarginBottom="150"
     >
       <Axis
         slot="axisLeft"
@@ -51,9 +51,9 @@
       :pWidth="500"
       :pHeight="300"
       :pMarginTop="10"
-      :pMarginLeft="100"
+      :pMarginLeft="120"
       :pMarginRight="10"
-      :pMarginBottom="100"
+      :pMarginBottom="150"
     >
       <Axis
         slot="axisLeft"
