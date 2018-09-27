@@ -102,6 +102,8 @@ import exposuresSingleData from './data/exposures_single.json';
 // Scales
 import CategoricalScale from '../src/scales/CategoricalScale.js';
 import ContinuousScale from '../src/scales/ContinuousScale.js';
+import GenomeScale from '../src/scales/GenomeScale.js';
+
 
 // Sort
 import SortOptions from '../src/components/SortOptions.vue';
@@ -174,6 +176,16 @@ export default {
       getScale: getScale,
       sampleSortBy: sampleSortBy
     }
+  },
+  created() {
+    let gScale = new GenomeScale("genome", "Genome");
+
+    console.log(gScale.convertPositionToRatio("1", 2000))
+    console.log(gScale.convertPositionToRatioFiltered("1", 2000))
+
+    console.log(gScale.convertPositionToRatio("5", 3000))
+    console.log(gScale.convertPositionToRatioFiltered("5", 3000))
+    
   },
   methods: {
 

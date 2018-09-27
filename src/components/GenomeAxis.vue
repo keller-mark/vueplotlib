@@ -161,6 +161,14 @@ export default {
             vm.removeAxis();
             
             const varScale = vm._varScale;
+
+            const chromosomeRatios = varScale.getChromosomeRatios();
+            const chromosomeRatiosFiltered = varScale.getChromosomeRatiosFiltered();
+
+            
+            if(chromosomeRatiosFiltered.length == 1) {
+                
+            }
             
             
 
