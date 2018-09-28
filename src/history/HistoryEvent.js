@@ -12,7 +12,7 @@ export default class HistoryEvent {
 
     /**
      * 
-     * @param {integer} type Event type, such as SCALE, etc...
+     * @param {int} type Event type, such as SCALE, etc...
      * @param {string} id Event identifier, used for history
      * @param {string} action Method to call on the object.
      * @param {array} params Parameters with which to call the method.

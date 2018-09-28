@@ -200,7 +200,7 @@ export default {
                 // TODO: options for log, etc...
             }
 
-            /**
+            /*
              * Create the SVG elements
              */
 
@@ -213,7 +213,7 @@ export default {
                     .attr("class", "axis-zoomed-in")
                     .attr("transform", "translate(" + vm.computedTranslateX + "," + vm.computedTranslateY + ")");
             
-            /**
+            /*
              * The zoomed-in axis
              */
             const ticksZoomedIn = containerZoomedIn.call(axisFunction(scaleZoomedIn));
@@ -253,7 +253,7 @@ export default {
 
             
 
-            /**
+            /*
              * The zoomed-out axis
              */
 
@@ -299,13 +299,13 @@ export default {
 
             
 
-                /**
+                /*
                  * Add brushing to the zoomed-out axis
                  */
 
                 
 
-                /**
+                /*
                  * Display current zoom state as overlay on zoomed-out axis
                  */
                 
@@ -415,7 +415,7 @@ export default {
 
             } // end if not disable brushing
             
-            /**
+            /*
              * Axis label text
              */
 

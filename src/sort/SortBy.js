@@ -1,5 +1,8 @@
 import AbstractSortVars from "./AbstractSortVars";
 
+/**
+ * Represents options that specify how to sort a dataset.
+ */
 export default class SortBy {
     /**
      * Create a SortBy object (can be passed to SortOptions component by= prop).

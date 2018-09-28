@@ -1,7 +1,9 @@
 import { dispatch as d3_dispatch } from "d3-dispatch";
 
 const DISPATCH_EVENT_UPDATE = "update";
-
+/**
+ * Represents a container of a data array.
+ */
 export default class DataContainer {
 
     /**

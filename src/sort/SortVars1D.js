@@ -11,6 +11,9 @@ Think of SortBy with a 1D "on" like this:
 }
 */
 
+/**
+ * Represents a list of variables that can be used with the SortBy class.
+ */
 export default class SortVars1D extends AbstractSortVars {
     /**
      * Create a SortVars1D object (can be passed to on= param of SortBy constructor).

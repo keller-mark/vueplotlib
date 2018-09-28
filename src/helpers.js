@@ -1,6 +1,7 @@
 /**
  * Get the retina ratio to be able to scale up a canvas context.
- * @param {context} c The canvas context
+ * @param {context} c The canvas context.
+ * @returns {float} The ratio.
  */
 export const getRetinaRatio = function(c) {
     let devicePixelRatio = window.devicePixelRatio || 1;

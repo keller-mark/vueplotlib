@@ -153,7 +153,7 @@ export default {
                 .attr("height", scaledHeight);
             contextHidden.scale(ratio, ratio);
 
-            /**
+            /*
              * Set up the color mappings
              */
             const colToNode = {};
@@ -191,7 +191,7 @@ export default {
                 contextHidden.fillRect(x(d[vm.x]), y(d[vm.y]), barWidth, height);
             });
             
-            /**
+            /*
              * Listen for mouse events
              */
             const canvasNode = canvas.node();

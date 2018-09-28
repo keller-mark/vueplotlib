@@ -1,5 +1,9 @@
 import HistoryEvent from './HistoryEvent.js';
 
+/**
+ * Represents a history of all application interaction events,
+ * which can be used for forward(redo)/backward(undo) navigation.
+ */
 export default class HistoryStack {
 
     /**
@@ -153,7 +157,7 @@ export default class HistoryStack {
             default:
                 getTargetFunc = undefined;
         }
-        
+
         if(getTargetFunc !== undefined) {
             let target = getTargetFunc(event.id);
             target[event.action]( ...event.params );
