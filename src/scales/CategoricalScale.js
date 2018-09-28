@@ -130,5 +130,6 @@ export default class CategoricalScale extends AbstractScale {
 
         this.emitUpdate();
     }
+    
 
 }

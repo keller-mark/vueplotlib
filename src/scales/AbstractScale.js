@@ -141,4 +141,12 @@ export default class AbstractScale {
     setDomainFiltered(newDomainFiltered) {
         this._domainFiltered = newDomainFiltered;
     }
+
+    /**
+     * Resets the filtered domain, using the full original domain.
+     */
+    reset() {
+        this.setDomainFiltered(this._domain.slice());
+        this.emitUpdate();
+    }
 }

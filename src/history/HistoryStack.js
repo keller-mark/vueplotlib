@@ -68,19 +68,19 @@ export default class HistoryStack {
      * @returns {HistoryEvent} A "related", but previous event.
      */
     getPrevRelated(event, pointer) {
-        let prev = this._stack.find((el, i) => (event.isRelated(el) && i < pointer));
-        if(prev !== undefined) {
-            return prev;
-        } else {
-            return this._initial.find((el) => event.isRelated(el));
+        for(let i = pointer - 1; i >= 0; i--) {
+            if(this._stack[i].isRelated(event)) {
+                return this._stack[i];
+            }
         }
+        return this._initial.find((el) => event.isRelated(el));
     }
 
     /**
      * @returns {boolean}
      */
     canGoBack() {
-        return (!this.isEmpty());
+        return (this._pointer !== undefined);
     }
 
     /**
@@ -105,7 +105,7 @@ export default class HistoryStack {
      * @returns {boolean}
      */
     canGoForward() {
-        return (!this.isEmpty() && (this._pointer < (this._stack.length - 1)));
+        return (!this.isEmpty() && (this._pointer < (this._stack.length - 1) || this._pointer === undefined));
     }
 
     /**
@@ -115,8 +115,8 @@ export default class HistoryStack {
     goForward() {
         if(this.canGoForward()) {
             // get the next event
-            let next = this._stack[this._pointer + 1];
             this.incrementPointer();
+            let next = this._stack[this._pointer];
             
             // Execute "next" event
             this.execute(next);
@@ -127,7 +127,7 @@ export default class HistoryStack {
      * @returns {boolean}
      */
     isEmpty() {
-        return (this._pointer === undefined);
+        return (this._stack.length === 0);
     }
 
     /**
@@ -150,6 +150,11 @@ export default class HistoryStack {
      */
     execute(event) {
 
+        if(event === undefined) {
+            console.error("Error: the event passed to HistoryStack.execute is undefined");
+            return;
+        }
+        
         let getTargetFunc;
 
         switch(event.type) {
@@ -168,6 +173,8 @@ export default class HistoryStack {
                 could encode as the string "{data:myDatasetKey}" or something...
             */
             target[event.action]( ...event.params );
+        } else {
+            console.error("Error: the target function specified by the HistoryEvent type is undefined");
         }
     }
 

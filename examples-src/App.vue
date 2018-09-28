@@ -168,6 +168,10 @@ const getScale = function(scaleKey) {
 };
 
 const stack = new HistoryStack(getScale);
+stack.push(new HistoryEvent(HistoryEvent.types.SCALE, "sample_id", "reset"), true);
+stack.push(new HistoryEvent(HistoryEvent.types.SCALE, "exposure", "reset"), true);
+stack.push(new HistoryEvent(HistoryEvent.types.SCALE, "signature", "reset"), true);
+
 
 const getStack = function() {
   return stack;
@@ -260,12 +264,13 @@ a {
   top: 0;
   right: 0;
   width: 400px;
-  background-color: #eee;
+  background-color: lightsteelblue;
   padding: 0.5rem;
+  height: 90vh;
   
 }
 
-.stack-wrapper > div > div {
+.stack-wrapper > div > div > div {
   overflow-x: scroll;
   white-space: nowrap;
   border-left: 3px solid dimgray;
