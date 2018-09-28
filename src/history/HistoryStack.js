@@ -1,11 +1,13 @@
-
+import HistoryEvent from './HistoryEvent.js';
 
 export default class HistoryStack {
-    
+
     /**
      * Create a new history stack.
+     * @param {function} getScale Function that returns a scale object for a provided string key.
      */
-    constructor() {
+    constructor(getScale) {
+        this._getScale = getScale;
         this._initial = []; // initial stack
         this._stack = []; // user-event stack
         this._pointer = undefined; // user-event stack pointer
@@ -88,7 +90,8 @@ export default class HistoryStack {
             let prev = this.getPrevRelated(curr, this._pointer);
             this.decrementPointer();
             
-            // TODO: execute prev
+            // Execute "prev" event
+            this.execute(prev);
         }
     }
 
@@ -109,7 +112,8 @@ export default class HistoryStack {
             let next = this._stack[this._pointer + 1];
             this.incrementPointer();
             
-            // TODO: execute next
+            // Execute "next" event
+            this.execute(next);
         }
     }
 
@@ -134,5 +138,26 @@ export default class HistoryStack {
         this._pointer = (this._pointer === undefined ? 0 : this._pointer + 1);
     }
 
+    /**
+     * Execute a provided event.
+     * @param {HistoryEvent} event 
+     */
+    execute(event) {
+
+        let getTargetFunc;
+
+        switch(event.type) {
+            case HistoryEvent.types.SCALE:
+                getTargetFunc = this._getScale;
+                break;
+            default:
+                getTargetFunc = undefined;
+        }
+        
+        if(getTargetFunc !== undefined) {
+            let target = getTargetFunc(event.id);
+            target[event.action]( ...event.params );
+        }
+    }
 
 }
