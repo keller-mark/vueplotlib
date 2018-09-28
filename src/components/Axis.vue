@@ -20,6 +20,7 @@ import { event as d3_event } from 'd3';
 import { saveSvgAsPng } from 'save-svg-as-png';
 
 import AbstractScale from './../scales/AbstractScale.js';
+import HistoryEvent from './../history/HistoryEvent.js';
 
 const SIDES = Object.freeze({ "TOP": 1, "LEFT": 2, "RIGHT": 3, "BOTTOM": 4 });
 const ORIENTATIONS = Object.freeze({ "VERTICAL": 1, "HORIZONTAL": 2 }); // vertical = left/right, horizontal = top/bottom
@@ -56,6 +57,9 @@ export default {
             type: Number
         },
         'getScale': {
+            type: Function
+        },
+        'getStack': {
             type: Function
         },
         'disableBrushing': {
@@ -148,6 +152,8 @@ export default {
         console.assert(this._varScale instanceof AbstractScale);
         // Subscribe to event publishers
         this._varScale.onUpdate(this.uuid, this.drawAxis);
+
+        this._stack = this.getStack();
     },
     mounted() {
         this.drawAxis();
@@ -161,6 +167,7 @@ export default {
             vm.removeAxis();
             
             const varScale = vm._varScale;
+            const stack = vm._stack;
             
             
 
@@ -361,6 +368,8 @@ export default {
                             let s = d3_event.selection || scaleZoomedOut.range().slice().reverse();
                             let s2 = s.map(scaleZoomedOut.invert, scaleZoomedOut);
                             varScale.zoom(s2[1], s2[0]);
+                            stack.push(new HistoryEvent(HistoryEvent.types.SCALE, varScale.id, "zoom", [s2[1], s2[0]]));
+
                         }
                     } else if(varScale.type === AbstractScale.types.DISCRETE) {
                         brushed = () => {
@@ -368,7 +377,9 @@ export default {
                             let eachBand = vm.pWidth / varScale.domain.length;
                             let startIndex = Math.floor((s[0] / eachBand));
                             let endIndex = Math.ceil((s[1] / eachBand));
-                            varScale.zoom(startIndex, endIndex)
+                            varScale.zoom(startIndex, endIndex);
+                            stack.push(new HistoryEvent(HistoryEvent.types.SCALE, varScale.id, "zoom", [startIndex, endIndex]));
+                            
                         }
                     }
                     let brushExtent;
@@ -388,6 +399,7 @@ export default {
                             var s = d3_event.selection || scaleZoomedOut.range();
                             var s2 = s.map(scaleZoomedOut.invert, scaleZoomedOut);
                             varScale.zoom(s2);
+                            stack.push(new HistoryEvent(HistoryEvent.types.SCALE, varScale.id, "zoom", [s2]));
                         }
                     } else if(varScale.type === AbstractScale.types.DISCRETE) {
                         brushed = () => {
@@ -395,7 +407,8 @@ export default {
                             let eachBand = vm.pWidth / varScale.domain.length;
                             let startIndex = Math.floor((s[0] / eachBand));
                             let endIndex = Math.ceil((s[1] / eachBand));
-                            varScale.zoom(startIndex, endIndex)
+                            varScale.zoom(startIndex, endIndex);
+                            stack.push(new HistoryEvent(HistoryEvent.types.SCALE, varScale.id, "zoom", [startIndex, endIndex]));
                         }
                     }
                     let brushExtent;

@@ -19,6 +19,7 @@
         side="left" 
         :tickRotation="-35"
         :getScale="getScale"
+        :getStack="getStack"
       />
       <StackedBarPlot
         slot="plot"
@@ -35,6 +36,7 @@
         side="bottom" 
         :tickRotation="-65"
         :getScale="getScale"
+        :getStack="getStack"
       />
     </PlotContainer>
 
@@ -61,6 +63,7 @@
         side="left" 
         :tickRotation="-35"
         :getScale="getScale"
+        :getStack="getStack"
       />
       <BarPlot
         slot="plot"
@@ -76,9 +79,14 @@
         side="bottom" 
         :tickRotation="-65"
         :getScale="getScale"
+        :getStack="getStack"
         :disableBrushing="true"
       />
     </PlotContainer>
+    <div class="stack-wrapper">
+      <h3>&lt;Stack/&gt;</h3>
+      <Stack :getStack="getStack" />
+    </div>
   </div>
 </template>
 
@@ -111,6 +119,11 @@ import SortOptions from '../src/components/SortOptions.vue';
 import SortBy from '../src/sort/SortBy.js';
 import SortVars1D from '../src/sort/SortVars1D.js';
 import SortVars2D from '../src/sort/SortVars2D.js';
+
+// History
+import Stack from './Stack.vue';
+import HistoryStack from './../src/history/HistoryStack.js';
+import HistoryEvent from './../src/history/HistoryEvent.js';
 
 
 
@@ -154,12 +167,20 @@ const getScale = function(scaleKey) {
   }
 };
 
+const stack = new HistoryStack(getScale);
+
+const getStack = function() {
+  return stack;
+}
+
 const sampleSortBy = new SortBy(
   "exposures_data", 
   new SortVars2D({
     "exposure": new SortVars1D(["signature"])
   })
 );
+
+
 
 export default {
   name: 'app',
@@ -168,13 +189,15 @@ export default {
     Axis,
     StackedBarPlot,
     BarPlot,
-    SortOptions
+    SortOptions,
+    Stack
   },
   data() {
     return {
       getData: getData,
       getScale: getScale,
-      sampleSortBy: sampleSortBy
+      sampleSortBy: sampleSortBy,
+      getStack: getStack
     }
   },
   created() {
@@ -201,6 +224,7 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
   margin: 1em;
+  position: relative;
 }
 pre {
   font-family: 'IBM Plex Mono', monospace;
@@ -229,4 +253,25 @@ a {
 .plot-group {
   position: relative;
 }
+
+.stack-wrapper {
+  float: right;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 400px;
+  background-color: #eee;
+  padding: 0.5rem;
+  
+}
+
+.stack-wrapper > div > div {
+  overflow-x: scroll;
+  white-space: nowrap;
+  border-left: 3px solid dimgray;
+  padding: 3px;
+  margin-bottom: 5px;
+}
+
+
 </style>
