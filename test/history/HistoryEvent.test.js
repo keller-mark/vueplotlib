@@ -31,6 +31,5 @@ test('can serialize HistoryEvent using toJson method', () => {
         "action": "zoom",
         "params": [2, 5]
     })
-
     expect(eventJson).toBe(expectedJson);
 });
