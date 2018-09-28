@@ -270,6 +270,10 @@ a {
   
 }
 
+.stack-wrapper h3 {
+  margin: 5px auto;
+}
+
 .stack-wrapper > div > div > div {
   overflow-x: scroll;
   white-space: nowrap;

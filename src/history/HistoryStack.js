@@ -52,7 +52,9 @@ export default class HistoryStack {
     prune() {
         if(this._pointer === undefined) {
             // clear the stack
-            this._stack = [];
+            while(this._stack.length) {
+                this._stack.pop();
+            }
         } else {
             // remove all events above the pointer
             while(this._pointer < (this._stack.length-1)) {
@@ -154,7 +156,7 @@ export default class HistoryStack {
             console.error("Error: the event passed to HistoryStack.execute is undefined");
             return;
         }
-        
+
         let getTargetFunc;
 
         switch(event.type) {
