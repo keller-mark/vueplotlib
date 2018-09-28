@@ -21,4 +21,4 @@ jobs:
   include:
     - stage: Get Test Coverage
       node_js: node
-      script: yarn run test:coverage
+      script: yarn run test:coveralls
