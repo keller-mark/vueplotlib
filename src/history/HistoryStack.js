@@ -32,8 +32,6 @@ export default class HistoryStack {
         } else {
             this._initial.push(event);
         }
-
-        console.log("new event");
     }
 
     /**
