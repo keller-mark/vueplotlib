@@ -157,9 +157,14 @@ export default class HistoryStack {
             default:
                 getTargetFunc = undefined;
         }
-
+        
         if(getTargetFunc !== undefined) {
             let target = getTargetFunc(event.id);
+            /*
+            TODO: parse event.params to search for symbols?
+                For example, if one wanted to use a specific dataset as a param, 
+                could encode as the string "{data:myDatasetKey}" or something...
+            */
             target[event.action]( ...event.params );
         }
     }

@@ -8,6 +8,9 @@
  */
 export default class HistoryEvent {
 
+    /**
+     * Enum of the available event types.
+     */
     static types = Object.freeze({ SCALE: 1 });
 
     /**
@@ -24,18 +27,30 @@ export default class HistoryEvent {
         this._params = params || [];
     }
 
+    /**
+     * @returns {int} The event type.
+     */
     get type() {
         return this._type;
     }
 
+    /**
+     * @returns {string} The event identifier.
+     */
     get id() { 
         return this._id;
     }
 
+    /**
+     * @returns {string} The name of the method to call on the target object.
+     */
     get action() {
         return this._action;
     }
 
+    /**
+     * @returns {array} The params to pass to the method specified by `action`.
+     */
     get params() {
         return this._params;
     }
@@ -43,6 +58,7 @@ export default class HistoryEvent {
     /**
      * 
      * @param {HistoryEvent} event Another history event.
+     * @returns {boolean} Whether the other history event is related to this.
      */
     isRelated(event) {
         return (event._type === this._type && event._id === this._id);

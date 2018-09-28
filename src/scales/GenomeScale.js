@@ -60,7 +60,7 @@ export const CHROMOSOME_LENGTHS = {
 };
 
 /**
- * Scale class for genome variable.
+ * Scale class for a genome variable.
  * Note: this does NOT inherit from AbstractScale.
  */
 export default class GenomeScale {

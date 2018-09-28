@@ -12,7 +12,9 @@
     "build:release": "cross-env NODE_ENV=production webpack --config build/webpack.dist.js",
     "build:examples": "webpack --config build/webpack.examples.js",
     "build": "yarn run build:debug && yarn run build:release && yarn run build:examples",
-    "docs": "documentation build src/** -f html -o docs"
+    "docs": "documentation build src/** -f html -o docs",
+    "test": "jest",
+    "test:coveralls": "jest --coverage --coverageReporters=text-lcov | coveralls"
   },
   "dependencies": {
     "d3": "^5.7.0",
@@ -27,11 +29,13 @@
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.6.1",
+    "coveralls": "^3.0.2",
     "cross-env": "^3.0.0",
     "css-loader": "^0.25.0",
     "deep-assign": "^2.0.0",
     "documentation": "^8.1.2",
     "extract-text-webpack-plugin": "^3.0.0",
+    "jest": "^23.6.0",
     "node-sass": "^4.7.2",
     "sass-loader": "^6.0.6",
     "vue": "^2.5.13",

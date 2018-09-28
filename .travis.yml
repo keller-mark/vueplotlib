@@ -7,6 +7,7 @@ cache:
     - node_modules
 script:
   - yarn run build
+  - yarn run test
   - yarn run docs
   - mv ./docs ./examples/docs
 deploy:
@@ -15,3 +16,9 @@ deploy:
   github-token: $github_token
   local-dir: examples
 keep-history: true
+
+jobs:
+  include:
+    - stage: Get Test Coverage
+      node_js: node
+      script: yarn run test:coverage
