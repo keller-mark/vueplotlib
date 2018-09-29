@@ -36,14 +36,14 @@ if (options.isProduction) {
     // Set the production environment
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify('production')
-    }),
+    })/* ,
 
     // Minify with dead-code elimination
     new webpack.optimize.UglifyJsPlugin({
       compress: {
         warnings: false
       }
-    })
+    }) */
   ])
 }
 

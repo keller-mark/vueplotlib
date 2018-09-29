@@ -2,6 +2,9 @@ import { descending as d3_descending, ascending as d3_ascending } from "d3-array
 import { scaleOrdinal as d3_scaleOrdinal } from 'd3-scale';
 import AbstractScale from './AbstractScale.js';
 
+/**
+ * Scale class for categorical variables.
+ */
 export default class CategoricalScale extends AbstractScale {
 
     /**
@@ -127,5 +130,6 @@ export default class CategoricalScale extends AbstractScale {
 
         this.emitUpdate();
     }
+    
 
 }

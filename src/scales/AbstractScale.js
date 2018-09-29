@@ -3,6 +3,9 @@ import { dispatch as d3_dispatch } from "d3-dispatch";
 
 const DISPATCH_EVENT_UPDATE = "update";
 
+/**
+ * Abstract class representing a scale.
+ */
 export default class AbstractScale {
 
     static types = Object.freeze({ DISCRETE: 1, CONTINUOUS: 2 });
@@ -137,5 +140,13 @@ export default class AbstractScale {
      */
     setDomainFiltered(newDomainFiltered) {
         this._domainFiltered = newDomainFiltered;
+    }
+
+    /**
+     * Resets the filtered domain, using the full original domain.
+     */
+    reset() {
+        this.setDomainFiltered(this._domain.slice());
+        this.emitUpdate();
     }
 }

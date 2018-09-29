@@ -27,6 +27,10 @@
                     <td>{{ this.tooltipInfo.x }}</td>
                 </tr>
                 <tr>
+                    <th>{{ this._cScale.name }}</th>
+                    <td>{{ this.tooltipInfo.c }}</td>
+                </tr>
+                <tr>
                     <th>{{ this._yScale.name }}</th>
                     <td>{{ this.tooltipInfo.y }}</td>
                 </tr>
@@ -41,17 +45,17 @@ import { select as d3_select } from 'd3-selection';
 import { stack as d3_stack, stackOrderNone as d3_stackOrderNone, stackOffsetNone as d3_stackOffsetNone } from 'd3-shape';
 import { mouse as d3_mouse } from 'd3';
 import { debounce } from 'lodash';
-import { TOOLTIP_DEBOUNCE } from './../constants.js';
-import { getRetinaRatio } from './../helpers.js';
+import { TOOLTIP_DEBOUNCE } from './../../constants.js';
+import { getRetinaRatio } from './../../helpers.js';
 
-import AbstractScale from './../scales/AbstractScale.js';
-import DataContainer from './../data/DataContainer.js';
+import AbstractScale from './../../scales/AbstractScale.js';
+import DataContainer from './../../data/DataContainer.js';
 
-import mixin from './../mixin.js';
+import mixin from './../../mixin.js';
 
 let uuid = 0;
 export default {
-    name: 'BarPlot',
+    name: 'StackedBarPlot',
     mixins: [mixin],
     props: {
         'x': {
@@ -59,13 +63,17 @@ export default {
         },
         'y': {
             type: String
+        },
+        'c': { // color
+            type: String
         }
     },
     data() {
         return {
             tooltipInfo: {
                 x: '',
-                y: ''
+                y: '',
+                c: ''
             }
         }
     },
@@ -80,12 +88,15 @@ export default {
         // Set scale variables
         this._xScale = this.getScale(this.x);
         this._yScale = this.getScale(this.y);
+        this._cScale = this.getScale(this.c);
         console.assert(this._xScale instanceof AbstractScale);
         console.assert(this._yScale instanceof AbstractScale);
+        console.assert(this._cScale instanceof AbstractScale);
 
         // Subscribe to event publishers here
         this._xScale.onUpdate(this.uuid, this.drawPlot);
         this._yScale.onUpdate(this.uuid, this.drawPlot);
+        this._cScale.onUpdate(this.uuid, this.drawPlot);
 
         // TODO: subscribe to data mutations as well?
     },
@@ -93,10 +104,11 @@ export default {
         this.drawPlot();
     },
     methods: {
-        tooltip: function(mouseX, mouseY, x, y) {
+        tooltip: function(mouseX, mouseY, x, y, c) {
             // Set values
             this.tooltipInfo.x = x; // TODO: scale .toHuman
             this.tooltipInfo.y = y; // TODO: scale .toHuman
+            this.tooltipInfo.c = c; // TODO: scale .toHuman
 
             // Set position
             this.tooltipPosition.left = mouseX + this.pMarginLeft;
@@ -115,6 +127,7 @@ export default {
             let data = this._dataContainer.dataCopy;
             const xScale = this._xScale;
             const yScale = this._yScale;
+            const cScale = this._cScale;
 
             data = data.filter((el) => xScale.domainFiltered.includes(el[vm.x]));
 
@@ -128,7 +141,14 @@ export default {
 
             const barWidth = vm.pWidth / xScale.domainFiltered.length;
               
-          
+            const stack = d3_stack()
+                .keys(cScale.domainFiltered)
+                .value((d, key) => { return d[vm.y][key] || 0; })
+                .order(d3_stackOrderNone)
+                .offset(d3_stackOffsetNone);
+
+            const series = stack(data);
+
             
             /*
              * Scale up the canvas
@@ -153,7 +173,7 @@ export default {
                 .attr("height", scaledHeight);
             contextHidden.scale(ratio, ratio);
 
-            /**
+            /*
              * Set up the color mappings
              */
             const colToNode = {};
@@ -180,18 +200,22 @@ export default {
             /*
              * Draw the bars
              */
-            data.forEach((d) => {
-                const col = genColor();
-                colToNode[col] = { "x": d[vm.x], "y": d[vm.y] };
-                contextHidden.fillStyle = col;
-
-                let height = vm.pHeight - y(d[vm.y]);
-                context.fillStyle = xScale.color(d[vm.x]);
-                context.fillRect(x(d[vm.x]), y(d[vm.y]), barWidth, height);
-                contextHidden.fillRect(x(d[vm.x]), y(d[vm.y]), barWidth, height);
+            series.forEach((layer) => {
+                context.fillStyle = cScale.color(layer["key"]); 
+                layer.forEach((d) => {
+                    const col = genColor();
+                    colToNode[col] = { "x": d.data[vm.x], "y": d.data[vm.y][layer["key"]], "c": layer["key"] };
+                    contextHidden.fillStyle = col;
+                    let height = y(d[0]) - y(d[1]);
+                    if(height + y(d[1]) > vm.pHeight) {
+                        height = vm.pHeight - y(d[1]);
+                    }
+                    context.fillRect(x(d.data[vm.x]), y(d[1]), barWidth, height);
+                    contextHidden.fillRect(x(d.data[vm.x]), y(d[1]), barWidth, height);
+                })
             });
             
-            /**
+            /*
              * Listen for mouse events
              */
             const canvasNode = canvas.node();
@@ -209,11 +233,12 @@ export default {
                 const node = colToNode[colString];
 
                 if(node) {
-                    vm.tooltip(mouseX, mouseY, node["x"], node["y"]); 
+                    vm.tooltip(mouseX, mouseY, node["x"], node["y"], node["c"]); 
                 } else {
                     debouncedTooltipDestroy();
                 }
-            });
+            })
+            .on("mouseleave", vm.tooltipDestroy);
             
         }
     }

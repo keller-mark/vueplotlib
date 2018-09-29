@@ -2,3 +2,5 @@
 node_modules/
 dist/
 examples/examples.bundle.js
+docs/
+coverage/

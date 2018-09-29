@@ -19,6 +19,10 @@ Think of SortBy with a 2D "on" like this:
     }
 }
 */
+
+/**
+ * Represents a list of variables that can be used with the SortBy class.
+ */
 export default class SortVars2D extends AbstractSortVars {
     /**
      * Create a SortVars2D object (can be passed to on= param of SortBy constructor).

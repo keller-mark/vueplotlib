@@ -2,6 +2,9 @@ import { interpolateYlOrRd as d3_interpolateYlOrRd } from 'd3-scale-chromatic';
 import { descending as d3_descending } from 'd3-array';
 import AbstractScale from './AbstractScale.js';
 
+/**
+ * Scale class for continuous variables.
+ */
 export default class ContinuousScale extends AbstractScale {
 
     get type() {

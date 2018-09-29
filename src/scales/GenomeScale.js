@@ -1,4 +1,5 @@
 import { dispatch as d3_dispatch } from "d3-dispatch";
+import { sum as d3_sum } from "d3-array";
 
 const DISPATCH_EVENT_UPDATE = "update";
 
@@ -58,6 +59,10 @@ export const CHROMOSOME_LENGTHS = {
     'M': 16571
 };
 
+/**
+ * Scale class for a genome variable.
+ * Note: this does NOT inherit from AbstractScale.
+ */
 export default class GenomeScale {
 
     /**
@@ -137,8 +142,51 @@ export default class GenomeScale {
         let cumsum = this._domainsFiltered.reduce((a, h) => (a + (h[1] - h[0])), 0);
         return this._domainsFiltered.map((el) => ((el[1] - el[0]) / cumsum));
     }
-    
 
+    /**
+     * Converts a genomic position to a proportion over the whole genome
+     * @param {string} chromosome The chromosome
+     * @param {int} position The position on the 
+     * @returns {float} Ratio of position to total genome length
+     */
+    convertPositionToRatio(chromosome, position) {
+        let genomeLength = d3_sum(this._domains.map((el) => (el[1] - el[0])));
+        let chromosomeIndex = this._chromosomes.indexOf(chromosome);
+        return this._chromosomes.reduce((a, h) => {
+            let curr = a;
+            let currChromosomeIndex = this._chromosomes.indexOf(h);
+            let currChromosomeDomain = this._domains[currChromosomeIndex];
+            if(currChromosomeIndex == chromosomeIndex) {
+                curr += (position - currChromosomeDomain[0]);
+            } else if(currChromosomeIndex < chromosomeIndex) {
+                curr += (currChromosomeDomain[1] - currChromosomeDomain[0]);
+            }
+            return curr;
+        }, 0) / genomeLength;
+    }
+
+    /**
+     * Converts a genomic position to a proportion over the whole genome
+     * @param {string} chromosome The chromosome
+     * @param {int} position The position on the 
+     * @returns {float} Ratio of position to total genome length
+     */
+    convertPositionToRatioFiltered(chromosome, position) {
+        let genomeLength = d3_sum(this._domainsFiltered.map((el) => (el[1] - el[0])));
+        let chromosomeIndex = this._chromosomesFiltered.indexOf(chromosome);
+        return this._chromosomesFiltered.reduce((a, h) => {
+            let curr = a;
+            let currChromosomeIndex = this._chromosomesFiltered.indexOf(h);
+            let currChromosomeDomain = this._domainsFiltered[currChromosomeIndex];
+            if(currChromosomeIndex == chromosomeIndex) {
+                curr += (position - currChromosomeDomain[0]);
+            } else if(currChromosomeIndex < chromosomeIndex) {
+                curr += (currChromosomeDomain[1] - currChromosomeDomain[0]);
+            }
+            return curr;
+        }, 0) / genomeLength;
+    }
+    
     /**
      * Convert a domain value to a human-readable value.
      * @param {string} chromosome A chromosome value.
