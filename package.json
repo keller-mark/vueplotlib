@@ -10,6 +10,7 @@
     "serve": "vue-cli-service serve --open ./examples-src/index.js",
     "build:release": "vue-cli-service build --target lib ./src/index.js",
     "build:examples": "vue-cli-service build --dest examples ./examples-src/index.js",
+    "build": "yarn run build:release && yarn run build:examples",
     "lint": "vue-cli-service lint ./src/index.js",
 
     "docs": "documentation build src/** -f html -o docs",

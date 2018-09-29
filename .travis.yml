@@ -6,7 +6,7 @@ cache:
   directories:
     - node_modules
 script:
-  - yarn run build:examples
+  - yarn run build
   - yarn run test:coveralls
 before_deploy:
   - yarn run docs
