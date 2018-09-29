@@ -10,12 +10,15 @@ script:
   - yarn run test
 before_deploy:
   - yarn run docs
-  - mv ./docs ./examples/docs
+  - mkdir ghpages
+  - mv ./docs ./ghpages/docs
+  - mv ./examples/index.html ./ghpages/index.html
+  - mv ./examples/examples.bundle.js ./ghpages/examples.bundle.js
 deploy:
   provider: pages
   skip-cleanup: true
   github-token: $github_token
-  local-dir: examples
+  local-dir: ghpages
 keep-history: true
 
 jobs:
