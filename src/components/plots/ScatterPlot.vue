@@ -10,16 +10,6 @@
                 'left': (this.pMarginLeft) + 'px'
             }"
         ></canvas>
-        <canvas 
-            :id="this.hiddenPlotElemID" 
-            class="vdp-plot-hidden" 
-            :style="{
-                'height': (this.pHeight) + 'px', 
-                'width': (this.pWidth) + 'px',
-                'top': (this.pMarginTop) + 'px',
-                'left': (this.pMarginLeft) + 'px'
-            }"
-        ></canvas>
         <div :id="this.tooltipElemID" class="vdp-tooltip" :style="this.tooltipPositionAttribute">
             <table>
                 <tr>
@@ -41,17 +31,17 @@ import { select as d3_select } from 'd3-selection';
 import { stack as d3_stack, stackOrderNone as d3_stackOrderNone, stackOffsetNone as d3_stackOffsetNone } from 'd3-shape';
 import { mouse as d3_mouse } from 'd3';
 import { debounce } from 'lodash';
-import { TOOLTIP_DEBOUNCE } from './../constants.js';
-import { getRetinaRatio } from './../helpers.js';
+import { TOOLTIP_DEBOUNCE } from './../../constants.js';
+import { getRetinaRatio } from './../../helpers.js';
 
-import AbstractScale from './../scales/AbstractScale.js';
-import DataContainer from './../data/DataContainer.js';
+import AbstractScale from './../../scales/AbstractScale.js';
+import DataContainer from './../../data/DataContainer.js';
 
-import mixin from './../mixin.js';
+import mixin from './../../mixin.js';
 
 let uuid = 0;
 export default {
-    name: 'BarPlot',
+    name: 'ScatterPlot',
     mixins: [mixin],
     props: {
         'x': {
@@ -60,6 +50,8 @@ export default {
         'y': {
             type: String
         }
+        // TODO: allow optional color variable
+        // TODO: allow optional dot size variable
     },
     data() {
         return {
@@ -116,17 +108,14 @@ export default {
             const xScale = this._xScale;
             const yScale = this._yScale;
 
-            data = data.filter((el) => xScale.domainFiltered.includes(el[vm.x]));
 
-            const x = d3_scaleBand()
+            const x = d3_scaleLinear()
                 .domain(xScale.domainFiltered)
                 .range([0, vm.pWidth]);
             
             const y = d3_scaleLinear()
                 .domain(yScale.domainFiltered)
                 .range([vm.pHeight, 0]);
-
-            const barWidth = vm.pWidth / xScale.domainFiltered.length;
               
           
             
@@ -136,9 +125,7 @@ export default {
             const canvas = d3_select(this.plotSelector);
             const context = canvas.node().getContext('2d');
 
-            const canvasHidden = d3_select(this.hiddenPlotSelector);
-            const contextHidden = canvasHidden.node().getContext('2d');
-
+         
             const ratio = getRetinaRatio(context);
             const scaledWidth = vm.pWidth * ratio;
             const scaledHeight = vm.pHeight * ratio;
@@ -148,72 +135,22 @@ export default {
                 .attr("height", scaledHeight);
             context.scale(ratio, ratio);
 
-            canvasHidden
-                .attr("width", scaledWidth)
-                .attr("height", scaledHeight);
-            contextHidden.scale(ratio, ratio);
 
             /*
-             * Set up the color mappings
-             */
-            const colToNode = {};
-
-            /*
-             * Generates the next color in the sequence, 
-             * going from 0,0,0 to 255,255,255.
-             */
-            let nextCol = 1;
-            const genColor = () => {
-                let ret = [];
-                // via http://stackoverflow.com/a/15804183
-                if(nextCol < 16777215){
-                    ret.push(nextCol & 0xff); // R
-                    ret.push((nextCol & 0xff00) >> 8); // G 
-                    ret.push((nextCol & 0xff0000) >> 16); // B
-
-                    nextCol += 1;
-                }
-                let col = "rgb(" + ret.join(',') + ")";
-                return col;
-            }
-
-            /*
-             * Draw the bars
+             * Draw the points
              */
             data.forEach((d) => {
-                const col = genColor();
-                colToNode[col] = { "x": d[vm.x], "y": d[vm.y] };
-                contextHidden.fillStyle = col;
-
-                let height = vm.pHeight - y(d[vm.y]);
-                context.fillStyle = xScale.color(d[vm.x]);
-                context.fillRect(x(d[vm.x]), y(d[vm.y]), barWidth, height);
-                contextHidden.fillRect(x(d[vm.x]), y(d[vm.y]), barWidth, height);
+                //context.strokeStyle = cScale.color(d[vm.c]);
+                context.strokeStyle = "#4682B4";
+                context.beginPath();
+                context.arc(x(d[vm.x]), y(d[vm.y]), 3, 0, 2*Math.PI);
+                context.stroke();
             });
             
             /*
              * Listen for mouse events
              */
-            const canvasNode = canvas.node();
-
-            const debouncedTooltipDestroy = debounce(vm.tooltipDestroy, TOOLTIP_DEBOUNCE);
-            canvas.on("mousemove", () => {
-                const mouse = d3_mouse(canvasNode);
-                const mouseX = mouse[0];
-                const mouseY = mouse[1];
-
-                // Get the corresponding pixel color on the hidden canvas
-                const col = contextHidden.getImageData(mouseX * ratio, mouseY * ratio, scaledWidth, scaledHeight).data;
-                const colString = "rgb(" + col[0] + "," + col[1] + ","+ col[2] + ")";
-                // Look up the node in our map
-                const node = colToNode[colString];
-
-                if(node) {
-                    vm.tooltip(mouseX, mouseY, node["x"], node["y"]); 
-                } else {
-                    debouncedTooltipDestroy();
-                }
-            });
+            
             
         }
     }

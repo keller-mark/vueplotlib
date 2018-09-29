@@ -334,8 +334,9 @@ export default {
                             .attr("fill", "silver")
                             .attr("fill-opacity", 0.5)
                             .attr("transform", "translate(" + zoomRectTranslateX + ",0)");
+                    } else if(varScale.type === AbstractScale.types.DISCRETE) {
+                        // TODO
                     }
-                        
                 } else if(vm._orientation === ORIENTATIONS.HORIZONTAL) {
                     let zoomRectTranslateY;
                     if(vm._side === SIDES.TOP) {
@@ -355,6 +356,17 @@ export default {
                                 .attr("fill-opacity", 0.5)
                                 .attr("transform", "translate(0," + zoomRectTranslateY + ")");
                         }
+                    } else if(varScale.type === AbstractScale.types.CONTINUOUS) {
+                        let start = varScale.domainFiltered[0];
+                        let end = varScale.domainFiltered[1];
+                        containerZoomedOut.append("rect")
+                            .attr("width", scaleZoomedOut(end) - scaleZoomedOut(start))
+                            .attr("height", axisBboxZoomedOut.height+betweenAxisMargin)
+                            .attr("x", scaleZoomedOut(start))
+                            .attr("y", 0)
+                            .attr("fill", "silver")
+                            .attr("fill-opacity", 0.5)
+                            .attr("transform", "translate(0," + zoomRectTranslateY + ")");
                     }
                 }
 
@@ -396,10 +408,10 @@ export default {
                     axisContainerSize = axisBboxZoomedOut.height;
                     if(varScale.type === AbstractScale.types.CONTINUOUS) {
                         brushed = () => {
-                            var s = d3_event.selection || scaleZoomedOut.range();
-                            var s2 = s.map(scaleZoomedOut.invert, scaleZoomedOut);
-                            varScale.zoom(s2);
-                            stack.push(new HistoryEvent(HistoryEvent.types.SCALE, varScale.id, "zoom", [s2]));
+                            let s = d3_event.selection || scaleZoomedOut.range().slice();
+                            let s2 = s.map(scaleZoomedOut.invert, scaleZoomedOut);
+                            varScale.zoom(s2[0], s2[1]);
+                            stack.push(new HistoryEvent(HistoryEvent.types.SCALE, varScale.id, "zoom", [s2[0], s2[1]]));
                         }
                     } else if(varScale.type === AbstractScale.types.DISCRETE) {
                         brushed = () => {
@@ -453,7 +465,7 @@ export default {
                 labelRotate = -90;
             } else if(vm._side === SIDES.BOTTOM) {
                 labelX = (vm.pWidth / 2);
-                labelY = (axisBboxZoomedOut.height + (labelTextBbox.height / 2) + betweenAxisMargin);
+                labelY = (axisBboxZoomedOut.height + (labelTextBbox.height / 2) + (betweenAxisMargin * 2));
                 labelRotate = 0;
             } else if(vm._side === SIDES.TOP) {
                 labelX = (vm.pWidth / 2);

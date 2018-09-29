@@ -86,6 +86,43 @@
         :disableBrushing="true"
       />
     </PlotContainer>
+
+    <h3>&lt;ScatterPlot/&gt;</h3>
+    <PlotContainer
+      :pWidth="500"
+      :pHeight="300"
+      :pMarginTop="10"
+      :pMarginLeft="120"
+      :pMarginRight="10"
+      :pMarginBottom="150"
+    >
+      <Axis
+        slot="axisLeft"
+        variable="y"
+        side="left" 
+        :tickRotation="-35"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+      <ScatterPlot
+        slot="plot"
+        data="xy_data"
+        x="x"
+        y="y"
+        :getData="getData"
+        :getScale="getScale"
+      />
+      <Axis
+        slot="axisBottom"
+        variable="x"
+        side="bottom" 
+        :tickRotation="0"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+    </PlotContainer>
+
+
     <div class="stack-wrapper" v-show="showStack">
       <h3>&lt;Stack/&gt;</h3>
       <Stack :getStack="getStack" />
@@ -99,16 +136,17 @@ import { set as d3_set } from 'd3-collection';
 import PlotContainer from '../src/components/PlotContainer.vue';
 import Axis from '../src/components/Axis.vue';
 
-import StackedBarPlot from '../src/components/StackedBarPlot.vue';
-import BarPlot from '../src/components/BarPlot.vue';
-
+import StackedBarPlot from '../src/components/plots/StackedBarPlot.vue';
+import BarPlot from '../src/components/plots/BarPlot.vue';
+import ScatterPlot from '../src/components/plots/ScatterPlot.vue';
 
 // Data
 import DataContainer from '../src/data/DataContainer.js';
 
 import exposuresData from './data/exposures.json';
 import exposuresSingleData from './data/exposures_single.json';
-
+import rainfallData from './data/rainfall.json';
+import xyData from './data/xy.json';
 
 // Scales
 import CategoricalScale from '../src/scales/CategoricalScale.js';
@@ -128,36 +166,70 @@ import Stack from './Stack.vue';
 import HistoryStack from './../src/history/HistoryStack.js';
 import HistoryEvent from './../src/history/HistoryEvent.js';
 
+const exposuresDataContainer = new DataContainer(
+  'exposures_data', 
+  'SBS Exposures', 
+  exposuresData
+);
+const exposuresSingleDataContainer = new DataContainer(
+  'exposures_single_data', 
+  'SBS Exposures for SA542425', 
+  exposuresSingleData
+);
+const rainfallDataContainer = new DataContainer(
+  'rainfall_data', 
+  'Rainfall for SA543567', 
+  rainfallData
+);
+const xyDataContainer = new DataContainer(
+  'xy_data',
+  'Random Data',
+  xyData
+);
+
+// Initialize data
+const getData = function(dataKey) {
+  switch(dataKey) {
+    case 'exposures_data':
+      return exposuresDataContainer;
+    case 'exposures_single_data':
+      return exposuresSingleDataContainer;
+    case 'rainfall_data':
+      return rainfallDataContainer;
+    case 'xy_data':
+      return xyDataContainer;
+    default:
+      return {}
+  }
+};
 
 
+// Initialize scales
 const sampleIdScale = new CategoricalScale(
   'sample_id', 
   'Sample', 
   d3_set(exposuresData.map(el => el.sample_id)).values()
 );
-
 const exposureScale = new ContinuousScale(
   'exposure',
   'Exposure',
   [0, 90000]
 );
-
 const signatureScale = new CategoricalScale(
   'signature',
   'Signature',
   ["COSMIC 1","COSMIC 2","COSMIC 3","COSMIC 4","COSMIC 5","COSMIC 6","COSMIC 7","COSMIC 8","COSMIC 9","COSMIC 10","COSMIC 11","COSMIC 12","COSMIC 13","COSMIC 14","COSMIC 15","COSMIC 16","COSMIC 17","COSMIC 18","COSMIC 19","COSMIC 20","COSMIC 21","COSMIC 22","COSMIC 23","COSMIC 24","COSMIC 25","COSMIC 26","COSMIC 27","COSMIC 28","COSMIC 29","COSMIC 30","5* A"]
 );
-
-const getData = function(dataKey) {
-  switch(dataKey) {
-    case 'exposures_data':
-      return new DataContainer('exposures_data', 'SBS Exposures', exposuresData);
-    case 'exposures_single_data':
-      return new DataContainer('exposures_single_data', 'SBS Exposures for SA542425', exposuresSingleData);
-    default:
-      return {}
-  }
-};
+const xyYScale = new ContinuousScale(
+  'y',
+  'Random Y',
+  [0, 100]
+);
+const xyXScale = new ContinuousScale(
+  'x',
+  'Random X',
+  [0, 50]
+);
 
 const getScale = function(scaleKey) {
   switch(scaleKey) {
@@ -167,13 +239,21 @@ const getScale = function(scaleKey) {
       return exposureScale;
     case 'signature':
       return signatureScale;
+    case 'y':
+      return xyYScale;
+    case 'x':
+      return xyXScale;
   }
 };
 
+
+// Initialize the stack
 const stack = new HistoryStack(getScale);
 stack.push(new HistoryEvent(HistoryEvent.types.SCALE, "sample_id", "reset"), true);
 stack.push(new HistoryEvent(HistoryEvent.types.SCALE, "exposure", "reset"), true);
 stack.push(new HistoryEvent(HistoryEvent.types.SCALE, "signature", "reset"), true);
+stack.push(new HistoryEvent(HistoryEvent.types.SCALE, "y", "reset"), true);
+stack.push(new HistoryEvent(HistoryEvent.types.SCALE, "x", "reset"), true);
 
 
 const getStack = function() {
@@ -197,7 +277,8 @@ export default {
     StackedBarPlot,
     BarPlot,
     SortOptions,
-    Stack
+    Stack,
+    ScatterPlot
   },
   data() {
     return {

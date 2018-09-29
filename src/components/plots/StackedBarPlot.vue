@@ -45,13 +45,13 @@ import { select as d3_select } from 'd3-selection';
 import { stack as d3_stack, stackOrderNone as d3_stackOrderNone, stackOffsetNone as d3_stackOffsetNone } from 'd3-shape';
 import { mouse as d3_mouse } from 'd3';
 import { debounce } from 'lodash';
-import { TOOLTIP_DEBOUNCE } from './../constants.js';
-import { getRetinaRatio } from './../helpers.js';
+import { TOOLTIP_DEBOUNCE } from './../../constants.js';
+import { getRetinaRatio } from './../../helpers.js';
 
-import AbstractScale from './../scales/AbstractScale.js';
-import DataContainer from './../data/DataContainer.js';
+import AbstractScale from './../../scales/AbstractScale.js';
+import DataContainer from './../../data/DataContainer.js';
 
-import mixin from './../mixin.js';
+import mixin from './../../mixin.js';
 
 let uuid = 0;
 export default {
