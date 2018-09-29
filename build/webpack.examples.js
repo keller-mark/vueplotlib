@@ -23,14 +23,14 @@ const config = merge(base, {
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify('production'),
       VERSION: JSON.stringify(options.version)
-    }),
+    })/* ,
 
     // Minify with dead-code elimination
     new webpack.optimize.UglifyJsPlugin({
       compress: {
         warnings: false
       }
-    })
+    }) */
   ]
 })
 
