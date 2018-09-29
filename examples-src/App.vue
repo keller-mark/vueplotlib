@@ -43,14 +43,6 @@
       />
     </PlotContainer>
 
-    <h3>&lt;SortOptions/&gt;</h3>
-    <SortOptions 
-      variable="sample_id" 
-      :by="sampleSortBy" 
-      :getScale="getScale" 
-      :getData="getData"
-    />
-
     <h3>&lt;BarPlot/&gt;</h3>
     <PlotContainer
       :pWidth="500"
@@ -121,6 +113,14 @@
         :getStack="getStack"
       />
     </PlotContainer>
+
+    <h3>&lt;SortOptions/&gt;</h3>
+    <SortOptions 
+      variable="sample_id" 
+      :by="sampleSortBy" 
+      :getScale="getScale" 
+      :getData="getData"
+    />
 
 
     <div class="stack-wrapper" v-show="showStack">

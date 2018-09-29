@@ -8,6 +8,7 @@ cache:
 script:
   - yarn run build
   - yarn run test
+before_deploy:
   - yarn run docs
   - mv ./docs ./examples/docs
 deploy:
