@@ -133,12 +133,8 @@
 <script>
 import { set as d3_set } from 'd3-collection';
 // Plots
-import PlotContainer from '../src/components/PlotContainer.vue';
-import Axis from '../src/components/Axis.vue';
-
-import StackedBarPlot from '../src/components/plots/StackedBarPlot.vue';
-import BarPlot from '../src/components/plots/BarPlot.vue';
-import ScatterPlot from '../src/components/plots/ScatterPlot.vue';
+import { PlotContainer, Axis } from '../src/index.js';
+import { StackedBarPlot, BarPlot, ScatterPlot } from '../src/index.js';
 
 // Data
 import DataContainer from '../src/data/DataContainer.js';
@@ -152,7 +148,6 @@ import xyData from './data/xy.json';
 import CategoricalScale from '../src/scales/CategoricalScale.js';
 import ContinuousScale from '../src/scales/ContinuousScale.js';
 import GenomeScale from '../src/scales/GenomeScale.js';
-
 
 // Sort
 import SortOptions from '../src/components/SortOptions.vue';

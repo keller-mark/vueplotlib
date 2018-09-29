@@ -7,11 +7,11 @@
   "private": false,
   "main": "dist/vue-declarative-plots.js",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development webpack-dev-server --config ./build/webpack.dev.js --open --inline --hot",
-    "build:debug": "cross-env NODE_ENV=debug webpack --config build/webpack.dist.js",
-    "build:release": "cross-env NODE_ENV=production webpack --config build/webpack.dist.js",
-    "build:examples": "webpack --config build/webpack.examples.js",
-    "build": "yarn run build:debug && yarn run build:release && yarn run build:examples",
+    "serve": "vue-cli-service serve --open ./examples-src/index.js",
+    "build:release": "vue-cli-service build --target lib ./src/index.js",
+    "build:examples": "vue-cli-service build --dest examples ./examples-src/index.js",
+    "lint": "vue-cli-service lint ./src/index.js",
+
     "docs": "documentation build src/** -f html -o docs",
     "test": "jest",
     "test:coveralls": "jest --coverage --coverageReporters=text-lcov | coveralls"
@@ -23,28 +23,35 @@
     "save-svg-as-png": "^1.4.6"
   },
   "devDependencies": {
-    "autoprefixer": "^6.7.7",
-    "babel-core": "^6.0.0",
-    "babel-loader": "^7.1.2",
-    "babel-plugin-syntax-class-properties": "^6.13.0",
-    "babel-plugin-transform-class-properties": "^6.24.1",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "babel-preset-env": "^1.6.1",
-    "coveralls": "^3.0.2",
-    "cross-env": "^3.0.0",
-    "css-loader": "^0.25.0",
-    "deep-assign": "^2.0.0",
-    "documentation": "^8.1.2",
-    "extract-text-webpack-plugin": "^3.0.0",
-    "jest": "^23.6.0",
-    "node-sass": "^4.7.2",
-    "sass-loader": "^6.0.6",
     "vue": "^2.5.13",
-    "vue-loader": "^11.3.3",
-    "vue-style-loader": "^3.0.0",
-    "vue-template-compiler": "^2.5.13",
-    "webpack": "^3.5.6",
-    "webpack-bundle-analyzer": "^2.2.1",
-    "webpack-dev-server": "^2.7.1"
-  }
+    "coveralls": "^3.0.2",
+    "jest": "^23.6.0",
+    "documentation": "^8.1.2",
+    "@vue/cli-plugin-babel": "^3.0.0-beta.6",
+    "@vue/cli-plugin-eslint": "^3.0.0-beta.6",
+    "@vue/cli-service": "^3.0.0-beta.6",
+    "vue-template-compiler": "^2.5.13"
+  },
+  "babel": {
+    "presets": [
+      "@vue/app"
+    ]
+  },
+  "eslintConfig": {
+    "root": true,
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ]
+  },
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {}
+    }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not ie <= 8"
+  ]
 }
