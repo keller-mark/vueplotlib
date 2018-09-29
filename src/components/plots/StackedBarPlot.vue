@@ -237,7 +237,8 @@ export default {
                 } else {
                     debouncedTooltipDestroy();
                 }
-            });
+            })
+            .on("mouseleave", vm.tooltipDestroy);
             
         }
     }

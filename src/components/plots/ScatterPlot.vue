@@ -10,16 +10,6 @@
                 'left': (this.pMarginLeft) + 'px'
             }"
         ></canvas>
-        <canvas 
-            :id="this.hiddenPlotElemID" 
-            class="vdp-plot-hidden" 
-            :style="{
-                'height': (this.pHeight) + 'px', 
-                'width': (this.pWidth) + 'px',
-                'top': (this.pMarginTop) + 'px',
-                'left': (this.pMarginLeft) + 'px'
-            }"
-        ></canvas>
         <div :id="this.tooltipElemID" class="vdp-tooltip" :style="this.tooltipPositionAttribute">
             <table>
                 <tr>
@@ -136,9 +126,6 @@ export default {
             const canvas = d3_select(this.plotSelector);
             const context = canvas.node().getContext('2d');
 
-            const canvasHidden = d3_select(this.hiddenPlotSelector);
-            const contextHidden = canvasHidden.node().getContext('2d');
-
             const ratio = getRetinaRatio(context);
             const scaledWidth = vm.pWidth * ratio;
             const scaledHeight = vm.pHeight * ratio;
@@ -147,11 +134,6 @@ export default {
                 .attr("width", scaledWidth)
                 .attr("height", scaledHeight);
             context.scale(ratio, ratio);
-
-            canvasHidden
-                .attr("width", scaledWidth)
-                .attr("height", scaledHeight);
-            contextHidden.scale(ratio, ratio);
 
 
             /*
@@ -166,23 +148,40 @@ export default {
             });
 
             /*
-             * Collect the points to prepare for interactivity
+             * Prepare for interactivity
              */
-
             const points = data.map((d) => [x(d[vm.x]), y(d[vm.y])]);
             const delaunay = Delaunay.from(points);
             const voronoi = delaunay.voronoi([0, 0, vm.pWidth, vm.pHeight]);
 
-            context.fill();
+            /*
+            // Show the voronoi edges
             context.beginPath();
             voronoi.render(context);
             context.stroke();
+            */
             
             /*
              * Listen for mouse events
              */
-            
-            // TODO: voronoi to get hovered points
+            const canvasNode = canvas.node();
+
+            const debouncedTooltipDestroy = debounce(vm.tooltipDestroy, TOOLTIP_DEBOUNCE);
+            canvas.on("mousemove", () => {
+                const mouse = d3_mouse(canvasNode);
+                const mouseX = mouse[0];
+                const mouseY = mouse[1];
+
+                const i = delaunay.find(mouseX, mouseY);
+                const node = data[i];
+
+                if(node) {
+                    vm.tooltip(mouseX, mouseY, node[vm.x], node[vm.y]); 
+                } else {
+                    debouncedTooltipDestroy();
+                }
+            })
+            .on("mouseleave", vm.tooltipDestroy);
         }
     }
 }
