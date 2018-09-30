@@ -31,7 +31,7 @@ Goals:
     - [x] scales will always expose a domain-var-to-color function
     - [ ] the color scale (or even individual colors) should also be able to be changed programmatically
     - [ ] scales will always expose a domain-var-to-human-readable-text function
-    - [ ] categorical scales will always expose a sort function that takes in a comparator function
+    - [ ] categorical scales will always expose a sort function that takes in a comparator function and a specification of the data that will define the ordering
     - [ ] scales will always expose a filter function (and a corresponding filter-reset function)
         - if categorical, this will accept an array of new values
         - if continuous, this will accept a `[min, max]` array
@@ -45,13 +45,13 @@ Goals:
         ```
 - [x] plots should assume which type of scale is on which axis
     - for example, a bar plot (with vertical bars) would assume a continuous y scale and a categorical x
-- [ ] a global event bus should alert plots when a scale has been mutated
+- [x] events should alert plots when a scale has been mutated
     - these alerts should specify which scale has been updated using a key
     - plot components should listen for these updates and re-draw if necessary
     - scales may be mutated upon filter or zoom
-- [ ] data should be immutable
+- [x] data should be immutable
     - even small variations of data sets should be stored in a separate `DataContainer` instance
-    - this way, plots are only concerned with subscribing (and then re-drawing) to scale updates
+    - however, plots may need to subscribe to data updates for asynchronous loading reasons
 - [x] plots should NOT draw their own axes
     - axes should be independent of plots
     - axes should be contained in their own components
@@ -62,6 +62,7 @@ Goals:
         side="bottom"
         ```
 - [x] axes should be brush-able
+    - but also should have the option to disable brushing
     - brushing along an axis should trigger a zoom event
     - axes, if their corresponding scale has been "zoomed", should display a "zoomed out"/full view beside the "zoomed-in" view in order to show [context](https://bl.ocks.org/mbostock/34f08d5e11952a80609169b7917d4172)
     - categorical axes should [snap](https://bl.ocks.org/mbostock/6232537)
@@ -94,6 +95,11 @@ Goals:
         - hovering on a section of a bar on a stacked bar plot would cause dispatches for (at least) the `x` and `color` variables
 - [x] the internals of the drawing of the plots should be abstracted away as much as possible
     - details of SVG, canvas, etc. implementation should be contained
+- [x] all *meaningful* interactions will be stored in a history stack
+    - meaningful interactions: scale filter/zoom/sort
+    - will allow backward(undo)/forward(redo) operations
+    - will allow "replaying" of the user's interactions
+    - will allow sharing of a user session, so that others may replay or step through the interactions
 
 
 <br><br>
