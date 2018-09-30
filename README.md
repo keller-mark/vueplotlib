@@ -100,6 +100,7 @@ Goals:
     - will allow backward(undo)/forward(redo) operations
     - will allow "replaying" of the user's interactions
     - will allow sharing of a user session, so that others may replay or step through the interactions
+    - but this should also be optional, for example if the user chooses not to supply the stack to a plot via prop
 
 
 <br><br>
