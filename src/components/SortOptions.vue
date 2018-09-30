@@ -3,24 +3,15 @@
         Sort <em>{{ getScale(variable).name }}</em> by <em>{{ getData(by.data).name }}</em> data
         <span>
             on
-            <select v-model="firstVar">
+            <select v-model="selectedKey">
                 <option disabled value="">Please select one</option>
-                <option v-for="(sortVarKey, index) in by.on.variables" :key="sortVarKey" :value="index">
-                    {{ getScale(sortVarKey).name }}
+                <option v-for="sortVarKey in by.variables" :key="sortVarKey" :value="sortVarKey">
+                    {{ sortVarKey }}
                 </option>
             </select>
-
-            <span v-if="validSelection(firstVar)">
-                <select v-model="secondVar">
-                    <option disabled value="">Please select one</option>
-                    <option v-for="sortVarValue in getScale(by.on.variables[firstVar]).domain" :key="sortVarValue" :value="sortVarValue">
-                        {{ getScale(by.on.variables[firstVar]).toHuman(sortVarValue) }}
-                    </option>
-                </select>
-            </span>
         </span>
 
-        <span v-if="validSelection(firstVar) && validSelection(secondVar)">
+        <span v-if="validSelection(selectedKey)">
             <select v-model="sortAscending">
                 <option :value="true">Ascending</option>
                 <option :value="false">Descending</option>
@@ -31,11 +22,7 @@
 </template>
 
 <script>
-
-import AbstractScale from './../scales/AbstractScale.js';
 import SortBy from './../sort/SortBy.js';
-
-import SortVars from './../sort/SortVars.js';
 
 let uuid = 0;
 export default {
@@ -56,13 +43,12 @@ export default {
     },
     data() {
         return {
-            firstVar: null,
-            secondVar: null,
+            selectedKey: null,
             sortAscending: true
         }
     },
     watch: {
-        secondVar: function() {
+        selectedKey: function() {
             this.go();
         },
         sortAscending: function() {
@@ -78,9 +64,8 @@ export default {
             return (varValue !== null);
         },
         go() {
-            console.log(this.firstVar, this.secondVar);
-            if(this.validSelection(this.firstVar) && this.validSelection(this.secondVar)) {
-                this.getScale(this.variable).sort(this.getData(this.by.data), this.secondVar, undefined, this.sortAscending);
+            if(this.validSelection(this.selectedKey)) {
+                this.getScale(this.variable).sort(this.getData(this.by.data), this.selectedKey, this.sortAscending);
             }
         }
     }
