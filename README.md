@@ -9,8 +9,39 @@ These components were developed for use in [iMuSE](https://github.com/lrgr/mutat
 - [Demo](https://keller-mark.github.io/vue-declarative-plots/)
 - [Documentation](https://keller-mark.github.io/vue-declarative-plots/docs/)
 
+### Installation
+*Coming soon*
 
-Goals: 
+### Development
+
+Install dependencies:
+```bash
+yarn
+```
+
+Serve for development at [http://localhost:8080](http://localhost:8080):
+```bash
+yarn run serve
+```
+
+Build for production (generates `/dist` and `/examples`):
+```bash
+yarn run build
+```
+
+Run tests with [jest](https://jestjs.io/):
+```bash
+yarn run test
+```
+
+Compile documentation with [documentationjs](https://documentation.js.org/):
+```bash
+yarn run docs
+```
+
+
+
+### Goals: 
 - [x] props should declare visual encodings of data
     - example: the StackedBarPlot component will accept the following props:
         ```js
