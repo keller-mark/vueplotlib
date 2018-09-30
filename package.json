@@ -43,7 +43,10 @@
     "extends": [
       "plugin:vue/essential",
       "eslint:recommended"
-    ]
+    ],
+    "rules": {
+      "no-console": 0
+    }
   },
   "postcss": {
     "plugins": {

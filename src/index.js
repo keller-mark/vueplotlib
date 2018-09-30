@@ -6,6 +6,7 @@ import BarPlot from './components/plots/BarPlot.vue';
 import ScatterPlot from './components/plots/ScatterPlot.vue';
 
 
+/* eslint-disable no-undef */
 if (typeof window !== 'undefined' && window.Vue) {
     Vue.component(PlotContainer.name, PlotContainer);
     Vue.component(Axis.name, Axis);
