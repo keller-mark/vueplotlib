@@ -6,9 +6,8 @@
 This repository will serve as a place for reusable Vue plot components (built with D3).
 These components were developed for use in [iMuSE](https://github.com/lrgr/mutation-signature-explorer).
 
-This was inspired by the following projects:
-- https://altair-viz.github.io/
-- https://vega.github.io/vega-lite/
+- [Demo](https://keller-mark.github.io/vue-declarative-plots/)
+- [Documentation](https://keller-mark.github.io/vue-declarative-plots/docs/)
 
 
 Goals: 
@@ -95,3 +94,9 @@ Goals:
         - hovering on a section of a bar on a stacked bar plot would cause dispatches for (at least) the `x` and `color` variables
 - [x] the internals of the drawing of the plots should be abstracted away as much as possible
     - details of SVG, canvas, etc. implementation should be contained
+
+
+<br><br>
+This was inspired by the following projects:
+- https://altair-viz.github.io/
+- https://vega.github.io/vega-lite/
