@@ -27,7 +27,7 @@
     "babel-core": "7.0.0-bridge.0",
     "babel-jest": "^23.0.1",
     "coveralls": "^3.0.2",
-    "documentation": "^8.1.2",
+    "documentation": "9.0.0-alpha.0",
     "jest": "^23.6.0",
     "vue": "^2.5.13",
     "vue-template-compiler": "^2.5.13"
