@@ -14,7 +14,7 @@ Think of SortBy with a 1D "on" like this:
 /**
  * Represents a list of variables that can be used with the SortBy class.
  */
-export default class SortVars1D extends AbstractSortVars {
+export default class SortVars extends AbstractSortVars {
     /**
      * Create a SortVars1D object (can be passed to on= param of SortBy constructor).
      * @param {array} variables Array of variable scale key strings.

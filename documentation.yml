@@ -22,5 +22,4 @@ toc:
   - name: Sort
   - AbstractSortVars
   - SortBy
-  - SortVars1D
-  - SortVars2D
+  - SortVars

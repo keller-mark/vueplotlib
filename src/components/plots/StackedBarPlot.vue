@@ -165,7 +165,7 @@ export default {
               
             const stack = d3_stack()
                 .keys(cScale.domainFiltered)
-                .value((d, key) => { return d[vm.y][key] || 0; })
+                .value((d, key) => { return d[key] || 0; })
                 .order(d3_stackOrderNone)
                 .offset(d3_stackOffsetNone);
 
@@ -226,7 +226,7 @@ export default {
                 context.fillStyle = cScale.color(layer["key"]); 
                 layer.forEach((d) => {
                     const col = genColor();
-                    colToNode[col] = { "x": d.data[vm.x], "y": d.data[vm.y][layer["key"]], "c": layer["key"] };
+                    colToNode[col] = { "x": d.data[vm.x], "y": d.data[layer["key"]], "c": layer["key"] };
                     contextHidden.fillStyle = col;
                     let height = y(d[0]) - y(d[1]);
                     if(height + y(d[1]) > vm.pHeight) {

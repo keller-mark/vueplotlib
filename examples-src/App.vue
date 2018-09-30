@@ -153,8 +153,7 @@ import GenomeScale from '../src/scales/GenomeScale.js';
 import SortOptions from '../src/components/SortOptions.vue';
 
 import SortBy from '../src/sort/SortBy.js';
-import SortVars1D from '../src/sort/SortVars1D.js';
-import SortVars2D from '../src/sort/SortVars2D.js';
+import SortVars from '../src/sort/SortVars.js';
 
 // History
 import Stack from './Stack.vue';
@@ -257,9 +256,7 @@ const getStack = function() {
 
 const sampleSortBy = new SortBy(
   "exposures_data", 
-  new SortVars2D({
-    "exposure": new SortVars1D(["signature"])
-  })
+  new SortVars(["signature"])
 );
 
 
