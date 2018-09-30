@@ -1,20 +1,16 @@
 {
   "name": "vue-declarative-plots",
   "version": "1.0.0",
-  "repository": "https://github.com/keller-mark/vue-declarative-plots",
-  "author": "Mark Keller",
-  "license": "MIT",
   "private": false,
-  "main": "dist/vue-declarative-plots.js",
   "scripts": {
     "serve": "vue-cli-service serve --open ./examples-src/index.js",
-    "build:release": "vue-cli-service build --target lib ./src/index.js",
-    "build:examples": "vue-cli-service build --dest examples ./examples-src/index.js",
     "build": "yarn run build:release && yarn run build:examples",
     "lint": "vue-cli-service lint ./src/index.js",
+    "build:release": "vue-cli-service build --target lib ./src/index.js",
+    "build:examples": "vue-cli-service build --dest examples ./examples-src/index.js",
     "docs": "documentation build src/** -f html -o docs",
-    "test": "jest",
-    "test:coveralls": "jest --coverage --coverageReporters=text-lcov | coveralls"
+    "test:coveralls": "vue-cli-service test:unit --coverage --coverageReporters=text-lcov | coveralls",
+    "test": "vue-cli-service test:unit"
   },
   "dependencies": {
     "d3": "^5.7.0",
@@ -25,7 +21,11 @@
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.0.0-beta.6",
     "@vue/cli-plugin-eslint": "^3.0.0-beta.6",
+    "@vue/cli-plugin-unit-jest": "^3.0.4",
     "@vue/cli-service": "^3.0.0-beta.6",
+    "@vue/test-utils": "^1.0.0-beta.20",
+    "babel-core": "7.0.0-bridge.0",
+    "babel-jest": "^23.0.1",
     "coveralls": "^3.0.2",
     "documentation": "^8.1.2",
     "jest": "^23.6.0",
@@ -53,5 +53,9 @@
     "> 1%",
     "last 2 versions",
     "not ie <= 8"
-  ]
+  ],
+  "license": "MIT",
+  "author": "Mark Keller",
+  "main": "dist/vue-declarative-plots.js",
+  "repository": "https://github.com/keller-mark/vue-declarative-plots"
 }

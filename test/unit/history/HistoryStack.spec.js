@@ -1,6 +1,6 @@
-import HistoryEvent from '../../src/history/HistoryEvent';
-import HistoryStack from '../../src/history/HistoryStack';
-import CategoricalScale from '../../src/scales/CategoricalScale';
+import HistoryEvent from '../../../src/history/HistoryEvent';
+import HistoryStack from '../../../src/history/HistoryStack';
+import CategoricalScale from '../../../src/scales/CategoricalScale';
 
 let getScale;
 let sampleScale;
