@@ -146,7 +146,7 @@ export default class GenomeScale {
     /**
      * Converts a genomic position to a proportion over the whole genome
      * @param {string} chromosome The chromosome
-     * @param {int} position The position on the 
+     * @param {number} position The position on the 
      * @returns {float} Ratio of position to total genome length
      */
     convertPositionToRatio(chromosome, position) {
@@ -168,7 +168,7 @@ export default class GenomeScale {
     /**
      * Converts a genomic position to a proportion over the whole genome
      * @param {string} chromosome The chromosome
-     * @param {int} position The position on the 
+     * @param {number} position The position on the 
      * @returns {float} Ratio of position to total genome length
      */
     convertPositionToRatioFiltered(chromosome, position) {
@@ -190,7 +190,7 @@ export default class GenomeScale {
     /**
      * Convert a domain value to a human-readable value.
      * @param {string} chromosome A chromosome value.
-     * @param {int} position A chromosome position value.
+     * @param {number} position A chromosome position value.
      * @returns {string} The corresponding humanDomain value.
      */
     toHuman(chromosome, position) {

@@ -1,3 +1,15 @@
+/**
+ * @mixin
+ * @prop {string} data The data set key.
+ * @prop {number} pWidth The plot width.
+ * @prop {number} pHeight The plot height.
+ * @prop {number} pMarginTop The plot top margin.
+ * @prop {number} pMarginLeft The plot left margin.
+ * @prop {number} pMarginRight The plot right margin.
+ * @prop {number} pMarginBottom The plot bottom margin.
+ * @prop {function} getData Function that takes a data key string and returns a DataContainer.
+ * @prop {function} getScale Function that takes a scale key string and returns a scale instance.
+ */
 export default {
     props: {
         'data': {

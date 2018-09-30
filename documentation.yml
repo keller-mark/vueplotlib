@@ -3,6 +3,7 @@ toc:
   - BarPlot
   - ScatterPlot
   - StackedBarPlot
+  - mixin
   - name: Data
   - DataContainer
   - name: History

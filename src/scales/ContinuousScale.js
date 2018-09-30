@@ -35,8 +35,8 @@ export default class ContinuousScale extends AbstractScale {
 
     /**
      * Zooms the scale.
-     * @param {int} newMin New minimum domain element value.
-     * @param {int} newMax New maximum domain element value.
+     * @param {number} newMin New minimum domain element value.
+     * @param {number} newMax New maximum domain element value.
      */
     zoom(newMin, newMax) {
         this._domainFiltered = [newMin, newMax];

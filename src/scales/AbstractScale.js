@@ -87,7 +87,7 @@ export default class AbstractScale {
      * Compares two domain values
      * @param {*} a A domain value
      * @param {*} b Another domain value
-     * @returns {int} Comparison result of -1, 0, or 1.
+     * @returns {number} Comparison result of -1, 0, or 1.
      */
     comparator(a, b) {
         throw new Error('You have to implement the method comparator!');

@@ -46,7 +46,7 @@ import AbstractScale from './../scales/AbstractScale.js';
 import GenomeScale from './../scales/GenomeScale.js';
 import DataContainer from './../data/DataContainer.js';
 
-import mixin from './../mixin.js';
+import mixin from './mixin.js';
 
 let uuid = 0;
 export default {

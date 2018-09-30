@@ -74,8 +74,8 @@ export default class CategoricalScale extends AbstractScale {
 
     /**
      * Zooms the scale.
-     * @param {int} newMinIndex Index of the new minimum element (inclusive)
-     * @param {int} newMaxIndex Index of the new maximum element (inclusive)
+     * @param {number} newMinIndex Index of the new minimum element (inclusive)
+     * @param {number} newMaxIndex Index of the new maximum element (inclusive)
      */
     zoom(newMinIndex, newMaxIndex) {
         let elementsFiltered = this._domain.slice(newMinIndex, newMaxIndex + 1);

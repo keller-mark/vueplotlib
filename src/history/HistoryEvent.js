@@ -15,7 +15,7 @@ export default class HistoryEvent {
 
     /**
      * 
-     * @param {int} type Event type, such as SCALE, etc...
+     * @param {number} type Event type, such as SCALE, etc...
      * @param {string} id Event identifier, used for history
      * @param {string} action Method to call on the object.
      * @param {array} params Parameters with which to call the method.
@@ -28,7 +28,7 @@ export default class HistoryEvent {
     }
 
     /**
-     * @returns {int} The event type.
+     * @returns {number} The event type.
      */
     get type() {
         return this._type;

@@ -38,9 +38,14 @@ import { getRetinaRatio } from './../../helpers.js';
 import AbstractScale from './../../scales/AbstractScale.js';
 import DataContainer from './../../data/DataContainer.js';
 
-import mixin from './../../mixin.js';
+import mixin from './mixin.js';
 
 let uuid = 0;
+/**
+ * @prop {string} x The x-scale variable key.
+ * @prop {string} y The y-scale variable key.
+ * @extends mixin
+ */
 export default {
     name: 'ScatterPlot',
     mixins: [mixin],
