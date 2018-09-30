@@ -5,9 +5,14 @@ const DISPATCH_EVENT_UPDATE = "update";
 
 /**
  * Abstract class representing a scale.
+ * @interface
  */
 export default class AbstractScale {
 
+    /**
+     * @enum
+     * @readonly
+     */
     static types = Object.freeze({ DISCRETE: 1, CONTINUOUS: 2 });
     static unknownColor = "#E3E3E3";
     static unknownString = "Unknown";

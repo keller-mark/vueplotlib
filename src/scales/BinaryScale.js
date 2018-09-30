@@ -14,6 +14,7 @@ export default class BinaryScale extends CategoricalScale {
         super(id, name, [1, 0], ["Yes", "No"]);
     }
 
+    /** @inheritdoc */
     color(domainValue) {
         if(AbstractScale.isUnknown(domainValue)) {
             return AbstractScale.unknownColor;
@@ -21,6 +22,7 @@ export default class BinaryScale extends CategoricalScale {
         return this.colorScale(1 - domainValue);
     }
 
+    /** @inheritdoc */
     comparator(a, b) {
         return d3_descending(
             (a == "nan" ? -1 : +a), 

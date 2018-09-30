@@ -23,6 +23,7 @@ export default class CategoricalScale extends AbstractScale {
         }
     }
 
+    /** @inheritdoc */
     get type() {
         return AbstractScale.types.DISCRETE;
     }
@@ -47,6 +48,7 @@ export default class CategoricalScale extends AbstractScale {
             .range(this.humanDomain);
     }
 
+    /** @inheritdoc */
     toHuman(domainValue) {
         if(AbstractScale.isUnknown(domainValue)) {
             return AbstractScale.unknownString;
@@ -54,6 +56,7 @@ export default class CategoricalScale extends AbstractScale {
         return this.humanScale(domainValue);
     }
 
+    /** @inheritdoc */
     color(domainValue) {
         if(AbstractScale.isUnknown(domainValue)) {
             return AbstractScale.unknownColor;
@@ -61,6 +64,7 @@ export default class CategoricalScale extends AbstractScale {
         return this.colorScale(this.domain.findIndex((el) => (el === domainValue)) / parseFloat(this.domain.length - 1));
     }
 
+    /** @inheritdoc */
     comparator(a, b) {
         return d3_descending(
             (a == "nan" ? -1 : this.domain.indexOf(a)), 

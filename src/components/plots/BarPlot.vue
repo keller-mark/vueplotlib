@@ -50,6 +50,10 @@ import DataContainer from './../../data/DataContainer.js';
 import mixin from './../../mixin.js';
 
 let uuid = 0;
+/**
+ * @prop {string} x The x-scale variable.
+ * @prop {string} y The y-scale variable.
+ */
 export default {
     name: 'BarPlot',
     mixins: [mixin],

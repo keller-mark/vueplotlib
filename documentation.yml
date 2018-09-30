@@ -1,0 +1,21 @@
+toc:
+  - name: Vue Components
+  - BarPlot
+  - ScatterPlot
+  - StackedBarPlot
+  - name: Data
+  - DataContainer
+  - name: History
+  - HistoryEvent
+  - HistoryStack
+  - name: Scale
+  - AbstractScale
+  - BinaryScale
+  - CategoricalScale
+  - ContinuousScale
+  - GenomeScale
+  - name: Sort
+  - AbstractSortVars
+  - SortBy
+  - SortVars1D
+  - SortVars2D

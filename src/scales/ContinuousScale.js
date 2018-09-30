@@ -7,14 +7,17 @@ import AbstractScale from './AbstractScale.js';
  */
 export default class ContinuousScale extends AbstractScale {
 
+    /** @inheritdoc */
     get type() {
         return AbstractScale.types.CONTINUOUS;
     }
 
+    /** @inheritdoc */
     get colorScale() {
         return d3_interpolateYlOrRd;
     }
 
+    /** @inheritdoc */
     color(domainValue) {
         if(AbstractScale.isUnknown(domainValue)) {
             return AbstractScale.unknownColor;
@@ -22,6 +25,7 @@ export default class ContinuousScale extends AbstractScale {
         return this.colorScale((domainValue - this.domain[0]) / parseFloat(this.domain[1] - this.domain[0]));
     }
 
+    /** @inheritdoc */
     comparator(a, b) {
         return d3_descending(
             (a == "nan" ? -1 : +a), 
