@@ -26,6 +26,35 @@ const SIDES = Object.freeze({ "TOP": 1, "LEFT": 2, "RIGHT": 3, "BOTTOM": 4 });
 const ORIENTATIONS = Object.freeze({ "VERTICAL": 1, "HORIZONTAL": 2 }); // vertical = left/right, horizontal = top/bottom
 
 let uuid = 0;
+/**
+ * @prop {string} variable The axis variable key.
+ * @prop {string} side The side for the scale.
+ * @prop {number} tickRotation An angle used to rotate axis tick text.
+ * @prop {number} pWidth The plot width.
+ * @prop {number} pHeight The plot height.
+ * @prop {number} pMarginTop The plot top margin.
+ * @prop {number} pMarginLeft The plot left margin.
+ * @prop {number} pMarginRight The plot right margin.
+ * @prop {number} pMarginBottom The plot bottom margin.
+ * @prop {function} getScale Function that takes a scale key string and returns a scale instance.
+ * @prop {function} getStack Function that returns a HistoryStack instance.
+ * @prop {boolean} disableBrushing Whether to disable brushing functionality and hide the zoomed-out "context" view.
+ * 
+ * @example
+ * <Axis
+ *      variable="y"
+ *      side="left" 
+ *      :tickRotation="-35"
+ *      :pWidth="500"
+ *      :pHeight="300"
+ *      :pMarginTop="10"
+ *      :pMarginLeft="120"
+ *      :pMarginRight="10"
+ *      :pMarginBottom="150"
+ *      :getScale="getScale"
+ *      :getStack="getStack"
+ *  />
+ */
 export default {
     name: 'Axis',
     props: {
@@ -36,7 +65,8 @@ export default {
             type: String
         },
         'tickRotation': {
-            type: Number
+            type: Number,
+            default: 0
         },
         'pWidth': {
             type: Number

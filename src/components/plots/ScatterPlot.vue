@@ -45,6 +45,21 @@ let uuid = 0;
  * @prop {string} x The x-scale variable key.
  * @prop {string} y The y-scale variable key.
  * @extends mixin
+ * 
+ * @example
+ * <ScatterPlot
+ *      data="xy_data"
+ *      x="x" 
+ *      y="y"
+ *      :pWidth="500"
+ *      :pHeight="300"
+ *      :pMarginTop="10"
+ *      :pMarginLeft="120"
+ *      :pMarginRight="10"
+ *      :pMarginBottom="150"
+ *      :getData="getData"
+ *      :getScale="getScale"
+ * />
  */
 export default {
     name: 'ScatterPlot',

@@ -22,6 +22,55 @@ const addProp = function(slotArray, newProps) {
     }
     return [];
 }
+/**
+ * This component is a container for axis and plot components, 
+ * which passes its props to its children and imposes styles.
+ * @prop {number} pWidth The plot width.
+ * @prop {number} pHeight The plot height.
+ * @prop {number} pMarginTop The plot top margin.
+ * @prop {number} pMarginLeft The plot left margin.
+ * @prop {number} pMarginRight The plot right margin.
+ * @prop {number} pMarginBottom The plot bottom margin.
+ * 
+ * @example
+ * <PlotContainer
+ *    :pWidth="500"
+ *    :pHeight="300"
+ *    :pMarginTop="10"
+ *    :pMarginLeft="120"
+ *    :pMarginRight="10"
+ *    :pMarginBottom="150"
+ *  >
+ *    <Axis
+ *      slot="axisLeft" <!-- note the slot prop -->
+ *      variable="exposure"
+ *      side="left" 
+ *      :tickRotation="-35"
+ *      :getScale="getScale"
+ *      :getStack="getStack"
+ *      <!-- note the axis props that are omitted because they are being inherited -->
+ *    />
+ *    <BarPlot
+ *      slot="plot" <!-- note the slot prop -->
+ *      data="exposures_single_data"
+ *      x="signature" 
+ *      y="exposure"
+ *      :getData="getData"
+ *      :getScale="getScale"
+ *      <!-- note the plot props that are omitted because they are being inherited -->
+ *    />
+ *    <Axis
+ *      slot="axisBottom" <!-- note the slot prop -->
+ *      variable="signature"
+ *      side="bottom" 
+ *      :tickRotation="-65"
+ *      :getScale="getScale"
+ *      :getStack="getStack"
+ *      :disableBrushing="true"
+ *      <!-- note the axis props that are omitted because they are being inherited -->
+ *    />
+ *  </PlotContainer>
+ */
 export default {
     name: 'PlotContainer',
     props: {

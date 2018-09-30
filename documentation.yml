@@ -4,6 +4,10 @@ toc:
   - ScatterPlot
   - StackedBarPlot
   - mixin
+  - Axis
+  - GenomeAxis
+  - PlotContainer
+  - SortOptions
   - name: Data
   - DataContainer
   - name: History

@@ -54,6 +54,21 @@ let uuid = 0;
  * @prop {string} x The x-scale variable key.
  * @prop {string} y The y-scale variable key.
  * @extends mixin
+ * 
+ * @example
+ * <BarPlot
+ *      data="exposures_single_data"
+ *      x="signature" 
+ *      y="exposure"
+ *      :pWidth="500"
+ *      :pHeight="300"
+ *      :pMarginTop="10"
+ *      :pMarginLeft="120"
+ *      :pMarginRight="10"
+ *      :pMarginBottom="150"
+ *      :getData="getData"
+ *      :getScale="getScale"
+ * />
  */
 export default {
     name: 'BarPlot',

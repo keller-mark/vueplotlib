@@ -59,6 +59,22 @@ let uuid = 0;
  * @prop {string} y The y-scale variable key.
  * @prop {string} c The color-scale variable key.
  * @extends mixin
+ * 
+ * @example
+ * <StackedBarPlot
+ *      data="exposures_data"
+ *      x="sample_id" 
+ *      y="exposure"
+ *      c="signature"
+ *      :pWidth="500"
+ *      :pHeight="300"
+ *      :pMarginTop="10"
+ *      :pMarginLeft="120"
+ *      :pMarginRight="10"
+ *      :pMarginBottom="150"
+ *      :getData="getData"
+ *      :getScale="getScale"
+ * />
  */
 export default {
     name: 'StackedBarPlot',
