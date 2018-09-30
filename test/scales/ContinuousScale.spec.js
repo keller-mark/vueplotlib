@@ -1,4 +1,4 @@
-import ContinuousScale from '../../../src/scales/ContinuousScale';
+import ContinuousScale from '../../src/scales/ContinuousScale';
 
 test('able to create a ContinuousScale', () => {
     let scale = new ContinuousScale('exposure', 'Exposure', [0, 90000]);

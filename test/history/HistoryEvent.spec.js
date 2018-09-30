@@ -1,4 +1,4 @@
-import HistoryEvent from '../../../src/history/HistoryEvent';
+import HistoryEvent from '../../src/history/HistoryEvent';
 
 test('able to create a HistoryEvent', () => {
     let event = new HistoryEvent(HistoryEvent.types.SCALE, "sample_id", "zoom", [2, 5]);
