@@ -12,7 +12,6 @@
     "build:examples": "vue-cli-service build --dest examples ./examples-src/index.js",
     "build": "yarn run build:release && yarn run build:examples",
     "lint": "vue-cli-service lint ./src/index.js",
-
     "docs": "documentation build src/** -f html -o docs",
     "test": "jest",
     "test:coveralls": "jest --coverage --coverageReporters=text-lcov | coveralls"
@@ -24,13 +23,13 @@
     "save-svg-as-png": "^1.4.6"
   },
   "devDependencies": {
-    "vue": "^2.5.13",
-    "coveralls": "^3.0.2",
-    "jest": "^23.6.0",
-    "documentation": "^8.1.2",
     "@vue/cli-plugin-babel": "^3.0.0-beta.6",
     "@vue/cli-plugin-eslint": "^3.0.0-beta.6",
     "@vue/cli-service": "^3.0.0-beta.6",
+    "coveralls": "^3.0.2",
+    "documentation": "^8.1.2",
+    "jest": "^23.6.0",
+    "vue": "^2.5.13",
     "vue-template-compiler": "^2.5.13"
   },
   "babel": {
