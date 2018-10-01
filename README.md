@@ -113,10 +113,10 @@ yarn run docs
         :pMarginRight="20"
         :pMarginBottom="0"
         ```
-- [ ] plots should emit click events, specifying variables in a predefined order to a prop-supplied callback
+- [x] plots should emit click events, specifying variables in a predefined order to a prop-supplied callback
     - example:
     ```js
-    @click="chooseSample" // will be called with chooseSample(x, y, c) if the predefined ordering is [x, y, c]
+    :clickHandler="chooseSample" // will be called with chooseSample(x, y, c)
     ```
 - [x] plots should have tooltips
     - tooltips should obtain human-readable variable names from the appropriate scale
