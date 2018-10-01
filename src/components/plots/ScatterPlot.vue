@@ -10,6 +10,16 @@
                 'left': (this.pMarginLeft) + 'px'
             }"
         ></canvas>
+        <div :style="{
+                'display': (showHighlight ? 'inline-block' : 'none'),
+                'height': '6px', 
+                'width': '6px',
+                'border-radius': '50%',
+                'top': (this.pMarginTop + this.highlightY1 - 3) + 'px',
+                'left': (this.pMarginLeft + this.highlightX1 - 3) + 'px'
+            }"
+            class="vdp-plot-highlight"
+        ></div>
         <div :id="this.tooltipElemID" class="vdp-tooltip" :style="this.tooltipPositionAttribute">
             <table>
                 <tr>
@@ -26,9 +36,8 @@
 </template>
 
 <script>
-import { scaleBand as d3_scaleBand, scaleLinear as d3_scaleLinear } from 'd3-scale';
+import { scaleLinear as d3_scaleLinear } from 'd3-scale';
 import { select as d3_select } from 'd3-selection';
-import { stack as d3_stack, stackOrderNone as d3_stackOrderNone, stackOffsetNone as d3_stackOffsetNone } from 'd3-shape';
 import { mouse as d3_mouse } from 'd3';
 import { Delaunay } from 'd3-delaunay';
 import { debounce } from 'lodash';
@@ -79,7 +88,11 @@ export default {
             tooltipInfo: {
                 x: '',
                 y: ''
-            }
+            },
+            highlightXScale: null,
+            highlightYScale: null,
+            highlightX1: 0,
+            highlightY1: 0
         }
     },
     beforeCreate() {
@@ -100,7 +113,15 @@ export default {
         this._xScale.onUpdate(this.uuid, this.drawPlot);
         this._yScale.onUpdate(this.uuid, this.drawPlot);
 
-        // TODO: subscribe to data mutations as well?
+        // Subscribe to data mutations here
+        this._dataContainer.onUpdate(this.uuid, this.drawPlot);
+
+        // Subscribe to highlights here
+        this._xScale.onHighlight(this.uuid, this.highlightX);
+        this._xScale.onHighlightDestroy(this.uuid, this.highlightDestroy);
+
+        this._yScale.onHighlight(this.uuid, this.highlightY);
+        this._yScale.onHighlightDestroy(this.uuid, this.highlightDestroy);
     },
     mounted() {
         this.drawPlot();
@@ -114,13 +135,29 @@ export default {
             // Set position
             this.tooltipPosition.left = mouseX + this.pMarginLeft;
             this.tooltipPosition.top = mouseY + this.pMarginTop;
-            // TODO dispatch
+            
+            // Dispatch highlights
+            this._xScale.emitHighlight(x);
+            this._yScale.emitHighlight(y);
         },
         tooltipDestroy: function() {
             this.tooltipHide();
 
-            // TODO: Destroy all dispatches here
-            // dispatch.call("link-donor-destroy");
+            // Destroy all highlights here
+            this._xScale.emitHighlightDestroy();
+            this._yScale.emitHighlightDestroy();
+        },
+        highlightX(value) {
+            this.highlightX1 = this.highlightXScale(value);
+            this.showHighlight = true;
+
+        },
+        highlightY(value) {
+            this.highlightY1 = this.highlightYScale(value);
+            this.showHighlight = true;
+        },
+        highlightDestroy() {
+            this.showHighlight = false;
         },
         drawPlot() {
             const vm = this;
@@ -133,12 +170,15 @@ export default {
             const x = d3_scaleLinear()
                 .domain(xScale.domainFiltered)
                 .range([0, vm.pWidth]);
+
+            vm.highlightXScale = x;
             
             const y = d3_scaleLinear()
                 .domain(yScale.domainFiltered)
                 .range([vm.pHeight, 0]);
-              
-          
+
+            vm.highlightYScale = y;
+            
             
             /*
              * Scale up the canvas
@@ -172,10 +212,10 @@ export default {
              */
             const points = data.map((d) => [x(d[vm.x]), y(d[vm.y])]);
             const delaunay = Delaunay.from(points);
-            const voronoi = delaunay.voronoi([0, 0, vm.pWidth, vm.pHeight]);
 
             /*
             // Show the voronoi edges
+            const voronoi = delaunay.voronoi([0, 0, vm.pWidth, vm.pHeight]);
             context.beginPath();
             voronoi.render(context);
             context.stroke();
@@ -208,21 +248,5 @@ export default {
 </script>
 
 <style>
-.vdp-plot {
-    position: absolute;
-}
-.vdp-plot-hidden {
-    position: absolute;
-    display: none;
-}
-
-.vdp-tooltip {
-    position: absolute;
-    border: 1px solid rgb(205, 205, 205);
-    background-color: rgba(255, 255, 255, 0.95);
-    z-index: 1;
-    padding: 0.25rem;
-    border-radius: 3px;
-    transform: translate(10%, -50%);
-}
+@import '../../style/plot-style.css';
 </style>

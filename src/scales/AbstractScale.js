@@ -2,6 +2,9 @@ import { interpolateRdYlBu as d3_interpolateRdYlBu } from "d3-scale-chromatic";
 import { dispatch as d3_dispatch } from "d3-dispatch";
 
 const DISPATCH_EVENT_UPDATE = "update";
+const DISPATCH_EVENT_HIGHLIGHT = "highlight";
+const DISPATCH_EVENT_HIGHLIGHT_DESTROY = "highlight-destroy";
+
 
 /**
  * Abstract class representing a scale.
@@ -28,7 +31,11 @@ export default class AbstractScale {
         this._name = name;
         this._domain = domain;
         this._domainFiltered = domain.slice();
-        this._dispatch = d3_dispatch(DISPATCH_EVENT_UPDATE);
+        this._dispatch = d3_dispatch(
+            DISPATCH_EVENT_UPDATE, 
+            DISPATCH_EVENT_HIGHLIGHT, 
+            DISPATCH_EVENT_HIGHLIGHT_DESTROY
+        );
     }
     
     /**
@@ -125,10 +132,42 @@ export default class AbstractScale {
     }
 
     /**
+     * Subscribe to highlight events.
+     * @param {string} componentId 
+     * @param {function} callback 
+     */
+    onHighlight(componentId, callback) {
+        this._dispatch.on(DISPATCH_EVENT_HIGHLIGHT + "." + componentId, callback);
+    }
+
+    /**
+     * Subscribe to highlight destroy events.
+     * @param {string} componentId 
+     * @param {function} callback 
+     */
+    onHighlightDestroy(componentId, callback) {
+        this._dispatch.on(DISPATCH_EVENT_HIGHLIGHT_DESTROY + "." + componentId, callback);
+    }
+
+    /**
      * Emit the update event.
      */
     emitUpdate() {
         this._dispatch.call(DISPATCH_EVENT_UPDATE);
+    }
+
+    /**
+     * Emit the highlight event.
+     */
+    emitHighlight(domainValue) {
+        this._dispatch.call(DISPATCH_EVENT_HIGHLIGHT, null, domainValue);
+    }
+
+    /**
+     * Emit the highlight destroy event.
+     */
+    emitHighlightDestroy() {
+        this._dispatch.call(DISPATCH_EVENT_HIGHLIGHT_DESTROY);
     }
 
     /**

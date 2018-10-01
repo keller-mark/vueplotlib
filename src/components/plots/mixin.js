@@ -45,7 +45,8 @@ export default {
             tooltipPosition: {
                 left: null,
                 top: null
-            }
+            },
+            showHighlight: false
         };
     },
     computed: {
@@ -55,6 +56,9 @@ export default {
         hiddenPlotElemID: function() {
             return 'plot_h_' + this.uuid;
         },
+        highlightElemID: function() {
+            return 'highlight_' + this.uuid;
+        },
         tooltipElemID: function() {
             return 'tooltip_' + this.uuid;
         },
@@ -63,6 +67,9 @@ export default {
         },
         hiddenPlotSelector: function() {
             return "#" + this.hiddenPlotElemID;
+        },
+        highlightSelector: function() {
+            return "#" + this.highlightElemID;
         },
         tooltipSelector: function() {
             return "#" + this.tooltipElemID;

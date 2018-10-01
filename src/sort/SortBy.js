@@ -1,4 +1,3 @@
-import AbstractSortVars from "./AbstractSortVars";
 
 /**
  * Represents options that specify how to sort a dataset.
@@ -7,12 +6,11 @@ export default class SortBy {
     /**
      * Create a SortBy object (can be passed to SortOptions component by= prop).
      * @param {string} data The key for the data.
-     * @param {object} on A subclass of AbstractSortVars.
+     * @param {array} variables An array of variable key strings.
      */
-    constructor(data, on) {
+    constructor(data, variables) {
         this._data = data;
-        this._on = on;
-        console.assert(this._on instanceof AbstractSortVars);
+        this._variables = variables;
     }
 
     /**
@@ -23,9 +21,9 @@ export default class SortBy {
     }
 
     /**
-     * @returns The SortVars instance.
+     * @returns The array of variable key strings.
      */
-    get on() {
-        return this._on;
+    get variables() {
+        return this._variables;
     }
 }

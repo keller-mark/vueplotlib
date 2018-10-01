@@ -96,29 +96,22 @@ export default class CategoricalScale extends AbstractScale {
     /**
      * Sort the data based on the variables passed in.
      * @param {object} dataContainer DataContainer instance holding the data used to sort.
-     * @param {string} var1D 
-     * @param {string} var2D Optional.
+     * @param {string} var1D
      * @param {boolean} ascending Whether to sort ascending or descending.
      */
-    sort(dataContainer, var1D, var2D, ascending=true) {
+    sort(dataContainer, var1D, ascending=true) {
         // TODO: use d3_descending/ascending
         let comparator;
         let compareFunc = d3_ascending;
         if(!ascending) {
             compareFunc = d3_descending;
         }
+                
+        comparator = (a, b) => compareFunc(
+            (a[var1D] == "nan" ? -1 : +a[var1D]), 
+            (b[var1D] == "nan" ? -1 : +b[var1D])
+        );
         
-        if(var1D !== undefined && var2D !== undefined) {
-            comparator = (a, b) => compareFunc(
-                (a[var1D][var2D] == "nan" ? -1 : +a[var1D][var2D]), 
-                (b[var1D][var2D] == "nan" ? -1 : +b[var1D][var2D])
-            );
-        } else if(var1D !== undefined) {
-            comparator = (a, b) => compareFunc(
-                (a[var1D] == "nan" ? -1 : +a[var1D]), 
-                (b[var1D] == "nan" ? -1 : +b[var1D])
-            );
-        }
         // TODO: Sort the data using the comparator, doing something like this
         let data = dataContainer.dataCopy;
         console.assert(data instanceof Array);
