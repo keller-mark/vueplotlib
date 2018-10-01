@@ -9,8 +9,10 @@ These components were developed for use in [iMuSE](https://github.com/lrgr/mutat
 - [Demo](https://keller-mark.github.io/vue-declarative-plots/)
 - [Documentation](https://keller-mark.github.io/vue-declarative-plots/docs/)
 
+
 ### Installation
 *Coming soon*
+
 
 ### Development
 
@@ -39,6 +41,28 @@ Compile documentation with [documentationjs](https://documentation.js.org/):
 yarn run docs
 ```
 
+
+### Plot Components
+- BarPlot :white_check_mark:
+- StackedBarPlot :white_check_mark:
+- ScatterPlot :white_check_mark:
+- GenomeScatterPlot
+- GenomeStackedBarPlot
+- GenomeTrackPlot
+- TrackPlot
+- HeatmapPlot
+
+
+### Axis Components
+- Axis :white_check_mark:
+- GenomeAxis
+- DendrogramAxis
+
+
+### Other Components
+- PlotContainer :white_check_mark:
+- Legend
+- SortOptions :white_check_mark:
 
 
 ### Goals: 
