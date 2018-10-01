@@ -61,9 +61,9 @@ yarn run docs
     - [x] scales will always expose a domain
     - [x] scales will always expose a domain-var-to-color function
     - [ ] the color scale (or even individual colors) should also be able to be changed programmatically
-    - [ ] scales will always expose a domain-var-to-human-readable-text function
-    - [ ] categorical scales will always expose a sort function that takes in a comparator function and a specification of the data that will define the ordering
-    - [ ] scales will always expose a filter function (and a corresponding filter-reset function)
+    - [x] scales will always expose a domain-var-to-human-readable-text function
+    - [x] categorical scales will always expose a sort function that takes in a specification of the data that will define the ordering
+    - [x] scales will always expose a filter function (and a corresponding filter-reset function)
         - if categorical, this will accept an array of new values
         - if continuous, this will accept a `[min, max]` array
         - if binary, this will accept a boolean value
@@ -120,7 +120,7 @@ yarn run docs
     ```
 - [x] plots should have tooltips
     - tooltips should obtain human-readable variable names from the appropriate scale
-- [ ] plots should dispatch applicable hover events
+- [x] plots should dispatch applicable hover events
     - dispatching should be done through the scale
     - example:
         - hovering on a section of a bar on a stacked bar plot would cause dispatches for (at least) the `x` and `color` variables
