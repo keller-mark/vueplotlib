@@ -62,7 +62,7 @@ import { scaleBand as d3_scaleBand, scaleLinear as d3_scaleLinear } from 'd3-sca
 import { select as d3_select } from 'd3-selection';
 import { stack as d3_stack, stackOrderNone as d3_stackOrderNone, stackOffsetNone as d3_stackOffsetNone } from 'd3-shape';
 import { mouse as d3_mouse } from 'd3';
-import { debounce } from 'lodash';
+import debounce from 'lodash/debounce';
 import { TOOLTIP_DEBOUNCE } from './../../constants.js';
 import { getRetinaRatio } from './../../helpers.js';
 
