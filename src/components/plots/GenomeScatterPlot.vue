@@ -229,21 +229,5 @@ export default {
 </script>
 
 <style>
-.vdp-plot {
-    position: absolute;
-}
-.vdp-plot-hidden {
-    position: absolute;
-    display: none;
-}
-
-.vdp-tooltip {
-    position: absolute;
-    border: 1px solid rgb(205, 205, 205);
-    background-color: rgba(255, 255, 255, 0.95);
-    z-index: 1;
-    padding: 0.25rem;
-    border-radius: 3px;
-    transform: translate(10%, -50%);
-}
+@import '../../style/plot-style.css';
 </style>

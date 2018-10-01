@@ -11,7 +11,7 @@
             }"
         ></canvas>
         <canvas 
-            :id="this.hiddenPlotElemID" 
+            :id="this.hiddenPlotElemID"
             class="vdp-plot-hidden" 
             :style="{
                 'height': (this.pHeight) + 'px', 
@@ -20,6 +20,24 @@
                 'left': (this.pMarginLeft) + 'px'
             }"
         ></canvas>
+        <div :style="{
+                'display': (showHighlight ? 'inline-block' : 'none'),
+                'height': (this.pHeight) + 'px', 
+                'width': '1px',
+                'top': (this.pMarginTop) + 'px',
+                'left': (this.pMarginLeft + this.highlightX1) + 'px'
+            }"
+            class="vdp-plot-highlight"
+        ></div>
+        <div :style="{
+                'display': (showHighlight ? 'inline-block' : 'none'),
+                'height': (this.pHeight) + 'px', 
+                'width': '1px',
+                'top': (this.pMarginTop) + 'px',
+                'left': (this.pMarginLeft + this.highlightX2) + 'px'
+            }"
+            class="vdp-plot-highlight"
+        ></div>
         <div :id="this.tooltipElemID" class="vdp-tooltip" :style="this.tooltipPositionAttribute">
             <table>
                 <tr>
@@ -96,7 +114,11 @@ export default {
                 x: '',
                 y: '',
                 c: ''
-            }
+            },
+            highlightX1: 0,
+            highlightX2: 0,
+            highlightScale: null,
+            barWidth: 0
         }
     },
     beforeCreate() {
@@ -107,6 +129,7 @@ export default {
         // Set data
         this._dataContainer = this.getData(this.data);
         console.assert(this._dataContainer instanceof DataContainer);
+
         // Set scale variables
         this._xScale = this.getScale(this.x);
         this._yScale = this.getScale(this.y);
@@ -120,7 +143,12 @@ export default {
         this._yScale.onUpdate(this.uuid, this.drawPlot);
         this._cScale.onUpdate(this.uuid, this.drawPlot);
 
-        // TODO: subscribe to data mutations as well?
+        // Subscribe to data mutations here
+        this._dataContainer.onUpdate(this.uuid, this.drawPlot);
+
+        // Subscribe to highlights here
+        this._xScale.onHighlight(this.uuid, this.highlight);
+        this._xScale.onHighlightDestroy(this.uuid, this.highlightDestroy);
     },
     mounted() {
         this.drawPlot();
@@ -135,13 +163,24 @@ export default {
             // Set position
             this.tooltipPosition.left = mouseX + this.pMarginLeft;
             this.tooltipPosition.top = mouseY + this.pMarginTop;
-            // TODO dispatch
+
+            // Dispatch highlights
+            this._xScale.emitHighlight(x);
         },
         tooltipDestroy: function() {
             this.tooltipHide();
 
-            // TODO: Destroy all dispatches here
-            // dispatch.call("link-donor-destroy");
+            // Destroy all highlights here
+            this._xScale.emitHighlightDestroy();
+        },
+        highlight(value) {
+            this.highlightX1 = this.highlightScale(value);
+            this.highlightX2 = this.highlightScale(value) + this.barWidth;
+            this.showHighlight = true;
+
+        },
+        highlightDestroy() {
+            this.showHighlight = false;
         },
         drawPlot() {
             const vm = this;
@@ -156,12 +195,15 @@ export default {
             const x = d3_scaleBand()
                 .domain(xScale.domainFiltered)
                 .range([0, vm.pWidth]);
+
+            vm.highlightScale = x;
             
             const y = d3_scaleLinear()
                 .domain(yScale.domainFiltered)
                 .range([vm.pHeight, 0]);
 
             const barWidth = vm.pWidth / xScale.domainFiltered.length;
+            vm.barWidth = barWidth;
               
             const stack = d3_stack()
                 .keys(cScale.domainFiltered)
@@ -213,7 +255,7 @@ export default {
                     ret.push((nextCol & 0xff00) >> 8); // G 
                     ret.push((nextCol & 0xff0000) >> 16); // B
 
-                    nextCol += 1;
+                    nextCol += 20;
                 }
                 let col = "rgb(" + ret.join(',') + ")";
                 return col;
@@ -268,21 +310,5 @@ export default {
 </script>
 
 <style>
-.vdp-plot {
-    position: absolute;
-}
-.vdp-plot-hidden {
-    position: absolute;
-    display: none;
-}
-
-.vdp-tooltip {
-    position: absolute;
-    border: 1px solid rgb(205, 205, 205);
-    background-color: rgba(255, 255, 255, 0.95);
-    z-index: 1;
-    padding: 0.25rem;
-    border-radius: 3px;
-    transform: translate(10%, -50%);
-}
+@import '../../style/plot-style.css';
 </style>
