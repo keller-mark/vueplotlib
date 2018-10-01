@@ -9,6 +9,7 @@
  * @prop {number} pMarginBottom The plot bottom margin.
  * @prop {function} getData Function that takes a data key string and returns a DataContainer.
  * @prop {function} getScale Function that takes a scale key string and returns a scale instance.
+ * @prop {function} clickHandler Function that will be called upon click of plot.
  */
 export default {
     props: {
@@ -37,6 +38,9 @@ export default {
             type: Function
         },
         'getScale': {
+            type: Function
+        },
+        'clickHandler': {
             type: Function
         }
     },

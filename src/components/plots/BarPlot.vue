@@ -85,6 +85,7 @@ let uuid = 0;
  *      :pMarginBottom="150"
  *      :getData="getData"
  *      :getScale="getScale"
+ *      :clickHandler="myClickHandler"
  * />
  */
 export default {
@@ -275,6 +276,24 @@ export default {
                 }
             })
             .on("mouseleave", vm.tooltipDestroy);
+
+            if(vm.clickHandler !== undefined) {
+                canvas.on("click", () => {
+                    const mouse = d3_mouse(canvasNode);
+                    const mouseX = mouse[0];
+                    const mouseY = mouse[1];
+
+                    // Get the corresponding pixel color on the hidden canvas
+                    const col = contextHidden.getImageData(mouseX * ratio, mouseY * ratio, scaledWidth, scaledHeight).data;
+                    const colString = "rgb(" + col[0] + "," + col[1] + ","+ col[2] + ")";
+                    // Look up the node in our map
+                    const node = colToNode[colString];
+
+                    if(node) {
+                        vm.clickHandler(node["x"], node["y"]);
+                    }
+                });
+            }
             
         }
     }

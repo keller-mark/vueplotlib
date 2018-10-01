@@ -32,6 +32,7 @@
         c="signature"
         :getData="getData"
         :getScale="getScale"
+        :clickHandler="exampleClickHandler"
       />
       <Axis
         slot="axisBottom"
@@ -67,6 +68,7 @@
         y="exposure"
         :getData="getData"
         :getScale="getScale"
+        :clickHandler="exampleClickHandler"
       />
       <Axis
         slot="axisBottom"
@@ -103,6 +105,7 @@
         y="y"
         :getData="getData"
         :getScale="getScale"
+        :clickHandler="exampleClickHandler"
       />
       <Axis
         slot="axisBottom"
@@ -291,7 +294,9 @@ export default {
     
   },
   methods: {
-
+    exampleClickHandler(x, y, c) {
+      alert("You clicked something with data: " + JSON.stringify({x: x, y: y, c: c}));
+    }
   }
 }
 </script>

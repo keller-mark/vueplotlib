@@ -68,6 +68,7 @@ let uuid = 0;
  *      :pMarginBottom="150"
  *      :getData="getData"
  *      :getScale="getScale"
+ *      :clickHandler="myClickHandler"
  * />
  */
 export default {
@@ -242,6 +243,21 @@ export default {
                 }
             })
             .on("mouseleave", vm.tooltipDestroy);
+
+            if(vm.clickHandler !== undefined) {
+                canvas.on("click", () => {
+                    const mouse = d3_mouse(canvasNode);
+                    const mouseX = mouse[0];
+                    const mouseY = mouse[1];
+
+                    const i = delaunay.find(mouseX, mouseY);
+                    const node = data[i];
+
+                    if(node) {
+                        vm.clickHandler(node[vm.x], node[vm.y]); 
+                    }
+                });
+            }
         }
     }
 }
