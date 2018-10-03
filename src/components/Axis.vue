@@ -219,7 +219,7 @@ export default {
                 axisFunction = d3_axisBottom;
             }
 
-            let scaleZoomedOut, scaleZoomedIn;
+            let scaleZoomedOut, scaleZoomedIn, tickSizeOuter;
             if(varScale.type === AbstractScale.types.DISCRETE) {
                 scaleZoomedOut = d3_scaleBand()
                     .domain(varScale.domain)
@@ -227,6 +227,7 @@ export default {
                 scaleZoomedIn = d3_scaleBand()
                     .domain(varScale.domainFiltered)
                     .range(range);
+                tickSizeOuter = 0;
             } else if(varScale.type === AbstractScale.types.CONTINUOUS) {
                 scaleZoomedOut = d3_scaleLinear()
                     .domain(varScale.domain)
@@ -234,6 +235,7 @@ export default {
                 scaleZoomedIn = d3_scaleLinear()
                     .domain(varScale.domainFiltered)
                     .range(range);
+                tickSizeOuter = 6;
                 // TODO: options for log, etc...
             }
 
@@ -253,7 +255,7 @@ export default {
             /*
              * The zoomed-in axis
              */
-            const ticksZoomedIn = containerZoomedIn.call(axisFunction(scaleZoomedIn));
+            const ticksZoomedIn = containerZoomedIn.call(axisFunction(scaleZoomedIn).tickSizeOuter(tickSizeOuter));
             const textBboxZoomedIn = ticksZoomedIn.select("text").node().getBBox();
 
             const tickTransformFunction = (d, i, v) => {
@@ -316,7 +318,7 @@ export default {
                         .attr("class", "axis-zoomed-out")
                         .attr("transform", "translate(" + zoomedOutTranslateX + "," + zoomedOutTranslateY + ")");
                 
-                const ticksZoomedOut = containerZoomedOut.call(axisFunction(scaleZoomedOut));
+                const ticksZoomedOut = containerZoomedOut.call(axisFunction(scaleZoomedOut).tickSizeOuter(tickSizeOuter));
                 const textBboxZoomedOut = ticksZoomedOut.select("text").node().getBBox();
 
                 ticksZoomedOut.selectAll("text")	

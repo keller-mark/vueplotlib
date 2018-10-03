@@ -117,6 +117,43 @@
       />
     </PlotContainer>
 
+    <h3>&lt;MultiBoxPlot/&gt;</h3>
+    <PlotContainer
+      :pWidth="500"
+      :pHeight="300"
+      :pMarginTop="10"
+      :pMarginLeft="120"
+      :pMarginRight="10"
+      :pMarginBottom="150"
+    >
+      <Axis
+        slot="axisLeft"
+        variable="exposure"
+        side="left" 
+        :tickRotation="-35"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+      <MultiBoxPlot
+        slot="plot"
+        data="exposures_data"
+        x="signature"
+        y="exposure"
+        :getData="getData"
+        :getScale="getScale"
+        :clickHandler="exampleClickHandler"
+        :drawOutliers="true"
+      />
+      <Axis
+        slot="axisBottom"
+        variable="signature"
+        side="bottom" 
+        :tickRotation="-65"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+    </PlotContainer>
+
     <h3>&lt;SortOptions/&gt;</h3>
     <SortOptions 
       variable="sample_id" 
@@ -137,7 +174,7 @@
 import { set as d3_set } from 'd3-collection';
 // Plots
 import { PlotContainer, Axis } from '../src/index.js';
-import { StackedBarPlot, BarPlot, ScatterPlot } from '../src/index.js';
+import { StackedBarPlot, BarPlot, ScatterPlot, MultiBoxPlot } from '../src/index.js';
 
 // Data
 import DataContainer from '../src/data/DataContainer.js';
@@ -272,7 +309,8 @@ export default {
     BarPlot,
     SortOptions,
     Stack,
-    ScatterPlot
+    ScatterPlot,
+    MultiBoxPlot
   },
   data() {
     return {
