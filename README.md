@@ -50,7 +50,7 @@ yarn run docs
 - GenomeStackedBarPlot
 - GenomeTrackPlot
 - TrackPlot
-- HeatmapPlot
+- MultiTrackPlot
 - BoxPlot
 - MultiBoxPlot :white_check_mark:
 
