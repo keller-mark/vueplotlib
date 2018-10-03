@@ -52,7 +52,7 @@ yarn run docs
 - TrackPlot
 - HeatmapPlot
 - BoxPlot
-- MultiBoxPlot
+- MultiBoxPlot :white_check_mark:
 
 
 ### Axis Components
