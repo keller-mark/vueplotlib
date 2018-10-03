@@ -51,6 +51,8 @@ yarn run docs
 - GenomeTrackPlot
 - TrackPlot
 - HeatmapPlot
+- BoxPlot
+- MultiBoxPlot
 
 
 ### Axis Components
