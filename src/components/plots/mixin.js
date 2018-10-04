@@ -109,7 +109,8 @@ export default {
             // stub
         },
         downloadPlot: function() {
-            return document.getElementById(this.plotElemID).toDataURL("image/png");
+            let image = document.getElementById(this.plotElemID).toDataURL("image/png");
+            document.write('<img src="'+image+'"/>');
         }
     }
 }

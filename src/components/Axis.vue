@@ -516,9 +516,8 @@ export default {
             
         },
         downloadAxis() {
-            console.log(saveSvgAsPng);
-            // TODO
-
+            let node = d3_select(this.axisSelector).select("svg").node();
+            saveSvgAsPng(node, this.axisElemID + ".png");
         }
     }
 }
