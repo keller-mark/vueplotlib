@@ -142,8 +142,8 @@ export default {
     methods: {
         tooltip: function(mouseX, mouseY, x, c) {
             // Set values
-            this.tooltipInfo.x = x; // TODO: scale .toHuman
-            this.tooltipInfo.c = c; // TODO: scale .toHuman
+            this.tooltipInfo.x = this._xScale.toHuman(x);
+            this.tooltipInfo.c = this._cScale.toHuman(c);
 
             // Set position
             this.tooltipPosition.left = mouseX + this.pMarginLeft;

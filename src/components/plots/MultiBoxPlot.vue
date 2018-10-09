@@ -181,7 +181,7 @@ export default {
     methods: {
         tooltip: function(mouseX, mouseY, node) {
             // Set values
-            this.tooltipInfo.x = node.x;// TODO: scale .toHuman
+            this.tooltipInfo.x = this._xScale.toHuman(node.x);
             this.tooltipInfo.min = node.min;
             this.tooltipInfo.q1 = node.q1;
             this.tooltipInfo.median = node.median;
