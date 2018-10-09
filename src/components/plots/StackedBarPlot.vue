@@ -285,17 +285,21 @@ export default {
              */
             const canvasNode = canvas.node();
 
+            const getDataFromMouse = (mouseX, mouseY) => {
+                // Get the corresponding pixel color on the hidden canvas
+                const col = contextHidden.getImageData(mouseX * ratio, mouseY * ratio, scaledWidth, scaledHeight).data;
+                const colString = "rgb(" + col[0] + "," + col[1] + ","+ col[2] + ")";
+                // Look up the node in our map
+                return colToNode[colString];
+            };
+
             const debouncedTooltipDestroy = debounce(vm.tooltipDestroy, TOOLTIP_DEBOUNCE);
             canvas.on("mousemove", () => {
                 const mouse = d3_mouse(canvasNode);
                 const mouseX = mouse[0];
                 const mouseY = mouse[1];
 
-                // Get the corresponding pixel color on the hidden canvas
-                const col = contextHidden.getImageData(mouseX * ratio, mouseY * ratio, scaledWidth, scaledHeight).data;
-                const colString = "rgb(" + col[0] + "," + col[1] + ","+ col[2] + ")";
-                // Look up the node in our map
-                const node = colToNode[colString];
+                const node = getDataFromMouse(mouseX, mouseY);
 
                 if(node) {
                     vm.tooltip(mouseX, mouseY, node["x"], node["y"], node["c"]); 
@@ -311,11 +315,7 @@ export default {
                     const mouseX = mouse[0];
                     const mouseY = mouse[1];
 
-                    // Get the corresponding pixel color on the hidden canvas
-                    const col = contextHidden.getImageData(mouseX * ratio, mouseY * ratio, scaledWidth, scaledHeight).data;
-                    const colString = "rgb(" + col[0] + "," + col[1] + ","+ col[2] + ")";
-                    // Look up the node in our map
-                    const node = colToNode[colString];
+                    const node = getDataFromMouse(mouseX, mouseY);
 
                     if(node) {
                         vm.clickHandler(node["x"], node["y"], node["c"]); 

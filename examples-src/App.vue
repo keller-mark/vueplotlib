@@ -124,7 +124,7 @@
       :pMarginTop="10"
       :pMarginLeft="120"
       :pMarginRight="10"
-      :pMarginBottom="150"
+      :pMarginBottom="180"
     >
       <Axis
         slot="axisLeft"
@@ -220,6 +220,7 @@ const xyDataContainer = new DataContainer(
   xyData
 );
 
+
 // Initialize data
 const getData = function(dataKey) {
   switch(dataKey) {
@@ -231,8 +232,6 @@ const getData = function(dataKey) {
       return rainfallDataContainer;
     case 'xy_data':
       return xyDataContainer;
-    default:
-      return {}
   }
 };
 
@@ -263,6 +262,7 @@ const xyXScale = new ContinuousScale(
   'Random X',
   [0, 50]
 );
+
 
 const getScale = function(scaleKey) {
   switch(scaleKey) {
