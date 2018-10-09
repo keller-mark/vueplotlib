@@ -20,30 +20,8 @@
                 'left': (this.pMarginLeft) + 'px'
             }"
         ></canvas>
-        <div :style="{
-                'display': (showHighlight ? 'inline-block' : 'none'),
-                'height': (this.pHeight) + 'px', 
-                'width': '1px',
-                'top': (this.pMarginTop) + 'px',
-                'left': (this.pMarginLeft + this.highlightX1) + 'px'
-            }"
-            class="vdp-plot-highlight"
-        ></div>
-        <div :style="{
-                'display': (showHighlight ? 'inline-block' : 'none'),
-                'height': (this.pHeight) + 'px', 
-                'width': '1px',
-                'top': (this.pMarginTop) + 'px',
-                'left': (this.pMarginLeft + this.highlightX2) + 'px'
-            }"
-            class="vdp-plot-highlight"
-        ></div>
         <div :id="this.tooltipElemID" class="vdp-tooltip" :style="this.tooltipPositionAttribute">
             <table>
-                <tr>
-                    <th>{{ this._xScale.name }}</th>
-                    <td>{{ this.tooltipInfo.x }}</td>
-                </tr>
                 <tr>
                     <th>Min</th>
                     <td>{{ this.tooltipInfo.min }}</td>
@@ -74,7 +52,7 @@
 </template>
 
 <script>
-import { scaleBand as d3_scaleBand, scaleLinear as d3_scaleLinear, scaleQuantile as d3_scaleQuantile } from 'd3-scale';
+import { scaleLinear as d3_scaleLinear, scaleQuantile as d3_scaleQuantile } from 'd3-scale';
 import { select as d3_select } from 'd3-selection';
 import { mouse as d3_mouse } from 'd3';
 import debounce from 'lodash/debounce';
@@ -91,16 +69,14 @@ import mixin from './mixin.js';
 
 let uuid = 0;
 /**
- * @prop {string} x The x-scale variable key.
  * @prop {string} y The y-scale variable key.
  * @prop {number} pointSize The diameter of outlier (and mean) points. Default: 6
- * @prop {boolean} drawOutliers Whether or not to draw outlier points on the plot.
+ * @prop {boolean} drawOutliers Whether or not to draw outlier points on the plot. Default: true
  * @extends mixin
  * 
  * @example
- * <MultiBoxPlot
- *      data="exposures_data"
- *      x="signature"
+ * <BoxPlot
+ *      data="boxplot_data"
  *      y="exposure"
  *      :pWidth="500"
  *      :pHeight="300"
@@ -114,12 +90,9 @@ let uuid = 0;
  * />
  */
 export default {
-    name: 'MultiBoxPlot',
+    name: 'BoxPlot',
     mixins: [mixin],
     props: {
-        'x': {
-            type: String
-        },
         'y': {
             type: String
         },
@@ -135,18 +108,13 @@ export default {
     data() {
         return {
             tooltipInfo: {
-                x: '',
                 min: '',
                 q1: '',
                 median: '',
                 mean: '',
                 q3: '',
                 max: ''
-            },
-            highlightX1: 0,
-            highlightX2: 0,
-            highlightScale: null,
-            barWidth: 0
+            }
         }
     },
     beforeCreate() {
@@ -159,21 +127,15 @@ export default {
         console.assert(this._dataContainer instanceof DataContainer);
 
         // Set scale variables
-        this._xScale = this.getScale(this.x);
         this._yScale = this.getScale(this.y);
-        console.assert(this._xScale instanceof AbstractScale);
         console.assert(this._yScale instanceof AbstractScale);
 
         // Subscribe to event publishers here
-        this._xScale.onUpdate(this.uuid, this.drawPlot);
         this._yScale.onUpdate(this.uuid, this.drawPlot);
 
         // Subscribe to data mutations here
         this._dataContainer.onUpdate(this.uuid, this.drawPlot);
 
-        // Subscribe to highlights here
-        this._xScale.onHighlight(this.uuid, this.highlight);
-        this._xScale.onHighlightDestroy(this.uuid, this.highlightDestroy);
     },
     mounted() {
         this.drawPlot();
@@ -181,7 +143,6 @@ export default {
     methods: {
         tooltip: function(mouseX, mouseY, node) {
             // Set values
-            this.tooltipInfo.x = node.x;// TODO: scale .toHuman
             this.tooltipInfo.min = node.min;
             this.tooltipInfo.q1 = node.q1;
             this.tooltipInfo.median = node.median;
@@ -194,45 +155,23 @@ export default {
             this.tooltipPosition.top = mouseY + this.pMarginTop;
 
             // Dispatch highlights
-            this._xScale.emitHighlight(node.x);
         },
         tooltipDestroy: function() {
             this.tooltipHide();
 
             // Destroy all highlights here
-            this._xScale.emitHighlightDestroy();
-        },
-        highlight(value) {
-            this.highlightX1 = this.highlightScale(value);
-            this.highlightX2 = this.highlightScale(value) + this.barWidth;
-            this.showHighlight = true;
-
-        },
-        highlightDestroy() {
-            this.showHighlight = false;
         },
         drawPlot() {
             const vm = this;
             
             let data = this._dataContainer.dataCopy;
-            const xScale = this._xScale;
             const yScale = this._yScale;
-
-            const x = d3_scaleBand()
-                .domain(xScale.domainFiltered)
-                .range([0, vm.pWidth]);
-
-            vm.highlightScale = x;
             
             const y = d3_scaleLinear()
                 .domain(yScale.domainFiltered)
                 .range([vm.pHeight, 0]);
 
-            const barWidth = vm.pWidth / xScale.domainFiltered.length;
-            vm.barWidth = barWidth;
-              
-            
-
+            const barWidth = vm.pWidth;
             
             /*
              * Scale up the canvas
@@ -292,85 +231,83 @@ export default {
 
             const diamondSize = vm.pointSize + 2;
 
-            xScale.domainFiltered.forEach((boxVar) => {
-                let boxData = data.map((el) => el[boxVar] || 0);
-                let quantile = d3_scaleQuantile()
-                    .domain(boxData)
-                    .range([0, 1, 2, 3]);
-                
-                let quartiles = quantile.quantiles();
-                
-                let q1 = quartiles[0];
-                let median = quartiles[1];
-                let mean = d3_mean(boxData);
-                let q3 = quartiles[2];
-                
-                let iqr = quartiles[2] - quartiles[0];
-                let lowerFence = q1 - iqr;
-                let upperFence = q3 + iqr;
+            
+            let boxData = data;
+            let quantile = d3_scaleQuantile()
+                .domain(boxData)
+                .range([0, 1, 2, 3]);
+            
+            let quartiles = quantile.quantiles();
+            
+            let q1 = quartiles[0];
+            let median = quartiles[1];
+            let mean = d3_mean(boxData);
+            let q3 = quartiles[2];
+            
+            let iqr = quartiles[2] - quartiles[0];
+            let lowerFence = q1 - iqr;
+            let upperFence = q3 + iqr;
 
 
-                let boxX1 = x(boxVar) + boxMargin;
-                let boxX2 = boxX1 + boxWidth;
-                let boxX = boxX1 + (boxWidth / 2)
+            let boxX1 = boxMargin;
+            let boxX2 = boxX1 + boxWidth;
+            let boxX = boxX1 + (boxWidth / 2)
 
-                context.strokeStyle = "black";
-                context.beginPath();
-                // Upper Fence
-                context.moveTo(boxX1,y(upperFence));
-                context.lineTo(boxX2,y(upperFence));
-                // Vertical Line
-                context.moveTo(boxX1 + (boxWidth / 2),y(upperFence));
-                context.lineTo(boxX1 + (boxWidth / 2),y(lowerFence));
-                // Lower Fence
-                context.moveTo(boxX1,y(lowerFence));
-                context.lineTo(boxX2,y(lowerFence));
+            context.strokeStyle = "black";
+            context.beginPath();
+            // Upper Fence
+            context.moveTo(boxX1,y(upperFence));
+            context.lineTo(boxX2,y(upperFence));
+            // Vertical Line
+            context.moveTo(boxX1 + (boxWidth / 2),y(upperFence));
+            context.lineTo(boxX1 + (boxWidth / 2),y(lowerFence));
+            // Lower Fence
+            context.moveTo(boxX1,y(lowerFence));
+            context.lineTo(boxX2,y(lowerFence));
 
-                context.stroke();
+            context.stroke();
 
-                // Draw the box rect
-                context.strokeRect(boxX1, y(q3), boxWidth, y(q1) - y(q3));
-                context.fillRect(boxX1, y(q3), boxWidth, y(q1) - y(q3));
+            // Draw the box rect
+            context.strokeRect(boxX1, y(q3), boxWidth, y(q1) - y(q3));
+            context.fillRect(boxX1, y(q3), boxWidth, y(q1) - y(q3));
 
-                // Draw the median line
-                context.beginPath();
-                context.moveTo(boxX1, y(median));
-                context.lineTo(boxX2, y(median));
-                context.stroke();
+            // Draw the median line
+            context.beginPath();
+            context.moveTo(boxX1, y(median));
+            context.lineTo(boxX2, y(median));
+            context.stroke();
 
-                // Draw the mean diamond
-                context.beginPath();
-                context.moveTo(boxX - (diamondSize/2), y(mean));
-                context.lineTo(boxX, y(mean) - (diamondSize/2));
-                context.lineTo(boxX + (diamondSize/2), y(mean));
-                context.lineTo(boxX, y(mean) + (diamondSize/2));
-                context.lineTo(boxX - (diamondSize/2), y(mean));
-                context.stroke();
+            // Draw the mean diamond
+            context.beginPath();
+            context.moveTo(boxX - (diamondSize/2), y(mean));
+            context.lineTo(boxX, y(mean) - (diamondSize/2));
+            context.lineTo(boxX + (diamondSize/2), y(mean));
+            context.lineTo(boxX, y(mean) + (diamondSize/2));
+            context.lineTo(boxX - (diamondSize/2), y(mean));
+            context.stroke();
 
-                // Draw the outliers
-                if(vm.drawOutliers) {
-                    let outliers = boxData.filter((el) => (el > upperFence) || (el < lowerFence));
-                    outliers.forEach((outlier) => {
-                        context.beginPath();
-                        context.arc(boxX, y(outlier), (vm.pointSize / 2), 0, 2*Math.PI);
-                        context.stroke();
-                    });
-                }
+            // Draw the outliers
+            if(vm.drawOutliers) {
+                let outliers = boxData.filter((el) => (el > upperFence) || (el < lowerFence));
+                outliers.forEach((outlier) => {
+                    context.beginPath();
+                    context.arc(boxX, y(outlier), (vm.pointSize / 2), 0, 2*Math.PI);
+                    context.stroke();
+                });
+            }
 
-                // Map data to colors
-                const col = genColor();
-                colToNode[col] = {
-                    x: boxVar,
-                    min: d3_min(boxData), 
-                    q1: q1,
-                    median: median,
-                    mean: mean,
-                    q3: q3, 
-                    max: d3_max(boxData)
-                };
-                contextHidden.fillStyle = col;
-                contextHidden.fillRect(x(boxVar), 0, barWidth, vm.pHeight);
-            });
+            // Map data to colors
+            const col = genColor();
+            colToNode[col] = {
+                min: d3_min(boxData), 
+                q1: q1,
+                median: median,
+                mean: mean,
+                q3: q3, 
+                max: d3_max(boxData)
+            };
+            contextHidden.fillStyle = col;
+            contextHidden.fillRect(0, 0, barWidth, vm.pHeight);
             
             /*
              * Listen for mouse events
@@ -410,7 +347,7 @@ export default {
                     const node = getDataFromMouse(mouseX, mouseY);
 
                     if(node) {
-                        vm.clickHandler(node["x"]); 
+                        vm.clickHandler(); 
                     }
                 })
             }

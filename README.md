@@ -51,7 +51,7 @@ yarn run docs
 - GenomeTrackPlot
 - TrackPlot
 - MultiTrackPlot
-- BoxPlot
+- BoxPlot :white_check_mark:
 - MultiBoxPlot :white_check_mark:
 
 

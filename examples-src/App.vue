@@ -117,6 +117,34 @@
       />
     </PlotContainer>
 
+    <h3>&lt;BoxPlot/&gt;</h3>
+    <PlotContainer
+      :pWidth="200"
+      :pHeight="300"
+      :pMarginTop="10"
+      :pMarginLeft="120"
+      :pMarginRight="10"
+      :pMarginBottom="180"
+    >
+      <Axis
+        slot="axisLeft"
+        variable="exposure"
+        side="left" 
+        :tickRotation="-35"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+      <BoxPlot
+        slot="plot"
+        data="boxplot_data"
+        y="exposure"
+        :getData="getData"
+        :getScale="getScale"
+        :clickHandler="exampleClickHandler"
+        :drawOutliers="true"
+      />
+    </PlotContainer>
+
     <h3>&lt;MultiBoxPlot/&gt;</h3>
     <PlotContainer
       :pWidth="500"
@@ -174,7 +202,7 @@
 import { set as d3_set } from 'd3-collection';
 // Plots
 import { PlotContainer, Axis } from '../src/index.js';
-import { StackedBarPlot, BarPlot, ScatterPlot, MultiBoxPlot } from '../src/index.js';
+import { StackedBarPlot, BarPlot, ScatterPlot, BoxPlot, MultiBoxPlot } from '../src/index.js';
 
 // Data
 import DataContainer from '../src/data/DataContainer.js';
@@ -183,6 +211,8 @@ import exposuresData from './data/exposures.json';
 import exposuresSingleData from './data/exposures_single.json';
 import rainfallData from './data/rainfall.json';
 import xyData from './data/xy.json';
+import boxplotData from './data/boxplot_data.json';
+
 
 // Scales
 import CategoricalScale from '../src/scales/CategoricalScale.js';
@@ -219,6 +249,11 @@ const xyDataContainer = new DataContainer(
   'Random Data',
   xyData
 );
+const boxplotDataContainer = new DataContainer(
+  'boxplot_data',
+  'COSMIC 1 Exposures',
+  boxplotData
+);
 
 
 // Initialize data
@@ -232,6 +267,8 @@ const getData = function(dataKey) {
       return rainfallDataContainer;
     case 'xy_data':
       return xyDataContainer;
+    case 'boxplot_data':
+      return boxplotDataContainer;
   }
 };
 
@@ -310,6 +347,7 @@ export default {
     SortOptions,
     Stack,
     ScatterPlot,
+    BoxPlot,
     MultiBoxPlot
   },
   data() {
