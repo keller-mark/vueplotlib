@@ -182,6 +182,34 @@
       />
     </PlotContainer>
 
+    <h3>&lt;TrackPlot/&gt;</h3>
+    <PlotContainer
+      :pWidth="500"
+      :pHeight="40"
+      :pMarginTop="10"
+      :pMarginLeft="120"
+      :pMarginRight="10"
+      :pMarginBottom="180"
+    >
+      <TrackPlot
+        slot="plot"
+        data="clinical_data"
+        x="sample_id"
+        c="age"
+        :getData="getData"
+        :getScale="getScale"
+        :clickHandler="exampleClickHandler"
+      />
+      <Axis
+        slot="axisBottom"
+        variable="sample_id"
+        side="bottom" 
+        :tickRotation="-65"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+    </PlotContainer>
+
     <h3>&lt;SortOptions/&gt;</h3>
     <SortOptions 
       variable="sample_id" 
@@ -202,7 +230,7 @@
 import { set as d3_set } from 'd3-collection';
 // Plots
 import { PlotContainer, Axis } from '../src/index.js';
-import { StackedBarPlot, BarPlot, ScatterPlot, BoxPlot, MultiBoxPlot } from '../src/index.js';
+import { StackedBarPlot, BarPlot, ScatterPlot, BoxPlot, MultiBoxPlot, TrackPlot } from '../src/index.js';
 
 // Data
 import DataContainer from '../src/data/DataContainer.js';
@@ -212,6 +240,7 @@ import exposuresSingleData from './data/exposures_single.json';
 import rainfallData from './data/rainfall.json';
 import xyData from './data/xy.json';
 import boxplotData from './data/boxplot_data.json';
+import clinicalData from './data/clinical_data.json';
 
 
 // Scales
@@ -254,6 +283,11 @@ const boxplotDataContainer = new DataContainer(
   'COSMIC 1 Exposures',
   boxplotData
 );
+const clinicalDataContainer = new DataContainer(
+  'clinical_data',
+  'Clinical Data',
+  clinicalData
+);
 
 
 // Initialize data
@@ -269,6 +303,8 @@ const getData = function(dataKey) {
       return xyDataContainer;
     case 'boxplot_data':
       return boxplotDataContainer;
+    case 'clinical_data':
+      return clinicalDataContainer;
   }
 };
 
@@ -299,7 +335,11 @@ const xyXScale = new ContinuousScale(
   'Random X',
   [0, 50]
 );
-
+const ageScale = new ContinuousScale(
+  'age',
+  'Age',
+  [0, 100]
+);
 
 const getScale = function(scaleKey) {
   switch(scaleKey) {
@@ -313,6 +353,8 @@ const getScale = function(scaleKey) {
       return xyYScale;
     case 'x':
       return xyXScale;
+    case 'age':
+      return ageScale;
   }
 };
 
@@ -324,6 +366,7 @@ stack.push(new HistoryEvent(HistoryEvent.types.SCALE, "exposure", "reset"), true
 stack.push(new HistoryEvent(HistoryEvent.types.SCALE, "signature", "reset"), true);
 stack.push(new HistoryEvent(HistoryEvent.types.SCALE, "y", "reset"), true);
 stack.push(new HistoryEvent(HistoryEvent.types.SCALE, "x", "reset"), true);
+stack.push(new HistoryEvent(HistoryEvent.types.SCALE, "age", "reset"), true);
 
 
 const getStack = function() {
@@ -348,7 +391,8 @@ export default {
     Stack,
     ScatterPlot,
     BoxPlot,
-    MultiBoxPlot
+    MultiBoxPlot,
+    TrackPlot
   },
   data() {
     return {

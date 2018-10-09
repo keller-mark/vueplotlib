@@ -6,6 +6,8 @@ import BarPlot from './components/plots/BarPlot.vue';
 import ScatterPlot from './components/plots/ScatterPlot.vue';
 import BoxPlot from './components/plots/BoxPlot.vue';
 import MultiBoxPlot from './components/plots/MultiBoxPlot.vue';
+import TrackPlot from './components/plots/TrackPlot.vue';
+
 
 /* eslint-disable no-undef */
 if (typeof window !== 'undefined' && window.Vue) {
@@ -16,6 +18,7 @@ if (typeof window !== 'undefined' && window.Vue) {
     Vue.component(ScatterPlot.name, ScatterPlot);
     Vue.component(BoxPlot.name, BoxPlot);
     Vue.component(MultiBoxPlot.name, MultiBoxPlot);
+    Vue.component(TrackPlot.name, TrackPlot);
 }
 
 export { 
@@ -25,5 +28,6 @@ export {
     BarPlot, 
     ScatterPlot, 
     BoxPlot,
-    MultiBoxPlot 
+    MultiBoxPlot,
+    TrackPlot
 }
