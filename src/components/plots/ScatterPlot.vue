@@ -227,14 +227,18 @@ export default {
              */
             const canvasNode = canvas.node();
 
+            const getDataFromMouse = (mouseX, mouseY) => {
+                const i = delaunay.find(mouseX, mouseY);
+                return data[i];
+            };
+
             const debouncedTooltipDestroy = debounce(vm.tooltipDestroy, TOOLTIP_DEBOUNCE);
             canvas.on("mousemove", () => {
                 const mouse = d3_mouse(canvasNode);
                 const mouseX = mouse[0];
                 const mouseY = mouse[1];
 
-                const i = delaunay.find(mouseX, mouseY);
-                const node = data[i];
+                const node = getDataFromMouse(mouseX, mouseY);
 
                 if(node) {
                     vm.tooltip(mouseX, mouseY, node[vm.x], node[vm.y]); 
@@ -250,8 +254,7 @@ export default {
                     const mouseX = mouse[0];
                     const mouseY = mouse[1];
 
-                    const i = delaunay.find(mouseX, mouseY);
-                    const node = data[i];
+                    const node = getDataFromMouse(mouseX, mouseY);
 
                     if(node) {
                         vm.clickHandler(node[vm.x], node[vm.y]); 

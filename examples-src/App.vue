@@ -154,50 +154,6 @@
       />
     </PlotContainer>
 
-    <PlotContainer
-      :pWidth="1000"
-      :pHeight="600"
-      :pMarginTop="10"
-      :pMarginLeft="120"
-      :pMarginRight="10"
-      :pMarginBottom="180"
-    >
-      <Axis
-        slot="axisLeft"
-        variable="exposure_brca"
-        side="left" 
-        :tickRotation="-35"
-        :getScale="getScale"
-        :getStack="getStack"
-        :disableBrushing="true"
-        ref="brcaPlotAxisY"
-      />
-      <MultiBoxPlot
-        slot="plot"
-        data="exposures_brca_data"
-        x="signature_brca"
-        y="exposure_brca"
-        :getData="getData"
-        :getScale="getScale"
-        :clickHandler="exampleClickHandler"
-        :drawOutliers="true"
-        ref="brcaPlot"
-      />
-      <Axis
-        slot="axisBottom"
-        variable="signature_brca"
-        side="bottom" 
-        :tickRotation="-65"
-        :getScale="getScale"
-        :getStack="getStack"
-        :disableBrushing="true"
-        ref="brcaPlotAxisX"
-      />
-    </PlotContainer>
-    <button @click="downloadPlot">Download Plot</button>
-    <button @click="downloadAxisX">Download X Axis</button>
-    <button @click="downloadAxisY">Download Y Axis</button>
-
     <h3>&lt;SortOptions/&gt;</h3>
     <SortOptions 
       variable="sample_id" 
@@ -227,9 +183,6 @@ import exposuresData from './data/exposures.json';
 import exposuresSingleData from './data/exposures_single.json';
 import rainfallData from './data/rainfall.json';
 import xyData from './data/xy.json';
-
-import exposuresDataBRCA from './data/brca_12_exposures.json';
-
 
 // Scales
 import CategoricalScale from '../src/scales/CategoricalScale.js';
@@ -267,11 +220,6 @@ const xyDataContainer = new DataContainer(
   xyData
 );
 
-const exposuresBRCADataContainer = new DataContainer(
-  'exposures_brca_data',
-  'SBS Exposures for ICGC-BRCA-EU',
-  exposuresDataBRCA
-);
 
 // Initialize data
 const getData = function(dataKey) {
@@ -284,10 +232,6 @@ const getData = function(dataKey) {
       return rainfallDataContainer;
     case 'xy_data':
       return xyDataContainer;
-    case 'exposures_brca_data':
-      return exposuresBRCADataContainer;
-    default:
-      return {}
   }
 };
 
@@ -319,16 +263,6 @@ const xyXScale = new ContinuousScale(
   [0, 50]
 );
 
-const signatureScaleBRCA = new CategoricalScale(
-  'signature_brca',
-  'Signature',
-  ["COSMIC 1","COSMIC 2","COSMIC 3","COSMIC 5","COSMIC 6","COSMIC 8","COSMIC 13","COSMIC 17","COSMIC 18","COSMIC 20","COSMIC 26","COSMIC 30"]
-);
-const exposureScaleBRCA = new ContinuousScale(
-  'exposure_brca',
-  'Exposure',
-  [0, 45000]
-)
 
 const getScale = function(scaleKey) {
   switch(scaleKey) {
@@ -342,10 +276,6 @@ const getScale = function(scaleKey) {
       return xyYScale;
     case 'x':
       return xyXScale;
-    case 'exposure_brca':
-      return exposureScaleBRCA;
-    case 'signature_brca':
-      return signatureScaleBRCA;
   }
 };
 
@@ -404,15 +334,6 @@ export default {
   methods: {
     exampleClickHandler(x, y, c) {
       alert("You clicked something with data: " + JSON.stringify({x: x, y: y, c: c}));
-    },
-    downloadPlot() {
-      this.$refs.brcaPlot.downloadPlot();
-    },
-    downloadAxisX() {
-      this.$refs.brcaPlotAxisX.downloadAxis();
-    },
-    downloadAxisY() {
-      this.$refs.brcaPlotAxisY.downloadAxis();
     }
   }
 }
