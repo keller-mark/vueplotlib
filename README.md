@@ -49,7 +49,7 @@ yarn run docs
 - GenomeScatterPlot
 - GenomeStackedBarPlot
 - GenomeTrackPlot
-- TrackPlot
+- TrackPlot :white_check_mark:
 - MultiTrackPlot
 - BoxPlot :white_check_mark:
 - MultiBoxPlot :white_check_mark:
