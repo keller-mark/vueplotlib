@@ -239,6 +239,29 @@ export default class GenomeScale {
         // TODO: number format for commas, etc...
         return "chr" + chromosome + ":" + position; 
     }
+    
+    /**
+     * Filter by limiting to a single chromosome.
+     * @param {string} selectedChromosome The chromosome to select.
+     */
+    filterByChromosome(selectedChromosome) {
+        let chromosomeIndex = this._chromosomes.indexOf(selectedChromosome);
+        this._chromosomesFiltered = [selectedChromosome];
+        this._domainsFiltered = [this._domains[chromosomeIndex]];
+        this.emitUpdate();
+    }
+
+    /**
+     * Filter by limiting to a single chromosome and specific position.
+     * @param {string} selectedChromosome The chromosome to select.
+     * @param {number} start The start position.
+     * @param {number} end The end position.
+     */
+    filterByChromosomeAndPosition(selectedChromosome, start, end) {
+        this._chromosomesFiltered = [selectedChromosome];
+        this._domainsFiltered = [[start, end]];
+        this.emitUpdate();
+    }
 
     /**
      * Subscribe to update events.
@@ -254,6 +277,15 @@ export default class GenomeScale {
      */
     emitUpdate() {
         this._dispatch.call(DISPATCH_EVENT_UPDATE);
+    }
+
+    /**
+     * Resets the filtered domain, using the full original domain.
+     */
+    reset() {
+        this._domainsFiltered = this._domains.slice();
+        this._chromosomesFiltered = this._chromosomes.slice();
+        this.emitUpdate();
     }
 
    

@@ -217,7 +217,7 @@
       :pMarginTop="10"
       :pMarginLeft="20"
       :pMarginRight="20"
-      :pMarginBottom="150"
+      :pMarginBottom="80"
     >
       <GenomeAxis
         slot="axisBottom"
@@ -227,6 +227,7 @@
         :getStack="getStack"
       />
     </PlotContainer>
+
 
     <h3>&lt;SortOptions/&gt;</h3>
     <SortOptions 
@@ -388,6 +389,8 @@ stack.push(new HistoryEvent(HistoryEvent.types.SCALE, "signature", "reset"), tru
 stack.push(new HistoryEvent(HistoryEvent.types.SCALE, "y", "reset"), true);
 stack.push(new HistoryEvent(HistoryEvent.types.SCALE, "x", "reset"), true);
 stack.push(new HistoryEvent(HistoryEvent.types.SCALE, "age", "reset"), true);
+stack.push(new HistoryEvent(HistoryEvent.types.SCALE, "genome_scale", "reset"), true);
+
 
 
 const getStack = function() {
@@ -426,13 +429,6 @@ export default {
     }
   },
   created() {
-    let gScale = new GenomeScale("genome", "Genome");
-
-    console.log(gScale.convertPositionToRatio("1", 2000))
-    console.log(gScale.convertPositionToRatioFiltered("1", 2000))
-
-    console.log(gScale.convertPositionToRatio("5", 3000))
-    console.log(gScale.convertPositionToRatioFiltered("5", 3000))
     
   },
   methods: {
