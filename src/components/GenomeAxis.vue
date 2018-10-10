@@ -11,31 +11,67 @@
 </template>
 
 <script>
-import { scaleBand as d3_scaleBand, scaleLinear as d3_scaleLinear } from 'd3-scale';
+import { scaleLinear as d3_scaleLinear } from 'd3-scale';
 import { select as d3_select } from 'd3-selection';
 import { axisTop as d3_axisTop, axisLeft as d3_axisLeft, axisRight as d3_axisRight, axisBottom as d3_axisBottom } from 'd3-axis';
 import { brushX as d3_brushX, brushY as d3_brushY } from 'd3-brush';
 import { event as d3_event } from 'd3';
+import { zip as d3_zip } from 'd3-array';
 
 import { saveSvgAsPng } from 'save-svg-as-png';
 
 import GenomeScale from './../scales/GenomeScale.js';
+import HistoryEvent from './../history/HistoryEvent.js';
 
 const SIDES = Object.freeze({ "TOP": 1, "LEFT": 2, "RIGHT": 3, "BOTTOM": 4 });
 const ORIENTATIONS = Object.freeze({ "VERTICAL": 1, "HORIZONTAL": 2 }); // vertical = left/right, horizontal = top/bottom
 
 let uuid = 0;
+/**
+ * @prop {string} scaleKey The key for the genome scale instance, passed to getScale.
+ * @prop {string} chromosomeVariable The axis chromosome variable key. Default: "chromosome"
+ * @prop {string} positionVariable The axis position variable key. Default: "position"
+ * @prop {string} side The side for the scale.
+ * @prop {number} pWidth The plot width.
+ * @prop {number} pHeight The plot height.
+ * @prop {number} pMarginTop The plot top margin.
+ * @prop {number} pMarginLeft The plot left margin.
+ * @prop {number} pMarginRight The plot right margin.
+ * @prop {number} pMarginBottom The plot bottom margin.
+ * @prop {function} getScale Function that takes a scale key string and returns a scale instance.
+ * @prop {function} getStack Function that returns a HistoryStack instance.
+ * @prop {boolean} disableBrushing Whether to disable brushing functionality and hide the zoomed-out "context" view.
+ * 
+ * @example
+ * <GenomeAxis
+ *      :scaleKey="genome_scale"
+ *      side="bottom" 
+ *      :pWidth="500"
+ *      :pHeight="300"
+ *      :pMarginTop="10"
+ *      :pMarginLeft="120"
+ *      :pMarginRight="10"
+ *      :pMarginBottom="150"
+ *      :getScale="getScale"
+ *      :getStack="getStack"
+ *  />
+ */
 export default {
     name: 'GenomeAxis',
     props: {
-        'variable': {
+        'scaleKey': {
             type: String
+        },
+        'chromosomeVariable': {
+            type: String,
+            default: "chromosome"
+        },
+        'positionVariable': {
+            type: String,
+            default: "position"
         },
         'side': {
             type: String
-        },
-        'tickRotation': {
-            type: Number
         },
         'pWidth': {
             type: Number
@@ -58,6 +94,9 @@ export default {
         'getScale': {
             type: Function
         },
+        'getStack': {
+            type: Function
+        },
         'disableBrushing': {
             type: Boolean,
             default: false
@@ -70,7 +109,7 @@ export default {
     },
     computed: {
         axisElemID: function() {
-            return 'axis_' + this.uuid;
+            return 'g_axis_' + this.uuid;
         },
         axisSelector: function() {
             return "#" + this.axisElemID;
@@ -144,10 +183,12 @@ export default {
         this._orientation = (this._side === SIDES.TOP || this._side === SIDES.BOTTOM ? ORIENTATIONS.HORIZONTAL : ORIENTATIONS.VERTICAL);
         
         // Set the scale variable
-        this._varScale = this.getScale(this.variable);
+        this._varScale = this.getScale(this.scaleKey);
         console.assert(this._varScale instanceof GenomeScale);
         // Subscribe to event publishers
         this._varScale.onUpdate(this.uuid, this.drawAxis);
+
+        this._stack = this.getStack();
     },
     mounted() {
         this.drawAxis();
@@ -161,14 +202,7 @@ export default {
             vm.removeAxis();
             
             const varScale = vm._varScale;
-
-            const chromosomeRatios = varScale.getChromosomeRatios();
-            const chromosomeRatiosFiltered = varScale.getChromosomeRatiosFiltered();
-
-            
-            if(chromosomeRatiosFiltered.length == 1) {
-                
-            }
+            const stack = vm._stack;
             
             
 
@@ -190,23 +224,36 @@ export default {
                 axisFunction = d3_axisBottom;
             }
 
-            let scaleZoomedOut, scaleZoomedIn;
-            if(varScale.type === AbstractScale.types.DISCRETE) {
-                scaleZoomedOut = d3_scaleBand()
-                    .domain(varScale.domain)
-                    .range(range);
-                scaleZoomedIn = d3_scaleBand()
-                    .domain(varScale.domainFiltered)
-                    .range(range);
-            } else if(varScale.type === AbstractScale.types.CONTINUOUS) {
-                scaleZoomedOut = d3_scaleLinear()
-                    .domain(varScale.domain)
-                    .range(range);
-                scaleZoomedIn = d3_scaleLinear()
-                    .domain(varScale.domainFiltered)
-                    .range(range);
-                // TODO: options for log, etc...
-            }
+            let chromosomeRatiosCumulative = varScale.getChromosomeRatiosCumulative();
+            let chromosomeRatiosCumulativeFiltered = varScale.getChromosomeRatiosCumulativeFiltered();
+
+            console.log(chromosomeRatiosCumulativeFiltered);
+
+            let chromosomeRatioZip = d3_zip(chromosomeRatiosCumulative, varScale.chromosomes);
+            let chromosomeRatioZipFiltered = d3_zip(chromosomeRatiosCumulativeFiltered, varScale.chromosomesFiltered);
+
+            const zipToMap = (zip) => {
+                let obj = {};
+                zip.forEach(function(data){
+                    obj[data[0]] = data[1]
+                });
+                return obj;
+            };
+
+            let chromosomeRatioMap = zipToMap(chromosomeRatioZip);
+            let chromosomeRatioMapFiltered = zipToMap(chromosomeRatioZipFiltered);
+
+            console.log(chromosomeRatioMap);
+            
+            
+            let scaleZoomedOut = d3_scaleLinear()
+                .domain([0, 1])
+                .range(range);
+            let scaleZoomedIn = d3_scaleLinear()
+                .domain([0, 1])
+                .range(range);
+            let tickSizeOuter = 6;
+
 
             /*
              * Create the SVG elements
@@ -224,39 +271,22 @@ export default {
             /*
              * The zoomed-in axis
              */
-            const ticksZoomedIn = containerZoomedIn.call(axisFunction(scaleZoomedIn));
-            const textBboxZoomedIn = ticksZoomedIn.select("text").node().getBBox();
+            const ticksZoomedIn = containerZoomedIn.call(
+                axisFunction(scaleZoomedIn)
+                    .tickSizeOuter(tickSizeOuter)
+                    .tickValues(chromosomeRatiosCumulativeFiltered)
+                    .tickFormat((d) => chromosomeRatioMapFiltered[d])
+            );
 
-            const tickTransformFunction = (d, i, v) => {
-                let tickBbox = v[i].getBBox();
-                let tickRotateX = 0;
-                let tickRotateY = 0;
-                if(vm._side === SIDES.TOP) {
-                    tickRotateY = -tickBbox.height;
-                } else if(vm._side === SIDES.BOTTOM) {
-                    tickRotateY = tickBbox.height;
-                } else if(vm._side === SIDES.LEFT) {
-                    tickRotateX = -tickBbox.height;
-                } else if(vm._side === SIDES.RIGHT) {
-                    tickRotateX = tickBbox.height;
-                }
-                return "rotate(" + vm.tickRotation + "," + tickRotateX + "," + tickRotateY + ")";
-            }
+            
 
             ticksZoomedIn.selectAll("text")	
-                    .style("text-anchor", (vm._side === SIDES.LEFT || vm._side === SIDES.BOTTOM ? "end" : "start"))
-                    .attr("transform", tickTransformFunction);
+                    .style("text-anchor", "middle");
             
             // Get the width/height of the zoomed-in axis, before removing the text
             const axisBboxZoomedIn = container.select(".axis-zoomed-in").node().getBBox();
             
-            if(varScale.type === AbstractScale.types.DISCRETE) {
-                const barWidth = vm.pWidth / varScale.domainFiltered.length;
-                if(barWidth < textBboxZoomedIn.height) {
-                    ticksZoomedIn.selectAll("text")
-                        .remove();
-                }
-            }
+
 
 
             
@@ -287,23 +317,19 @@ export default {
                         .attr("class", "axis-zoomed-out")
                         .attr("transform", "translate(" + zoomedOutTranslateX + "," + zoomedOutTranslateY + ")");
                 
-                const ticksZoomedOut = containerZoomedOut.call(axisFunction(scaleZoomedOut));
-                const textBboxZoomedOut = ticksZoomedOut.select("text").node().getBBox();
+                const ticksZoomedOut = containerZoomedOut.call(
+                    axisFunction(scaleZoomedOut)
+                        .tickSizeOuter(tickSizeOuter)
+                        .tickValues(chromosomeRatiosCumulativeFiltered)
+                        .tickFormat((d) => chromosomeRatioMapFiltered[d])
+                );
 
                 ticksZoomedOut.selectAll("text")	
-                        .style("text-anchor", (vm._side === SIDES.LEFT || vm._side === SIDES.BOTTOM ? "end" : "start"))
-                        .attr("transform", tickTransformFunction);
+                        .style("text-anchor", "middle");
                 
                 // Get the width/height of the zoomed-out axis, before removing the text
                 axisBboxZoomedOut = container.select(".axis-zoomed-out").node().getBBox();
                 
-                if(varScale.type === AbstractScale.types.DISCRETE) {
-                    const barWidth = vm.pWidth / varScale.domain.length;
-                    if(barWidth < textBboxZoomedOut.height) {
-                        ticksZoomedOut.selectAll("text")
-                            .remove();
-                    }
-                }
 
             
 
@@ -324,19 +350,18 @@ export default {
                     } else if(vm._side === SIDES.RIGHT) {
                         zoomRectTranslateX = 0;
                     }
-                    if(varScale.type === AbstractScale.types.CONTINUOUS) {  
-                        let start = varScale.domainFiltered[0];
-                        let end = varScale.domainFiltered[1];
-                        containerZoomedOut.append("rect")
-                            .attr("width", axisBboxZoomedOut.width+betweenAxisMargin)
-                            .attr("height", scaleZoomedOut(start) - scaleZoomedOut(end))
-                            .attr("x", 0)
-                            .attr("y", scaleZoomedOut(end))
-                            .attr("fill", "silver")
-                            .attr("fill-opacity", 0.5)
-                            .attr("transform", "translate(" + zoomRectTranslateX + ",0)");
-                    }
-                        
+                    //let start = varScale.domainFiltered[0];
+                    //let end = varScale.domainFiltered[1];
+                    let start = 0;
+                    let end = 1;
+                    containerZoomedOut.append("rect")
+                        .attr("width", axisBboxZoomedOut.width+betweenAxisMargin)
+                        .attr("height", scaleZoomedOut(start) - scaleZoomedOut(end))
+                        .attr("x", 0)
+                        .attr("y", scaleZoomedOut(end))
+                        .attr("fill", "silver")
+                        .attr("fill-opacity", 0.5)
+                        .attr("transform", "translate(" + zoomRectTranslateX + ",0)");
                 } else if(vm._orientation === ORIENTATIONS.HORIZONTAL) {
                     let zoomRectTranslateY;
                     if(vm._side === SIDES.TOP) {
@@ -344,19 +369,20 @@ export default {
                     } else if(vm._side === SIDES.BOTTOM) {
                         zoomRectTranslateY = 0;
                     }
-                    if(varScale.type === AbstractScale.types.DISCRETE) {  
-                        let eachBand = vm.pWidth / varScale.domain.length;
-                        for(let domainFilteredItem of varScale.domainFiltered) {
-                            containerZoomedOut.append("rect")
-                                .attr("width", eachBand)
-                                .attr("height", axisBboxZoomedOut.height)
-                                .attr("x", scaleZoomedOut(domainFilteredItem))
-                                .attr("y", 0)
-                                .attr("fill", "silver")
-                                .attr("fill-opacity", 0.5)
-                                .attr("transform", "translate(0," + zoomRectTranslateY + ")");
-                        }
-                    }
+                    
+                    //let start = varScale.domainFiltered[0];
+                    //let end = varScale.domainFiltered[1];
+                    let start = 0;
+                    let end = 1;
+                    containerZoomedOut.append("rect")
+                        .attr("width", scaleZoomedOut(end) - scaleZoomedOut(start))
+                        .attr("height", axisBboxZoomedOut.height+betweenAxisMargin)
+                        .attr("x", scaleZoomedOut(start))
+                        .attr("y", 0)
+                        .attr("fill", "silver")
+                        .attr("fill-opacity", 0.5)
+                        .attr("transform", "translate(0," + zoomRectTranslateY + ")");
+                    
                 }
 
 
@@ -364,21 +390,15 @@ export default {
                 let brush, brushed;
                 if(vm._orientation === ORIENTATIONS.VERTICAL) {
                     axisContainerSize = axisBboxZoomedOut.width;
-                    if(varScale.type === AbstractScale.types.CONTINUOUS) {
-                        brushed = () => {
-                            let s = d3_event.selection || scaleZoomedOut.range().slice().reverse();
-                            let s2 = s.map(scaleZoomedOut.invert, scaleZoomedOut);
-                            varScale.zoom(s2[1], s2[0]);
-                        }
-                    } else if(varScale.type === AbstractScale.types.DISCRETE) {
-                        brushed = () => {
-                            let s = d3_event.selection || scaleZoomedOut.range().slice().reverse();
-                            let eachBand = vm.pWidth / varScale.domain.length;
-                            let startIndex = Math.floor((s[0] / eachBand));
-                            let endIndex = Math.ceil((s[1] / eachBand));
-                            varScale.zoom(startIndex, endIndex)
-                        }
+                    
+                    brushed = () => {
+                        let s = d3_event.selection || scaleZoomedOut.range().slice().reverse();
+                        let s2 = s.map(scaleZoomedOut.invert, scaleZoomedOut);
+                        varScale.zoom(s2[1], s2[0]);
+                        stack.push(new HistoryEvent(HistoryEvent.types.SCALE, varScale.id, "zoom", [s2[1], s2[0]]));
+
                     }
+                    
                     let brushExtent;
                     if(vm._side === SIDES.LEFT) {
                         brushExtent = [[-axisContainerSize-betweenAxisMargin, 0], [0, vm.pHeight]];
@@ -391,21 +411,13 @@ export default {
                     
                 } else if(vm._orientation === ORIENTATIONS.HORIZONTAL) {
                     axisContainerSize = axisBboxZoomedOut.height;
-                    if(varScale.type === AbstractScale.types.CONTINUOUS) {
-                        brushed = () => {
-                            var s = d3_event.selection || scaleZoomedOut.range();
-                            var s2 = s.map(scaleZoomedOut.invert, scaleZoomedOut);
-                            varScale.zoom(s2);
-                        }
-                    } else if(varScale.type === AbstractScale.types.DISCRETE) {
-                        brushed = () => {
-                            let s = d3_event.selection || scaleZoomedOut.range();
-                            let eachBand = vm.pWidth / varScale.domain.length;
-                            let startIndex = Math.floor((s[0] / eachBand));
-                            let endIndex = Math.ceil((s[1] / eachBand));
-                            varScale.zoom(startIndex, endIndex)
-                        }
+                    brushed = () => {
+                        let s = d3_event.selection || scaleZoomedOut.range().slice();
+                        let s2 = s.map(scaleZoomedOut.invert, scaleZoomedOut);
+                        varScale.zoom(s2[0], s2[1]);
+                        stack.push(new HistoryEvent(HistoryEvent.types.SCALE, varScale.id, "zoom", [s2[0], s2[1]]));
                     }
+                   
                     let brushExtent;
                     if(vm._side === SIDES.TOP) {
                         brushExtent = [[0, -axisContainerSize-betweenAxisMargin], [vm.pWidth, 0]];
@@ -448,7 +460,7 @@ export default {
                 labelRotate = -90;
             } else if(vm._side === SIDES.BOTTOM) {
                 labelX = (vm.pWidth / 2);
-                labelY = (axisBboxZoomedOut.height + (labelTextBbox.height / 2) + betweenAxisMargin);
+                labelY = (axisBboxZoomedOut.height + (labelTextBbox.height / 2) + (betweenAxisMargin * 2));
                 labelRotate = 0;
             } else if(vm._side === SIDES.TOP) {
                 labelX = (vm.pWidth / 2);
@@ -467,9 +479,8 @@ export default {
             
         },
         downloadAxis() {
-            console.log(saveSvgAsPng);
-            // TODO
-
+            let node = d3_select(this.axisSelector).select("svg").node();
+            saveSvgAsPng(node, this.axisElemID + ".png");
         }
     }
 }

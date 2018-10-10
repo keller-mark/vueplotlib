@@ -98,6 +98,20 @@ export default class GenomeScale {
     }
 
     /**
+     * @returns {array} Array of chromosome names.
+     */
+    get chromosomes() {
+        return this._chromosomes;
+    }
+
+    /**
+     * @returns {array} Filtered array of chromosome names.
+     */
+    get chromosomesFiltered() {
+        return this._chromosomesFiltered;
+    }
+
+    /**
      * @param {string} chromosome A chromosome name.
      * @returns {array} Tuple-like array of inter-chromosome domain.
      */
@@ -141,6 +155,34 @@ export default class GenomeScale {
     getChromosomeRatiosFiltered() {
         let cumsum = this._domainsFiltered.reduce((a, h) => (a + (h[1] - h[0])), 0);
         return this._domainsFiltered.map((el) => ((el[1] - el[0]) / cumsum));
+    }
+
+    /**
+     * @returns {array} Array of cumulative ratios corresponding to chromosome length over genome length.
+     */
+    getChromosomeRatiosCumulative() {
+        let ratios = this.getChromosomeRatios();
+        let ratiosCumulative = [];
+        let curr = 0;
+        for(let ratio of ratios) {
+            ratiosCumulative.push(curr);
+            curr += ratio;
+        }
+        return ratiosCumulative;
+    }
+
+    /**
+     * @returns {array} Array of cumulative ratios corresponding to chromosome length over genome length, for filtered chromosomes.
+     */
+    getChromosomeRatiosCumulativeFiltered() {
+        let ratios = this.getChromosomeRatiosFiltered();
+        let ratiosCumulative = [];
+        let curr = 0;
+        for(let ratio of ratios) {
+            ratiosCumulative.push(curr);
+            curr += ratio;
+        }
+        return ratiosCumulative;
     }
 
     /**

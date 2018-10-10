@@ -1,5 +1,6 @@
 import PlotContainer from './components/PlotContainer.vue';
 import Axis from './components/Axis.vue';
+import GenomeAxis from './components/GenomeAxis.vue';
 // Plots
 import StackedBarPlot from './components/plots/StackedBarPlot.vue';
 import BarPlot from './components/plots/BarPlot.vue';
@@ -13,6 +14,8 @@ import TrackPlot from './components/plots/TrackPlot.vue';
 if (typeof window !== 'undefined' && window.Vue) {
     Vue.component(PlotContainer.name, PlotContainer);
     Vue.component(Axis.name, Axis);
+    Vue.component(GenomeAxis.name, GenomeAxis);
+    // Plots
     Vue.component(StackedBarPlot.name, StackedBarPlot);
     Vue.component(BarPlot.name, BarPlot);
     Vue.component(ScatterPlot.name, ScatterPlot);
@@ -21,12 +24,13 @@ if (typeof window !== 'undefined' && window.Vue) {
     Vue.component(TrackPlot.name, TrackPlot);
 }
 
-export { 
-    PlotContainer, 
-    Axis, 
-    StackedBarPlot, 
-    BarPlot, 
-    ScatterPlot, 
+export {
+    PlotContainer,
+    Axis,
+    GenomeAxis,
+    StackedBarPlot,
+    BarPlot,
+    ScatterPlot,
     BoxPlot,
     MultiBoxPlot,
     TrackPlot
