@@ -57,7 +57,7 @@ yarn run docs
 
 ### Axis Components
 - Axis :white_check_mark:
-- GenomeAxis
+- GenomeAxis :white_check_mark:
 - DendrogramAxis
 
 
