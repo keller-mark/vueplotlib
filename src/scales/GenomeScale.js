@@ -102,7 +102,7 @@ export default class GenomeScale {
      * @returns {array} Tuple-like array of inter-chromosome domain.
      */
     getDomain(chromosome) {
-        return this._domains[this._chromosomes.findIndex(chromosome)];
+        return this._domains[this._chromosomes.indexOf(chromosome)];
     }
 
     /**
@@ -117,7 +117,7 @@ export default class GenomeScale {
      * @returns {array} Tuple-like array of inter-chromosome domain filtered.
      */
     getDomainFiltered(chromosome) {
-        return this._domainsFiltered[this._chromosomesFiltered.findIndex(chromosome)];
+        return this._domainsFiltered[this._chromosomesFiltered.indexOf(chromosome)];
     }
 
     /**

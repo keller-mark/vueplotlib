@@ -3,7 +3,9 @@ toc:
   - BarPlot
   - ScatterPlot
   - StackedBarPlot
+  - BoxPlot
   - MultiBoxPlot
+  - TrackPlot
   - mixin
   - Axis
   - GenomeAxis
