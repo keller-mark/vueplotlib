@@ -98,6 +98,20 @@ export default class GenomeScale {
     }
 
     /**
+     * @returns {array} Array of chromosome names.
+     */
+    get chromosomes() {
+        return this._chromosomes;
+    }
+
+    /**
+     * @returns {array} Filtered array of chromosome names.
+     */
+    get chromosomesFiltered() {
+        return this._chromosomesFiltered;
+    }
+
+    /**
      * @param {string} chromosome A chromosome name.
      * @returns {array} Tuple-like array of inter-chromosome domain.
      */
@@ -141,6 +155,34 @@ export default class GenomeScale {
     getChromosomeRatiosFiltered() {
         let cumsum = this._domainsFiltered.reduce((a, h) => (a + (h[1] - h[0])), 0);
         return this._domainsFiltered.map((el) => ((el[1] - el[0]) / cumsum));
+    }
+
+    /**
+     * @returns {array} Array of cumulative ratios corresponding to chromosome length over genome length.
+     */
+    getChromosomeRatiosCumulative() {
+        let ratios = this.getChromosomeRatios();
+        let ratiosCumulative = [];
+        let curr = 0;
+        for(let ratio of ratios) {
+            ratiosCumulative.push(curr);
+            curr += ratio;
+        }
+        return ratiosCumulative;
+    }
+
+    /**
+     * @returns {array} Array of cumulative ratios corresponding to chromosome length over genome length, for filtered chromosomes.
+     */
+    getChromosomeRatiosCumulativeFiltered() {
+        let ratios = this.getChromosomeRatiosFiltered();
+        let ratiosCumulative = [];
+        let curr = 0;
+        for(let ratio of ratios) {
+            ratiosCumulative.push(curr);
+            curr += ratio;
+        }
+        return ratiosCumulative;
     }
 
     /**
@@ -197,6 +239,29 @@ export default class GenomeScale {
         // TODO: number format for commas, etc...
         return "chr" + chromosome + ":" + position; 
     }
+    
+    /**
+     * Filter by limiting to a single chromosome.
+     * @param {string} selectedChromosome The chromosome to select.
+     */
+    filterByChromosome(selectedChromosome) {
+        let chromosomeIndex = this._chromosomes.indexOf(selectedChromosome);
+        this._chromosomesFiltered = [selectedChromosome];
+        this._domainsFiltered = [this._domains[chromosomeIndex]];
+        this.emitUpdate();
+    }
+
+    /**
+     * Filter by limiting to a single chromosome and specific position.
+     * @param {string} selectedChromosome The chromosome to select.
+     * @param {number} start The start position.
+     * @param {number} end The end position.
+     */
+    filterByChromosomeAndPosition(selectedChromosome, start, end) {
+        this._chromosomesFiltered = [selectedChromosome];
+        this._domainsFiltered = [[start, end]];
+        this.emitUpdate();
+    }
 
     /**
      * Subscribe to update events.
@@ -212,6 +277,15 @@ export default class GenomeScale {
      */
     emitUpdate() {
         this._dispatch.call(DISPATCH_EVENT_UPDATE);
+    }
+
+    /**
+     * Resets the filtered domain, using the full original domain.
+     */
+    reset() {
+        this._domainsFiltered = this._domains.slice();
+        this._chromosomesFiltered = this._chromosomes.slice();
+        this.emitUpdate();
     }
 
    

@@ -210,6 +210,25 @@
       />
     </PlotContainer>
 
+    <h3>&lt;GenomeAxis/&gt;</h3>
+    <PlotContainer
+      :pWidth="800"
+      :pHeight="10"
+      :pMarginTop="10"
+      :pMarginLeft="20"
+      :pMarginRight="20"
+      :pMarginBottom="80"
+    >
+      <GenomeAxis
+        slot="axisBottom"
+        scaleKey="genome_scale"
+        side="bottom"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+    </PlotContainer>
+
+
     <h3>&lt;SortOptions/&gt;</h3>
     <SortOptions 
       variable="sample_id" 
@@ -229,7 +248,7 @@
 <script>
 import { set as d3_set } from 'd3-collection';
 // Plots
-import { PlotContainer, Axis } from '../src/index.js';
+import { PlotContainer, Axis, GenomeAxis } from '../src/index.js';
 import { StackedBarPlot, BarPlot, ScatterPlot, BoxPlot, MultiBoxPlot, TrackPlot } from '../src/index.js';
 
 // Data
@@ -340,6 +359,7 @@ const ageScale = new ContinuousScale(
   'Age',
   [0, 100]
 );
+const genomeScale = new GenomeScale("genome", "Genome");
 
 const getScale = function(scaleKey) {
   switch(scaleKey) {
@@ -355,6 +375,8 @@ const getScale = function(scaleKey) {
       return xyXScale;
     case 'age':
       return ageScale;
+    case 'genome_scale':
+      return genomeScale;
   }
 };
 
@@ -367,6 +389,8 @@ stack.push(new HistoryEvent(HistoryEvent.types.SCALE, "signature", "reset"), tru
 stack.push(new HistoryEvent(HistoryEvent.types.SCALE, "y", "reset"), true);
 stack.push(new HistoryEvent(HistoryEvent.types.SCALE, "x", "reset"), true);
 stack.push(new HistoryEvent(HistoryEvent.types.SCALE, "age", "reset"), true);
+stack.push(new HistoryEvent(HistoryEvent.types.SCALE, "genome_scale", "reset"), true);
+
 
 
 const getStack = function() {
@@ -385,6 +409,7 @@ export default {
   components: {
     PlotContainer,
     Axis,
+    GenomeAxis,
     StackedBarPlot,
     BarPlot,
     SortOptions,
@@ -404,18 +429,11 @@ export default {
     }
   },
   created() {
-    let gScale = new GenomeScale("genome", "Genome");
-
-    console.log(gScale.convertPositionToRatio("1", 2000))
-    console.log(gScale.convertPositionToRatioFiltered("1", 2000))
-
-    console.log(gScale.convertPositionToRatio("5", 3000))
-    console.log(gScale.convertPositionToRatioFiltered("5", 3000))
     
   },
   methods: {
-    exampleClickHandler(x, y, c) {
-      alert("You clicked something with data: " + JSON.stringify({x: x, y: y, c: c}));
+    exampleClickHandler() {
+      alert("You clicked something with data: " + JSON.stringify([...arguments]));
     }
   }
 }

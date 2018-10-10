@@ -524,15 +524,5 @@ export default {
 </script>
 
 <style>
-.vdp-axis {
-    position: absolute;
-}
-
-.axis-zoomed-out line, .axis-zoomed-out path {
-    stroke: silver;
-}
-.axis-zoomed-out text {
-    fill: silver;
-}
-
+@import '../style/axis-style.css';
 </style>

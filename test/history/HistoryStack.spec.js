@@ -60,7 +60,7 @@ test('able to execute event, go back and go forward', () => {
 
     sampleScale.zoom(2, 5);
     let e1 = new HistoryEvent(HistoryEvent.types.SCALE, "sample_id", "zoom", [2, 5]);
-    expect(sampleScale.domainFiltered.length).toBe(4);
+    expect(sampleScale.domainFiltered.length).toBe(3);
     stack.push(e1);
 
     sampleScale.filter([0, 1]);
@@ -70,15 +70,15 @@ test('able to execute event, go back and go forward', () => {
 
     sampleScale.zoom(1, 5);
     let e3 = new HistoryEvent(HistoryEvent.types.SCALE, "sample_id", "zoom", [1, 5]);
-    expect(sampleScale.domainFiltered.length).toBe(5);
+    expect(sampleScale.domainFiltered.length).toBe(4);
     stack.push(e3);
 
     expect(stack.canGoBack()).toBe(true);
     stack.goBack();
-    expect(sampleScale.domainFiltered.length).toBe(4);
+    expect(sampleScale.domainFiltered.length).toBe(3);
 
     expect(stack.canGoForward()).toBe(true);
     stack.goForward();
-    expect(sampleScale.domainFiltered.length).toBe(5);
+    expect(sampleScale.domainFiltered.length).toBe(4);
 
 });

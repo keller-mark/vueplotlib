@@ -1,0 +1,10 @@
+.vdp-axis {
+    position: absolute;
+}
+
+.axis-zoomed-out line, .axis-zoomed-out path {
+    stroke: silver;
+}
+.axis-zoomed-out text {
+    fill: silver;
+}
