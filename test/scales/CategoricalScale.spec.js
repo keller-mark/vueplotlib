@@ -25,7 +25,7 @@ test('able to zoom a CategoricalScale', () => {
     expect(scale.domainFiltered.length).toBe(6);
     scale.zoom(1, 3)
     expect(scale.domain.length).toBe(6);
-    expect(scale.domainFiltered.length).toBe(3);
+    expect(scale.domainFiltered.length).toBe(2);
 });
 
 test('able to filter a CategoricalScale', () => {
