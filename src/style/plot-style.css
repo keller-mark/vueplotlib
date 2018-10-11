@@ -19,3 +19,8 @@
     border-radius: 3px;
     transform: translate(10%, -50%);
 }
+
+.vdp-tooltip > table > tr > th {
+    text-align: right;
+    padding-right: 5px;
+}

@@ -2,6 +2,8 @@ import { dispatch as d3_dispatch } from "d3-dispatch";
 import { sum as d3_sum } from "d3-array";
 
 const DISPATCH_EVENT_UPDATE = "update";
+const DISPATCH_EVENT_HIGHLIGHT = "highlight";
+const DISPATCH_EVENT_HIGHLIGHT_DESTROY = "highlight-destroy";
 
 export const CHROMOSOMES = [
     '1',
@@ -80,7 +82,11 @@ export default class GenomeScale {
         this._domains = CHROMOSOMES.map((el) => [0, CHROMOSOME_LENGTHS[el]]);
         this._domainsFiltered = this._domains.slice();
 
-        this._dispatch = d3_dispatch(DISPATCH_EVENT_UPDATE);
+        this._dispatch = d3_dispatch(
+            DISPATCH_EVENT_UPDATE, 
+            DISPATCH_EVENT_HIGHLIGHT, 
+            DISPATCH_EVENT_HIGHLIGHT_DESTROY
+        );
     }
     
     /**
@@ -264,12 +270,44 @@ export default class GenomeScale {
     }
 
     /**
+     * Subscribe to highlight events.
+     * @param {string} componentId 
+     * @param {function} callback 
+     */
+    onHighlight(componentId, callback) {
+        this._dispatch.on(DISPATCH_EVENT_HIGHLIGHT + "." + componentId, callback);
+    }
+
+    /**
+     * Subscribe to highlight destroy events.
+     * @param {string} componentId 
+     * @param {function} callback 
+     */
+    onHighlightDestroy(componentId, callback) {
+        this._dispatch.on(DISPATCH_EVENT_HIGHLIGHT_DESTROY + "." + componentId, callback);
+    }
+
+    /**
      * Subscribe to update events.
      * @param {string} componentId 
      * @param {function} callback 
      */
     onUpdate(componentId, callback) {
         this._dispatch.on(DISPATCH_EVENT_UPDATE + "." + componentId, callback);
+    }
+
+    /**
+     * Emit the highlight event.
+     */
+    emitHighlight(chromosome, position) {
+        this._dispatch.call(DISPATCH_EVENT_HIGHLIGHT, null, chromosome, position);
+    }
+
+    /**
+     * Emit the highlight destroy event.
+     */
+    emitHighlightDestroy() {
+        this._dispatch.call(DISPATCH_EVENT_HIGHLIGHT_DESTROY);
     }
 
     /**
