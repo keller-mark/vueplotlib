@@ -53,6 +53,7 @@ yarn run docs
 - MultiTrackPlot
 - BoxPlot :white_check_mark:
 - MultiBoxPlot :white_check_mark:
+- ViolinPlot
 
 
 ### Axis Components
