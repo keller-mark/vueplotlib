@@ -46,7 +46,7 @@ yarn run docs
 - BarPlot :white_check_mark:
 - StackedBarPlot :white_check_mark:
 - ScatterPlot :white_check_mark:
-- GenomeScatterPlot
+- GenomeScatterPlot :white_check_mark:
 - GenomeStackedBarPlot
 - GenomeTrackPlot
 - TrackPlot :white_check_mark:

@@ -51,8 +51,6 @@ const ORIENTATIONS = Object.freeze({ "VERTICAL": 1, "HORIZONTAL": 2 }); // verti
 let uuid = 0;
 /**
  * @prop {string} scaleKey The key for the genome scale instance, passed to getScale.
- * @prop {string} chromosomeVariable The axis chromosome variable key. Default: "chromosome"
- * @prop {string} positionVariable The axis position variable key. Default: "position"
  * @prop {string} side The side for the scale.
  * @prop {number} pWidth The plot width.
  * @prop {number} pHeight The plot height.
@@ -62,7 +60,6 @@ let uuid = 0;
  * @prop {number} pMarginBottom The plot bottom margin.
  * @prop {function} getScale Function that takes a scale key string and returns a scale instance.
  * @prop {function} getStack Function that returns a HistoryStack instance.
- * @prop {boolean} disableBrushing Whether to disable brushing functionality and hide the zoomed-out "context" view.
  * 
  * @example
  * <GenomeAxis
@@ -83,14 +80,6 @@ export default {
     props: {
         'scaleKey': {
             type: String
-        },
-        'chromosomeVariable': {
-            type: String,
-            default: "chromosome"
-        },
-        'positionVariable': {
-            type: String,
-            default: "position"
         },
         'side': {
             type: String
@@ -118,10 +107,6 @@ export default {
         },
         'getStack': {
             type: Function
-        },
-        'disableBrushing': {
-            type: Boolean,
-            default: false
         }
     },
     data() {
@@ -300,7 +285,7 @@ export default {
             let offset = Math.floor(chromosomeRangeFiltered / 4);
             let newStart = this.selectedChromosomeStart + offset;
             let newEnd = this.selectedChromosomeEnd - offset;
-            if(newStart !== this.selectedChromosomeStart && newEnd !== this.selectedChromosomeEnd) {
+            if(newStart !== this.selectedChromosomeStart || newEnd !== this.selectedChromosomeEnd) {
                 this._varScale.filterByChromosomeAndPosition(this.selectedChromosome, newStart, newEnd);
                 this._stack.push(new HistoryEvent(
                     HistoryEvent.types.SCALE, 
@@ -317,7 +302,7 @@ export default {
             let offset = Math.floor(chromosomeRangeFiltered / 2);
             let newStart = Math.max(chromosomeDomain[0], this.selectedChromosomeStart - offset);
             let newEnd = Math.min(chromosomeDomain[1], this.selectedChromosomeEnd + offset);
-            if(newStart !== this.selectedChromosomeStart && newEnd !== this.selectedChromosomeEnd) {
+            if(newStart !== this.selectedChromosomeStart || newEnd !== this.selectedChromosomeEnd) {
                 this._varScale.filterByChromosomeAndPosition(this.selectedChromosome, newStart, newEnd);
                 this._stack.push(new HistoryEvent(
                     HistoryEvent.types.SCALE, 

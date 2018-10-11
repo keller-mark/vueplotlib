@@ -8,6 +8,9 @@ import ScatterPlot from './components/plots/ScatterPlot.vue';
 import BoxPlot from './components/plots/BoxPlot.vue';
 import MultiBoxPlot from './components/plots/MultiBoxPlot.vue';
 import TrackPlot from './components/plots/TrackPlot.vue';
+// Genome Plots
+import GenomeScatterPlot from './components/plots/GenomeScatterPlot.vue';
+
 
 
 /* eslint-disable no-undef */
@@ -22,6 +25,8 @@ if (typeof window !== 'undefined' && window.Vue) {
     Vue.component(BoxPlot.name, BoxPlot);
     Vue.component(MultiBoxPlot.name, MultiBoxPlot);
     Vue.component(TrackPlot.name, TrackPlot);
+    // Plots
+    Vue.component(GenomeScatterPlot.name, GenomeScatterPlot);
 }
 
 export {
@@ -33,5 +38,6 @@ export {
     ScatterPlot,
     BoxPlot,
     MultiBoxPlot,
-    TrackPlot
+    TrackPlot,
+    GenomeScatterPlot
 }
