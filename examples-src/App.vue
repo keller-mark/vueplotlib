@@ -265,6 +265,26 @@
       />
     </PlotContainer>
 
+    <h3>&lt;DendrogramAxis/&gt;</h3>
+    <PlotContainer
+      :pWidth="900"
+      :pHeight="10"
+      :pMarginTop="200"
+      :pMarginLeft="20"
+      :pMarginRight="20"
+      :pMarginBottom="20"
+    >
+      <DendrogramAxis
+        slot="axisTop"
+        data="clustering"
+        variable="sample_id"
+        side="top"
+        :getScale="getScale"
+        :getStack="getStack"
+        :getData="getData"
+      />
+    </PlotContainer>
+
 
     <h3>&lt;SortOptions/&gt;</h3>
     <SortOptions 
@@ -285,7 +305,7 @@
 <script>
 import { set as d3_set } from 'd3-collection';
 // Plots
-import { PlotContainer, Axis, GenomeAxis } from '../src/index.js';
+import { PlotContainer, Axis, GenomeAxis, DendrogramAxis } from '../src/index.js';
 import { StackedBarPlot, BarPlot, ScatterPlot, BoxPlot, MultiBoxPlot, TrackPlot } from '../src/index.js';
 import { GenomeScatterPlot } from '../src/index.js';
 
@@ -299,6 +319,7 @@ import rainfallData from './data/rainfall.json';
 import xyData from './data/xy.json';
 import boxplotData from './data/boxplot_data.json';
 import clinicalData from './data/clinical_data.json';
+import clusteringData from './data/clustering.json';
 
 
 // Scales
@@ -346,6 +367,11 @@ const clinicalDataContainer = new DataContainer(
   'Clinical Data',
   clinicalData
 );
+const clusteringDataContainer = new DataContainer(
+  'clustering',
+  'Samples clustered by Exposure',
+  clusteringData
+);
 
 
 // Initialize data
@@ -363,6 +389,8 @@ const getData = function(dataKey) {
       return boxplotDataContainer;
     case 'clinical_data':
       return clinicalDataContainer;
+    case 'clustering':
+      return clusteringDataContainer;
   }
 };
 
@@ -496,6 +524,7 @@ export default {
   components: {
     PlotContainer,
     Axis,
+    DendrogramAxis,
     GenomeAxis,
     StackedBarPlot,
     BarPlot,

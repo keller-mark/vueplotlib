@@ -1,6 +1,8 @@
 import PlotContainer from './components/PlotContainer.vue';
 import Axis from './components/Axis.vue';
 import GenomeAxis from './components/GenomeAxis.vue';
+import DendrogramAxis from './components/DendrogramAxis.vue';
+
 // Plots
 import StackedBarPlot from './components/plots/StackedBarPlot.vue';
 import BarPlot from './components/plots/BarPlot.vue';
@@ -18,6 +20,7 @@ if (typeof window !== 'undefined' && window.Vue) {
     Vue.component(PlotContainer.name, PlotContainer);
     Vue.component(Axis.name, Axis);
     Vue.component(GenomeAxis.name, GenomeAxis);
+    Vue.component(DendrogramAxis.name, DendrogramAxis);
     // Plots
     Vue.component(StackedBarPlot.name, StackedBarPlot);
     Vue.component(BarPlot.name, BarPlot);
@@ -33,6 +36,7 @@ export {
     PlotContainer,
     Axis,
     GenomeAxis,
+    DendrogramAxis,
     StackedBarPlot,
     BarPlot,
     ScatterPlot,

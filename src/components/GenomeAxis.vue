@@ -195,6 +195,8 @@ export default {
         console.assert(Object.keys(SIDES).includes(sideString));
         this._side = SIDES[sideString];
         this._orientation = (this._side === SIDES.TOP || this._side === SIDES.BOTTOM ? ORIENTATIONS.HORIZONTAL : ORIENTATIONS.VERTICAL);
+
+        console.assert(this._side === SIDES.BOTTOM); // TODO: implement for other sides
         
         // Set the scale variable
         this._varScale = this.getScale(this.scaleKey);

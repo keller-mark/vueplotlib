@@ -251,6 +251,12 @@ export default {
                 .attr("height", scaledHeight);
             context.scale(ratio, ratio);
 
+            if(data.length === 0) {
+                canvas.on("mousemove", () => {});
+                canvas.on("mouseleave", () => {});
+                return;
+            }
+
 
             /*
              * Draw the points
@@ -261,6 +267,8 @@ export default {
                 context.arc(g[d[vm.chromosomeVariable]](d[vm.positionVariable]), y(d[vm.y]), 3, 0, 2*Math.PI);
                 context.fill();
             });
+
+
 
             /*
              * Prepare for interactivity

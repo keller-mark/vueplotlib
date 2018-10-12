@@ -48,7 +48,7 @@ export default class DataContainer {
             // Shallow copy
             return Array.from(this.data);
         }
-        console.error("The data is not an array, unsure how to copy");
+        return this.data;
     }
     
     /**
