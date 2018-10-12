@@ -213,7 +213,8 @@ export default {
 
             // Prepare hierarchy
             const tree = d3_cluster()
-                .size(size);
+                .size(size)
+                .separation(() => 1);
             const root = d3_hierarchy(data);
             tree(root);
 
