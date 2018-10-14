@@ -302,6 +302,9 @@ export default {
                 .attr("dy", ".6em")
                 .attr("transform", "rotate(-65)"); */
 
+            // TODO: add node selection for filtering
+            
+
             const x = d3_scaleBand()
                 .domain(xDomainSortedByLeaf)
                 .range([0, vm.pWidth]);
