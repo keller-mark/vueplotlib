@@ -184,10 +184,10 @@
 
     <h3>&lt;TrackPlot/&gt;</h3>
     <PlotContainer
-      :pWidth="500"
+      :pWidth="700"
       :pHeight="40"
       :pMarginTop="10"
-      :pMarginLeft="120"
+      :pMarginLeft="10"
       :pMarginRight="10"
       :pMarginBottom="180"
     >
@@ -265,23 +265,33 @@
       />
     </PlotContainer>
 
-    <h3>&lt;DendrogramAxis/&gt;</h3>
+    <h3>&lt;DendrogramPlot/&gt;</h3>
     <PlotContainer
-      :pWidth="900"
-      :pHeight="10"
+      :pWidth="780"
+      :pHeight="500"
       :pMarginTop="200"
-      :pMarginLeft="20"
+      :pMarginLeft="180"
       :pMarginRight="20"
       :pMarginBottom="20"
     >
-      <DendrogramAxis
-        slot="axisTop"
-        data="clustering"
-        variable="sample_id"
-        side="top"
+      <Axis
+        slot="axisLeft"
+        variable="signature"
+        side="left"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+      <DendrogramPlot
+        slot="plot"
+        data="exposures_data"
+        h="clustering"
+        x="sample_id"
+        y="signature"
+        c="exposure"
         :getScale="getScale"
         :getStack="getStack"
         :getData="getData"
+        :clickHandler="exampleClickHandler"
       />
     </PlotContainer>
 
@@ -305,8 +315,8 @@
 <script>
 import { set as d3_set } from 'd3-collection';
 // Plots
-import { PlotContainer, Axis, GenomeAxis, DendrogramAxis } from '../src/index.js';
-import { StackedBarPlot, BarPlot, ScatterPlot, BoxPlot, MultiBoxPlot, TrackPlot } from '../src/index.js';
+import { PlotContainer, Axis, GenomeAxis } from '../src/index.js';
+import { StackedBarPlot, BarPlot, ScatterPlot, BoxPlot, MultiBoxPlot, TrackPlot, DendrogramPlot } from '../src/index.js';
 import { GenomeScatterPlot } from '../src/index.js';
 
 
@@ -524,7 +534,6 @@ export default {
   components: {
     PlotContainer,
     Axis,
-    DendrogramAxis,
     GenomeAxis,
     StackedBarPlot,
     BarPlot,
@@ -534,7 +543,8 @@ export default {
     BoxPlot,
     MultiBoxPlot,
     TrackPlot,
-    GenomeScatterPlot
+    GenomeScatterPlot,
+    DendrogramPlot
   },
   data() {
     return {
