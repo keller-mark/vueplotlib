@@ -221,12 +221,21 @@ export default {
 
             let scaleZoomedOut, scaleZoomedIn, tickSizeOuter;
             if(varScale.type === AbstractScale.types.DISCRETE) {
-                scaleZoomedOut = d3_scaleBand()
-                    .domain(varScale.domain)
-                    .range(range);
-                scaleZoomedIn = d3_scaleBand()
-                    .domain(varScale.domainFiltered)
-                    .range(range);
+                if(vm._orientation === ORIENTATIONS.HORIZONTAL) {
+                    scaleZoomedOut = d3_scaleBand()
+                        .domain(varScale.domain)
+                        .range(range);
+                    scaleZoomedIn = d3_scaleBand()
+                        .domain(varScale.domainFiltered)
+                        .range(range);
+                } else if(vm._orientation === ORIENTATIONS.VERTICAL) {
+                    scaleZoomedOut = d3_scaleBand()
+                        .domain(varScale.domain.slice().reverse())
+                        .range(range);
+                    scaleZoomedIn = d3_scaleBand()
+                        .domain(varScale.domainFiltered.slice().reverse())
+                        .range(range);
+                }
                 tickSizeOuter = 0;
             } else if(varScale.type === AbstractScale.types.CONTINUOUS) {
                 scaleZoomedOut = d3_scaleLinear()
@@ -367,7 +376,17 @@ export default {
                             .attr("fill-opacity", 0.5)
                             .attr("transform", "translate(" + zoomRectTranslateX + ",0)");
                     } else if(varScale.type === AbstractScale.types.DISCRETE) {
-                        // TODO
+                        let eachBand = vm.pHeight / varScale.domain.length;
+                        for(let domainFilteredItem of varScale.domainFiltered) {
+                            containerZoomedOut.append("rect")
+                                .attr("width", axisBboxZoomedOut.width+betweenAxisMargin)
+                                .attr("height", eachBand)
+                                .attr("x", 0)
+                                .attr("y", scaleZoomedOut(domainFilteredItem))
+                                .attr("fill", "silver")
+                                .attr("fill-opacity", 0.5)
+                                .attr("transform", "translate(" + zoomRectTranslateX + ",0)");
+                        }
                     }
                 } else if(vm._orientation === ORIENTATIONS.HORIZONTAL) {
                     let zoomRectTranslateY;
@@ -418,7 +437,7 @@ export default {
                     } else if(varScale.type === AbstractScale.types.DISCRETE) {
                         brushed = () => {
                             let s = d3_event.selection || scaleZoomedOut.range().slice().reverse();
-                            let eachBand = vm.pWidth / varScale.domain.length;
+                            let eachBand = vm.pHeight / varScale.domain.length;
                             let startIndex = Math.floor((s[0] / eachBand));
                             let endIndex = Math.ceil((s[1] / eachBand));
                             varScale.zoom(startIndex, endIndex);
@@ -447,7 +466,7 @@ export default {
                         }
                     } else if(varScale.type === AbstractScale.types.DISCRETE) {
                         brushed = () => {
-                            let s = d3_event.selection || scaleZoomedOut.range();
+                            let s = d3_event.selection || scaleZoomedOut.range().slice();
                             let eachBand = vm.pWidth / varScale.domain.length;
                             let startIndex = Math.floor((s[0] / eachBand));
                             let endIndex = Math.ceil((s[1] / eachBand));
