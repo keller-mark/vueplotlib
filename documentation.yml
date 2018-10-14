@@ -6,8 +6,9 @@ toc:
   - BoxPlot
   - MultiBoxPlot
   - TrackPlot
-  - GenomeScatterPlot
+  - MultiTrackPlot
   - DendrogramPlot
+  - GenomeScatterPlot
   - mixin
   - Axis
   - GenomeAxis

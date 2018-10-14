@@ -46,15 +46,19 @@ yarn run docs
 - BarPlot :white_check_mark:
 - StackedBarPlot :white_check_mark:
 - ScatterPlot :white_check_mark:
-- GenomeScatterPlot :white_check_mark:
-- GenomeStackedBarPlot
-- GenomeTrackPlot
 - TrackPlot :white_check_mark:
-- MultiTrackPlot
-- DendrogramPlot :white_check_mark:
+- MultiTrackPlot :white_check_mark:
 - BoxPlot :white_check_mark:
 - MultiBoxPlot :white_check_mark:
-- ViolinPlot
+- DendrogramPlot :white_check_mark:
+
+
+#### Genome Plot Components
+- GenomeScatterPlot :white_check_mark:
+- GenomeBarPlot
+- GenomeStackedBarPlot
+- GenomeTrackPlot
+- GenomeMultiTrackPlot
 
 
 ### Axis Components
