@@ -295,6 +295,35 @@
       />
     </PlotContainer>
 
+    <h3>&lt;MultiTrackPlot/&gt;</h3>
+    <PlotContainer
+      :pWidth="780"
+      :pHeight="500"
+      :pMarginTop="20"
+      :pMarginLeft="180"
+      :pMarginRight="20"
+      :pMarginBottom="20"
+    >
+      <Axis
+        slot="axisLeft"
+        variable="signature"
+        side="left"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+      <MultiTrackPlot
+        slot="plot"
+        data="exposures_data"
+        x="sample_id"
+        y="signature"
+        c="exposure"
+        :getScale="getScale"
+        :getStack="getStack"
+        :getData="getData"
+        :clickHandler="exampleClickHandler"
+      />
+    </PlotContainer>
+
 
     <h3>&lt;SortOptions/&gt;</h3>
     <SortOptions 
@@ -315,9 +344,20 @@
 <script>
 import { set as d3_set } from 'd3-collection';
 // Plots
-import { PlotContainer, Axis, GenomeAxis } from '../src/index.js';
-import { StackedBarPlot, BarPlot, ScatterPlot, BoxPlot, MultiBoxPlot, TrackPlot, DendrogramPlot } from '../src/index.js';
-import { GenomeScatterPlot } from '../src/index.js';
+import { 
+  PlotContainer, 
+  Axis, 
+  GenomeAxis,
+  StackedBarPlot, 
+  BarPlot, 
+  ScatterPlot, 
+  BoxPlot, 
+  MultiBoxPlot, 
+  TrackPlot, 
+  MultiTrackPlot, 
+  DendrogramPlot,
+  GenomeScatterPlot
+} from '../src/index.js';
 
 
 // Data
@@ -543,6 +583,7 @@ export default {
     BoxPlot,
     MultiBoxPlot,
     TrackPlot,
+    MultiTrackPlot,
     GenomeScatterPlot,
     DendrogramPlot
   },
