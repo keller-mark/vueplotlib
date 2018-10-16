@@ -334,6 +334,34 @@
       />
     </PlotContainer>
 
+    <h3>&lt;GenomeTrackPlot/&gt;</h3>
+    <PlotContainer
+      :pWidth="800"
+      :pHeight="40"
+      :pMarginTop="20"
+      :pMarginLeft="20"
+      :pMarginRight="20"
+      :pMarginBottom="80"
+    > 
+      <GenomeTrackPlot
+        slot="plot"
+        data="rand_genome_data"
+        g="genome"
+        chromosomeVariable="chr"
+        positionVariable="pos"
+        :getData="getData"
+        :getScale="getScale"
+        :clickHandler="exampleClickHandler"
+      />
+      <GenomeAxis
+        slot="axisBottom"
+        scaleKey="genome"
+        side="bottom"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+    </PlotContainer>
+
 
     <h3>&lt;SortOptions/&gt;</h3>
     <SortOptions 
@@ -367,7 +395,8 @@ import {
   TrackPlot, 
   MultiTrackPlot, 
   HierarchicalMultiTrackPlot,
-  GenomeScatterPlot
+  GenomeScatterPlot,
+  GenomeTrackPlot
 } from '../src/index.js';
 
 
@@ -381,6 +410,7 @@ import xyData from './data/xy.json';
 import boxplotData from './data/boxplot_data.json';
 import clinicalData from './data/clinical_data.json';
 import clusteringData from './data/clustering.json';
+import randomGenomeData from './data/random_genome_data.json';
 
 
 // Scales
@@ -433,6 +463,11 @@ const clusteringDataContainer = new DataContainer(
   'Samples clustered by Exposure',
   clusteringData
 );
+const randomGenomeDataContainer = new DataContainer(
+  'rand_genome_data',
+  'Random Genome Data',
+  randomGenomeData
+);
 
 
 // Initialize data
@@ -452,6 +487,8 @@ const getData = function(dataKey) {
       return clinicalDataContainer;
     case 'clustering':
       return clusteringDataContainer;
+    case 'rand_genome_data':
+      return randomGenomeDataContainer;
   }
 };
 
@@ -597,7 +634,8 @@ export default {
     TrackPlot,
     MultiTrackPlot,
     HierarchicalMultiTrackPlot,
-    GenomeScatterPlot
+    GenomeScatterPlot,
+    GenomeTrackPlot
   },
   data() {
     return {

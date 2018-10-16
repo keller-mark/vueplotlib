@@ -15,6 +15,7 @@ import HierarchicalMultiTrackPlot from './components/plots/HierarchicalMultiTrac
 
 // Genome Plots
 import GenomeScatterPlot from './components/plots/GenomeScatterPlot.vue';
+import GenomeTrackPlot from './components/plots/GenomeTrackPlot.vue';
 
 
 
@@ -35,6 +36,7 @@ if (typeof window !== 'undefined' && window.Vue) {
     Vue.component(HierarchicalMultiTrackPlot.name, HierarchicalMultiTrackPlot);
     // Genome Plots
     Vue.component(GenomeScatterPlot.name, GenomeScatterPlot);
+    Vue.component(GenomeTrackPlot.name, GenomeTrackPlot);
 }
 
 export {
@@ -50,5 +52,6 @@ export {
     TrackPlot,
     MultiTrackPlot,
     HierarchicalMultiTrackPlot,
-    GenomeScatterPlot
+    GenomeScatterPlot,
+    GenomeTrackPlot
 }
