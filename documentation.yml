@@ -7,11 +7,12 @@ toc:
   - MultiBoxPlot
   - TrackPlot
   - MultiTrackPlot
-  - DendrogramPlot
+  - HierarchicalMultiTrackPlot
   - GenomeScatterPlot
   - mixin
   - Axis
   - GenomeAxis
+  - DendrogramAxis
   - PlotContainer
   - SortOptions
   - name: Data

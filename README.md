@@ -50,7 +50,7 @@ yarn run docs
 - MultiTrackPlot :white_check_mark:
 - BoxPlot :white_check_mark:
 - MultiBoxPlot :white_check_mark:
-- DendrogramPlot :white_check_mark:
+- HierarchicalMultiTrackPlot :white_check_mark:
 
 
 #### Genome Plot Components
@@ -64,6 +64,7 @@ yarn run docs
 ### Axis Components
 - Axis :white_check_mark:
 - GenomeAxis :white_check_mark:
+- DendrogramAxis :white_check_mark:
 
 
 ### Other Components
