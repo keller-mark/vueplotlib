@@ -10,12 +10,12 @@
                 'left': (this.pMarginLeft) + 'px'
             }"
         ></canvas>
-        <div :style="{
-                'display': (showHighlight ? 'inline-block' : 'none'),
+        <div v-show="this.highlightX1 !== null"  
+            :style="{
                 'height': (this.pHeight) + 'px', 
                 'width': '1px',
                 'top': (this.pMarginTop) + 'px',
-                'left': (this.pMarginLeft + this.highlightX) + 'px'
+                'left': (this.pMarginLeft + this.highlightX1 - 0.5) + 'px'
             }"
             class="vdp-plot-highlight"
         ></div>
@@ -124,7 +124,7 @@ export default {
                 c: ''
             },
             highlightGScales: null,
-            highlightX: 0
+            highlightX1: null
         }
     },
     beforeCreate() {
@@ -194,11 +194,10 @@ export default {
             }
         },
         highlightG(chromosome, position) {
-            this.highlightX = this.highlightGScales[chromosome](position);
-            this.showHighlight = true;
+            this.highlightX1 = this.highlightGScales[chromosome](position);
         },
         highlightDestroy() {
-            this.showHighlight = false;
+            this.highlightX1 = null;
         },
         drawPlot() {
             const vm = this;

@@ -15,7 +15,7 @@
                 'height': (this.pHeight) + 'px', 
                 'width': '1px',
                 'top': (this.pMarginTop) + 'px',
-                'left': (this.pMarginLeft + this.highlightX1) + 'px'
+                'left': (this.pMarginLeft + this.highlightX1 - 0.5) + 'px'
             }"
             class="vdp-plot-highlight"
         ></div>
@@ -23,7 +23,7 @@
             :style="{
                 'height': '1px', 
                 'width': (this.pWidth) + 'px', 
-                'top': (this.pMarginTop + this.highlightY1) + 'px',
+                'top': (this.pMarginTop + this.highlightY1 - 0.5) + 'px',
                 'left': (this.pMarginLeft) + 'px'
             }"
             class="vdp-plot-highlight"

@@ -20,21 +20,21 @@
                 'left': (this.pMarginLeft) + 'px'
             }"
         ></canvas>
-        <div :style="{
-                'display': (showHighlight ? 'inline-block' : 'none'),
+        <div v-show="this.highlightX1 !== null"  
+            :style="{
                 'height': (this.pHeight) + 'px', 
                 'width': '1px',
                 'top': (this.pMarginTop) + 'px',
-                'left': (this.pMarginLeft + this.highlightX1) + 'px'
+                'left': (this.pMarginLeft + this.highlightX1 - 0.5) + 'px'
             }"
             class="vdp-plot-highlight"
         ></div>
-        <div :style="{
-                'display': (showHighlight ? 'inline-block' : 'none'),
+        <div v-show="this.highlightX2 !== null"  
+            :style="{
                 'height': (this.pHeight) + 'px', 
                 'width': '1px',
                 'top': (this.pMarginTop) + 'px',
-                'left': (this.pMarginLeft + this.highlightX2) + 'px'
+                'left': (this.pMarginLeft + this.highlightX2 - 0.5) + 'px'
             }"
             class="vdp-plot-highlight"
         ></div>
@@ -122,9 +122,9 @@ export default {
                 y: '',
                 c: ''
             },
-            highlightX1: 0,
-            highlightX2: 0,
             highlightScale: null,
+            highlightX1: null,
+            highlightX2: null,
             barWidth: 0,
             barHeight: 0
         }
@@ -187,11 +187,11 @@ export default {
         highlight(value) {
             this.highlightX1 = this.highlightScale(value);
             this.highlightX2 = this.highlightScale(value) + this.barWidth;
-            this.showHighlight = true;
 
         },
         highlightDestroy() {
-            this.showHighlight = false;
+            this.highlightX1 = null;
+            this.highlightX2 = null;
         },
         drawPlot() {
             const vm = this;
