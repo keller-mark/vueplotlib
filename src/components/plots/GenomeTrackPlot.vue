@@ -10,31 +10,12 @@
                 'left': (this.pMarginLeft) + 'px'
             }"
         ></canvas>
-        <canvas 
-            :id="this.hiddenPlotElemID" 
-            class="vdp-plot-hidden" 
-            :style="{
-                'height': (this.pHeight) + 'px', 
-                'width': (this.pWidth) + 'px',
-                'top': (this.pMarginTop) + 'px',
-                'left': (this.pMarginLeft) + 'px'
-            }"
-        ></canvas>
         <div :style="{
                 'display': (showHighlight ? 'inline-block' : 'none'),
                 'height': (this.pHeight) + 'px', 
                 'width': '1px',
                 'top': (this.pMarginTop) + 'px',
-                'left': (this.pMarginLeft + this.highlightX1) + 'px'
-            }"
-            class="vdp-plot-highlight"
-        ></div>
-        <div :style="{
-                'display': (showHighlight ? 'inline-block' : 'none'),
-                'height': (this.pHeight) + 'px', 
-                'width': '1px',
-                'top': (this.pMarginTop) + 'px',
-                'left': (this.pMarginLeft + this.highlightX2) + 'px'
+                'left': (this.pMarginLeft + this.highlightX) + 'px'
             }"
             class="vdp-plot-highlight"
         ></div>
@@ -52,10 +33,6 @@
                     <th>{{ this._cScale.name }}</th>
                     <td>{{ this.tooltipInfo.c }}</td>
                 </tr>
-                <tr v-if="this.hasT">
-                    <th>{{ this._tScale.name }}</th>
-                    <td>{{ this.tooltipInfo.t }}</td>
-                </tr>
             </table>
         </div>
     </div>
@@ -65,6 +42,7 @@
 import { scaleLinear as d3_scaleLinear } from 'd3-scale';
 import { select as d3_select } from 'd3-selection';
 import { mouse as d3_mouse } from 'd3';
+import { Delaunay } from 'd3-delaunay';
 import debounce from 'lodash/debounce';
 import { TOOLTIP_DEBOUNCE } from './../../constants.js';
 import { getRetinaRatio } from './../../helpers.js';
@@ -78,10 +56,12 @@ import mixin from './mixin.js';
 let uuid = 0;
 /**
  * @prop {string} g The genome-scale variable key.
- * @prop {string} c The event color-scale variable key.
- * @prop {string} t The track background color-scale variable key.
+ * @prop {string} c The event color-scale variable key. Takes precedence over eventColor prop.
  * @prop {string} chromosomeVariable The axis chromosome variable key. Default: "chromosome"
  * @prop {string} positionVariable The axis position variable key. Default: "position"
+ * @prop {number} eventWidth The width of each observation rectangle. Default: 4
+ * @prop {string} eventColor The color of each observation. Default: "#000000". 
+ * @prop {string} backgroundColor The background color of the track. Optional.
  * @extends mixin
  * 
  * @example
@@ -89,7 +69,6 @@ let uuid = 0;
  *      data="rand_genome_data"
  *      g="genome" 
  *      c="event_type"
- *      t="proj_id"
  *      :pWidth="500"
  *      :pHeight="40"
  *      :pMarginTop="10"
@@ -107,13 +86,12 @@ export default {
     mixins: [mixin],
     props: {
         'g': {
+            required: true,
             type: String // genome
         },
         'c': {
+            required: false,
             type: String // event color
-        },
-        't': {
-            type: String // track background color
         },
         'chromosomeVariable': {
             type: String,
@@ -122,6 +100,18 @@ export default {
         'positionVariable': {
             type: String,
             default: "position"
+        },
+        'eventWidth': {
+            type: Number,
+            default: 4
+        },
+        'eventColor': {
+            type: String,
+            default: "#aaa"
+        },
+        'backgroundColor': {
+            required: false,
+            type: String
         }
     },
     data() {
@@ -131,13 +121,10 @@ export default {
             tooltipInfo: {
                 chromosome: '',
                 position: '',
-                c: '',
-                t: ''
+                c: ''
             },
             highlightGScales: null,
-            highlightX1: 0,
-            highlightX2: 0,
-            eventWidth: 0
+            highlightX: 0
         }
     },
     beforeCreate() {
@@ -150,15 +137,8 @@ export default {
         console.assert(this._dataContainer instanceof DataContainer);
         // Set scale variables
         this._gScale = this.getScale(this.g);
-        this._tScale = this.getScale(this.t);
         this._cScale = this.getScale(this.c);
-        // Make assertions, but keep c and t scales optional
-        if(this._tScale === undefined) {
-            this.hasT = false;
-        } else {
-            console.assert(this._tScale instanceof AbstractScale);
-            this._tScale.onUpdate(this.uuid, this.drawPlot);
-        }
+        // Make assertions, but keep c scale optional
         if(this._cScale === undefined) {
             this.hasC = false;
         } else {
@@ -185,16 +165,13 @@ export default {
         this.drawPlot();
     },
     methods: {
-        tooltip: function(mouseX, mouseY, chromosome, position, c, t) {
+        tooltip: function(mouseX, mouseY, chromosome, position, c) {
             // Set values
             this.tooltipInfo.chromosome = chromosome;
             this.tooltipInfo.position = position.toLocaleString();
 
             if(this.hasC) {
                 this.tooltipInfo.c = this._cScale.toHuman(c);
-            }
-            if(this.hasT) {
-                this.tooltipInfo.t = this._tScale.toHuman(t);
             }
 
             // Set position
@@ -203,9 +180,6 @@ export default {
             
             // Dispatch highlights
             this._gScale.emitHighlight(chromosome, position);
-            if(this.hasT) {
-                this._tScale.emitHighlight(t);
-            }
             if(this.hasC) {
                 this._cScale.emitHighlight(c);
             }
@@ -215,16 +189,12 @@ export default {
 
             // Destroy all highlights here
             this._gScale.emitHighlightDestroy();
-            if(this.hasT) {
-                this._tScale.emitHighlightDestroy();
-            }
             if(this.hasC) {
                 this._cScale.emitHighlightDestroy();
             }
         },
         highlightG(chromosome, position) {
-            this.highlightX1 = this.highlightGScales[chromosome](position);
-            this.highlightX2 = this.highlightGScales[chromosome](position) + this.eventWidth; 
+            this.highlightX = this.highlightGScales[chromosome](position);
             this.showHighlight = true;
         },
         highlightDestroy() {
@@ -234,10 +204,7 @@ export default {
             const vm = this;
             
             let data = this._dataContainer.dataCopy;
-            let tScale, cScale;
-            if(this.hasT) {
-                tScale = this._tScale;
-            }
+            let cScale;
             if(this.hasC) {
                 cScale = this._cScale;
             }
@@ -265,9 +232,6 @@ export default {
             }
 
             vm.highlightGScales = g;
-
-            const eventWidth = 5;
-            vm.eventWidth = eventWidth;
               
             
             /*
@@ -276,9 +240,7 @@ export default {
             const canvas = d3_select(this.plotSelector);
             const context = canvas.node().getContext('2d');
 
-            const canvasHidden = d3_select(this.hiddenPlotSelector);
-            const contextHidden = canvasHidden.node().getContext('2d');
-
+          
             const ratio = getRetinaRatio(context);
             const scaledWidth = vm.pWidth * ratio;
             const scaledHeight = vm.pHeight * ratio;
@@ -288,63 +250,33 @@ export default {
                 .attr("height", scaledHeight);
             context.scale(ratio, ratio);
 
-            canvasHidden
-                .attr("width", scaledWidth)
-                .attr("height", scaledHeight);
-            contextHidden.scale(ratio, ratio);
-
-            /*
-             * Set up the color mappings
-             */
-            const colToNode = {};
-
-            /*
-             * Generates the next color in the sequence, 
-             * going from 0,0,0 to 255,255,255.
-             */
-            let nextCol = 1;
-            const genColor = () => {
-                let ret = [];
-                // via http://stackoverflow.com/a/15804183
-                if(nextCol < 16777215){
-                    ret.push(nextCol & 0xff); // R
-                    ret.push((nextCol & 0xff00) >> 8); // G 
-                    ret.push((nextCol & 0xff0000) >> 16); // B
-
-                    nextCol += 20;
-                }
-                let col = "rgb(" + ret.join(',') + ")";
-                return col;
-            }
-
+   
+           
             /*
              * Draw the track
              */
-
-            // TODO fill the background rect for the track
+            if(vm.backgroundColor !== undefined) {
+                context.fillStyle = vm.backgroundColor;
+                context.fillRect(0, 0, vm.pWidth, vm.pHeight);
+            }
 
             data.forEach((d) => {
-                const col = genColor();
-                colToNode[col] = { 
-                    "chromosome": d[vm.chromosomeVariable], 
-                    "position": d[vm.positionVariable], 
-                    "c": d[vm.c],
-                    "t": d[vm.t]
-                };
 
-                contextHidden.fillStyle = col;
                 if(this.hasC) {
                     context.fillStyle = cScale.color(d[vm.c]);
                 } else {
-                    context.fillStyle = "#000000";
+                    context.fillStyle = vm.eventColor;
                 }
 
-            
-
-                const xVal = g[d[vm.chromosomeVariable]](d[vm.positionVariable]);
-                context.fillRect(xVal, 0, eventWidth, vm.pHeight);
-                contextHidden.fillRect(xVal, 0, eventWidth, vm.pHeight);
+                const xVal = g[d[vm.chromosomeVariable]](d[vm.positionVariable]) - (vm.eventWidth/2);
+                context.fillRect(xVal, 0, vm.eventWidth, vm.pHeight);
             });
+
+            /*
+             * Prepare for interactivity
+             */
+            const points = data.map((d, i) => [g[d[vm.chromosomeVariable]](d[vm.positionVariable]), (vm.pHeight / 2 + i*0.0001)]);
+            const delaunay = Delaunay.from(points);
             
             /*
              * Listen for mouse events
@@ -352,11 +284,8 @@ export default {
             const canvasNode = canvas.node();
 
             const getDataFromMouse = (mouseX, mouseY) => {
-                // Get the corresponding pixel color on the hidden canvas
-                const col = contextHidden.getImageData(mouseX * ratio, mouseY * ratio, scaledWidth, scaledHeight).data;
-                const colString = "rgb(" + col[0] + "," + col[1] + ","+ col[2] + ")";
-                // Look up the node in our map
-                return colToNode[colString];
+                const i = delaunay.find(mouseX, mouseY);
+                return data[i];
             };
 
             const debouncedTooltipDestroy = debounce(vm.tooltipDestroy, TOOLTIP_DEBOUNCE);
@@ -368,7 +297,7 @@ export default {
                 const node = getDataFromMouse(mouseX, mouseY);
 
                 if(node) {
-                    vm.tooltip(mouseX, mouseY, node["chromosome"], node["position"], node["c"], node["t"]); 
+                    vm.tooltip(mouseX, mouseY, node[vm.chromosomeVariable], node[vm.positionVariable], node[vm.c]); 
                 } else {
                     debouncedTooltipDestroy();
                 }
@@ -384,7 +313,7 @@ export default {
                     const node = getDataFromMouse(mouseX, mouseY);
 
                     if(node) {
-                        vm.clickHandler(node["chromosome"], node["position"], node["c"], node["t"]);
+                        vm.clickHandler(node[vm.chromosomeVariable], node[vm.positionVariable], node[vm.c]);
                     }
                 });
             }
