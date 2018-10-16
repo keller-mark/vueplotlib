@@ -294,36 +294,6 @@
       />
     </PlotContainer>
 
-    <h3>&lt;DendrogramPlot/&gt;</h3>
-    <PlotContainer
-      :pWidth="780"
-      :pHeight="500"
-      :pMarginTop="200"
-      :pMarginLeft="180"
-      :pMarginRight="20"
-      :pMarginBottom="20"
-    >
-      <Axis
-        slot="axisLeft"
-        variable="signature"
-        side="left"
-        :getScale="getScale"
-        :getStack="getStack"
-      />
-      <DendrogramPlot
-        slot="plot"
-        data="exposures_data"
-        h="clustering"
-        x="sample_id"
-        y="signature"
-        c="exposure"
-        :getScale="getScale"
-        :getStack="getStack"
-        :getData="getData"
-        :clickHandler="exampleClickHandler"
-      />
-    </PlotContainer>
-
     <h3>&lt;DendrogramAxis/&gt; and &lt;HierarchicalMultiTrackPlot/&gt;</h3>
     <PlotContainer
       :pWidth="780"
@@ -397,7 +367,6 @@ import {
   TrackPlot, 
   MultiTrackPlot, 
   HierarchicalMultiTrackPlot,
-  DendrogramPlot,
   GenomeScatterPlot
 } from '../src/index.js';
 
@@ -628,8 +597,7 @@ export default {
     TrackPlot,
     MultiTrackPlot,
     HierarchicalMultiTrackPlot,
-    GenomeScatterPlot,
-    DendrogramPlot
+    GenomeScatterPlot
   },
   data() {
     return {

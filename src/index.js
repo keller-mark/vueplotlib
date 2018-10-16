@@ -11,7 +11,6 @@ import BoxPlot from './components/plots/BoxPlot.vue';
 import MultiBoxPlot from './components/plots/MultiBoxPlot.vue';
 import TrackPlot from './components/plots/TrackPlot.vue';
 import MultiTrackPlot from './components/plots/MultiTrackPlot.vue';
-import DendrogramPlot from './components/plots/DendrogramPlot.vue';
 import HierarchicalMultiTrackPlot from './components/plots/HierarchicalMultiTrackPlot.vue';
 
 // Genome Plots
@@ -34,7 +33,6 @@ if (typeof window !== 'undefined' && window.Vue) {
     Vue.component(TrackPlot.name, TrackPlot);
     Vue.component(MultiTrackPlot.name, MultiTrackPlot);
     Vue.component(HierarchicalMultiTrackPlot.name, HierarchicalMultiTrackPlot);
-    Vue.component(DendrogramPlot.name, DendrogramPlot);
     // Genome Plots
     Vue.component(GenomeScatterPlot.name, GenomeScatterPlot);
 }
@@ -52,6 +50,5 @@ export {
     TrackPlot,
     MultiTrackPlot,
     HierarchicalMultiTrackPlot,
-    DendrogramPlot,
     GenomeScatterPlot
 }
