@@ -265,6 +265,35 @@
       />
     </PlotContainer>
 
+    <h3>&lt;MultiTrackPlot/&gt;</h3>
+    <PlotContainer
+      :pWidth="780"
+      :pHeight="500"
+      :pMarginTop="20"
+      :pMarginLeft="180"
+      :pMarginRight="20"
+      :pMarginBottom="20"
+    >
+      <Axis
+        slot="axisLeft"
+        variable="signature"
+        side="left"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+      <MultiTrackPlot
+        slot="plot"
+        data="exposures_data"
+        x="sample_id"
+        y="signature"
+        c="exposure"
+        :getScale="getScale"
+        :getStack="getStack"
+        :getData="getData"
+        :clickHandler="exampleClickHandler"
+      />
+    </PlotContainer>
+
     <h3>&lt;DendrogramPlot/&gt;</h3>
     <PlotContainer
       :pWidth="780"
@@ -295,15 +324,25 @@
       />
     </PlotContainer>
 
-    <h3>&lt;MultiTrackPlot/&gt;</h3>
+    <h3>&lt;DendrogramAxis/&gt; and &lt;HierarchicalMultiTrackPlot/&gt;</h3>
     <PlotContainer
       :pWidth="780"
       :pHeight="500"
-      :pMarginTop="20"
+      :pMarginTop="200"
       :pMarginLeft="180"
       :pMarginRight="20"
       :pMarginBottom="20"
     >
+      <DendrogramAxis
+        slot="axisTop"
+        variable="sample_id"
+        h="clustering"
+        side="top"
+        :getScale="getScale"
+        :getStack="getStack"
+        :getData="getData"
+        :clickHandler="exampleClickHandler"
+      />
       <Axis
         slot="axisLeft"
         variable="signature"
@@ -311,9 +350,10 @@
         :getScale="getScale"
         :getStack="getStack"
       />
-      <MultiTrackPlot
+      <HierarchicalMultiTrackPlot
         slot="plot"
         data="exposures_data"
+        h="clustering"
         x="sample_id"
         y="signature"
         c="exposure"
@@ -348,6 +388,7 @@ import {
   PlotContainer, 
   Axis, 
   GenomeAxis,
+  DendrogramAxis,
   StackedBarPlot, 
   BarPlot, 
   ScatterPlot, 
@@ -355,6 +396,7 @@ import {
   MultiBoxPlot, 
   TrackPlot, 
   MultiTrackPlot, 
+  HierarchicalMultiTrackPlot,
   DendrogramPlot,
   GenomeScatterPlot
 } from '../src/index.js';
@@ -575,6 +617,7 @@ export default {
     PlotContainer,
     Axis,
     GenomeAxis,
+    DendrogramAxis,
     StackedBarPlot,
     BarPlot,
     SortOptions,
@@ -584,6 +627,7 @@ export default {
     MultiBoxPlot,
     TrackPlot,
     MultiTrackPlot,
+    HierarchicalMultiTrackPlot,
     GenomeScatterPlot,
     DendrogramPlot
   },
