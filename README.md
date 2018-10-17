@@ -58,7 +58,7 @@ yarn run docs
 - GenomeBarPlot
 - GenomeStackedBarPlot
 - GenomeTrackPlot :white_check_mark:
-- GenomeMultiTrackPlot
+- GenomeMultiTrackPlot :white_check_mark:
 
 
 ### Axis Components
