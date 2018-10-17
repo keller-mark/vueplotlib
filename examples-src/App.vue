@@ -51,7 +51,7 @@
       :pMarginTop="10"
       :pMarginLeft="120"
       :pMarginRight="10"
-      :pMarginBottom="150"
+      :pMarginBottom="100"
     >
       <Axis
         slot="axisLeft"
@@ -88,7 +88,7 @@
       :pMarginTop="10"
       :pMarginLeft="120"
       :pMarginRight="10"
-      :pMarginBottom="150"
+      :pMarginBottom="100"
     >
       <Axis
         slot="axisLeft"
@@ -124,7 +124,7 @@
       :pMarginTop="10"
       :pMarginLeft="120"
       :pMarginRight="10"
-      :pMarginBottom="180"
+      :pMarginBottom="50"
     >
       <Axis
         slot="axisLeft"
@@ -205,24 +205,6 @@
         variable="sample_id"
         side="bottom" 
         :tickRotation="-65"
-        :getScale="getScale"
-        :getStack="getStack"
-      />
-    </PlotContainer>
-
-    <h3>&lt;GenomeAxis/&gt;</h3>
-    <PlotContainer
-      :pWidth="800"
-      :pHeight="10"
-      :pMarginTop="10"
-      :pMarginLeft="20"
-      :pMarginRight="20"
-      :pMarginBottom="80"
-    >
-      <GenomeAxis
-        slot="axisBottom"
-        scaleKey="genome"
-        side="bottom"
         :getScale="getScale"
         :getStack="getStack"
       />
@@ -347,6 +329,8 @@
         slot="plot"
         data="rand_genome_data"
         g="genome"
+        eventColor="#fa0000"
+        lineColor="#DCDCDC"
         chromosomeVariable="chr"
         positionVariable="pos"
         :getData="getData"
@@ -384,7 +368,7 @@
         g="genome"
         c="e_type"
         y="sample_id"
-        backgroundColor="#DCDCDC"
+        lineColor="#DCDCDC"
         chromosomeVariable="chr"
         positionVariable="pos"
         :getData="getData"

@@ -65,7 +65,7 @@ import { scaleLinear as d3_scaleLinear, scaleBand as d3_scaleBand } from 'd3-sca
 import { select as d3_select } from 'd3-selection';
 import { mouse as d3_mouse } from 'd3';
 import debounce from 'lodash/debounce';
-import { TOOLTIP_DEBOUNCE } from './../../constants.js';
+import { TOOLTIP_DEBOUNCE, BAR_HEIGHT_MIN, BAR_MARGIN_Y_DEFAULT } from './../../constants.js';
 import { getRetinaRatio, getDelaunay } from './../../helpers.js';
 
 import AbstractScale from './../../scales/AbstractScale.js';
@@ -84,6 +84,8 @@ let uuid = 0;
  * @prop {number} eventWidth The width of each observation rectangle. Default: 4
  * @prop {string} eventColor The color of each observation. Default: "#000000". 
  * @prop {string} backgroundColor The background color of the track. Optional.
+ * @prop {string} lineColor The background color of the track. Optional.
+ * @prop {number} barMarginY The value for the vertical margin between bars. Default: 2
  * // TODO: bar padding
  * @extends mixin
  * 
@@ -140,6 +142,14 @@ export default {
         'backgroundColor': {
             required: false,
             type: String
+        },
+        'lineColor': {
+            required: false,
+            type: String
+        },
+        'barMarginY': {
+            type: Number, 
+            default: BAR_MARGIN_Y_DEFAULT
         }
     },
     data() {
@@ -182,12 +192,9 @@ export default {
             this._cScale.onUpdate(this.uuid, this.drawPlot);
         }
         
-        
-
         // Subscribe to event publishers here
         this._gScale.onUpdate(this.uuid, this.drawPlot);
         this._yScale.onUpdate(this.uuid, this.drawPlot);
-
 
         // Subscribe to data mutations here
         this._dataContainer.onUpdate(this.uuid, this.drawPlot);
@@ -310,12 +317,19 @@ export default {
             /*
              * Draw the track
              */
+            let barMarginY = vm.barMarginY;
+            if(barHeight - vm.barMarginY <= BAR_HEIGHT_MIN) {
+                barMarginY = 0;
+            }
             // Draw track backgrounds
             yScale.domainFiltered.forEach((yVal) => {
                 if(vm.backgroundColor !== undefined) {
                     context.fillStyle = vm.backgroundColor;
-                    // TODO: padding stuff
-                    context.fillRect(0, y(yVal), vm.pWidth, barHeight);
+                    context.fillRect(0, y(yVal) + (barMarginY/2), vm.pWidth, barHeight - barMarginY);
+                }
+                if(vm.lineColor !== undefined) {
+                    context.fillStyle = vm.lineColor;
+                    context.fillRect(0, y(yVal) + (barHeight/2) - 0.5, vm.pWidth, 1);
                 }
             });
             // Draw events
@@ -328,7 +342,7 @@ export default {
 
                 const xVal = g[d[vm.chromosomeVariable]](d[vm.positionVariable]) - (vm.eventWidth/2);
                 const yVal = y(d[vm.y]);
-                context.fillRect(xVal, yVal, vm.eventWidth, barHeight);
+                context.fillRect(xVal, yVal + (barMarginY/2), vm.eventWidth, barHeight - barMarginY);
             });
 
             /*

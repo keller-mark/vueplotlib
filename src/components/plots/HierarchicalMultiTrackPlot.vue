@@ -38,6 +38,24 @@
             }"
             class="vdp-plot-highlight"
         ></div>
+        <div v-show="this.highlightY1 !== null"
+            :style="{
+                'height': '1px', 
+                'width': (this.pWidth) + 'px',
+                'top': (this.pMarginTop + this.highlightY1 - 0.5) + 'px',
+                'left': (this.pMarginLeft) + 'px'
+            }"
+            class="vdp-plot-highlight"
+        ></div>
+        <div v-show="this.highlightY2 !== null"
+            :style="{
+                'height': '1px', 
+                'width': (this.pWidth) + 'px',
+                'top': (this.pMarginTop + this.highlightY2 - 0.5) + 'px',
+                'left': (this.pMarginLeft) + 'px'
+            }"
+            class="vdp-plot-highlight"
+        ></div>
         <div :id="this.tooltipElemID" class="vdp-tooltip" :style="this.tooltipPositionAttribute">
             <table>
                 <tr>
@@ -63,7 +81,7 @@ import { scaleBand as d3_scaleBand } from 'd3-scale';
 import { select as d3_select } from 'd3-selection';
 import { mouse as d3_mouse } from 'd3';
 import debounce from 'lodash/debounce';
-import { TOOLTIP_DEBOUNCE } from './../../constants.js';
+import { TOOLTIP_DEBOUNCE, BAR_WIDTH_MIN, BAR_HEIGHT_MIN, BAR_MARGIN_X_DEFAULT, BAR_MARGIN_Y_DEFAULT } from './../../constants.js';
 import { getRetinaRatio, filterHierarchy } from './../../helpers.js';
 
 
@@ -78,6 +96,8 @@ let uuid = 0;
  * @prop {string} x The x-scale variable key.
  * @prop {string} y The y-scale variable key.
  * @prop {string} c The color-scale variable key.
+ * @prop {number} barMarginX The value for the horizontal margin between bars. Default: 2
+ * @prop {number} barMarginY The value for the vertical margin between bars. Default: 2
  * @extends mixin
  * 
  * @example
@@ -113,6 +133,14 @@ export default {
         },
         'c': {
             type: String // color
+        },
+        'barMarginX': {
+            type: Number, 
+            default: BAR_MARGIN_X_DEFAULT
+        },
+        'barMarginY': {
+            type: Number, 
+            default: BAR_MARGIN_Y_DEFAULT
         }
     },
     data() {
@@ -122,9 +150,12 @@ export default {
                 y: '',
                 c: ''
             },
-            highlightScale: null,
+            highlightXScale: null,
+            highlightYScale: null,
             highlightX1: null,
             highlightX2: null,
+            highlightY1: null,
+            highlightY2: null,
             barWidth: 0,
             barHeight: 0
         }
@@ -158,8 +189,11 @@ export default {
         this._hierarchyContainer.onUpdate(this.uuid, this.drawPlot);
 
         // Subscribe to highlights here
-        this._xScale.onHighlight(this.uuid, this.highlight);
+        this._xScale.onHighlight(this.uuid, this.highlightX);
         this._xScale.onHighlightDestroy(this.uuid, this.highlightDestroy);
+
+        this._yScale.onHighlight(this.uuid, this.highlightY);
+        this._yScale.onHighlightDestroy(this.uuid, this.highlightDestroy);
     },
     mounted() {
         this.drawPlot();
@@ -177,17 +211,24 @@ export default {
             
             // Dispatch highlights
             this._xScale.emitHighlight(x);
+            this._yScale.emitHighlight(y);
+            this._cScale.emitHighlight(c);
         },
         tooltipDestroy: function() {
             this.tooltipHide();
 
             // Destroy all highlights here
             this._xScale.emitHighlightDestroy();
+            this._yScale.emitHighlightDestroy();
+            this._cScale.emitHighlightDestroy();
         },
-        highlight(value) {
-            this.highlightX1 = this.highlightScale(value);
-            this.highlightX2 = this.highlightScale(value) + this.barWidth;
-
+        highlightX(value) {
+            this.highlightX1 = this.highlightXScale(value);
+            this.highlightX2 = this.highlightXScale(value) + this.barWidth;
+        },
+        highlightY(value) {
+            this.highlightY1 = this.highlightYScale(value);
+            this.highlightY2 = this.highlightYScale(value) + this.barHeight;
         },
         highlightDestroy() {
             this.highlightX1 = null;
@@ -216,11 +257,15 @@ export default {
                 .domain(xDomainSortedByLeaf)
                 .range([0, vm.pWidth]);
             
+            vm.highlightXScale = x;
+            
             const y = d3_scaleBand()
                 .domain(yScale.domainFiltered.slice().reverse())
                 .range([vm.pHeight, 0]);
 
-            vm.highlightScale = x;
+            vm.highlightYScale = y;
+
+            
 
             const barWidth = vm.pWidth / xScale.domainFiltered.length;
             vm.barWidth = barWidth;
@@ -279,6 +324,14 @@ export default {
             /*
              * Draw the track
              */
+            let barMarginX = vm.barMarginX;
+            if(barWidth - vm.barMarginX <= BAR_WIDTH_MIN) {
+                barMarginX = 0;
+            }
+            let barMarginY = vm.barMarginY;
+            if(barHeight - vm.barMarginY <= BAR_HEIGHT_MIN) {
+                barMarginY = 0;
+            }
             data.forEach((d) => {
                 yScale.domainFiltered.forEach((yVar) => {
                     const col = genColor();
@@ -286,7 +339,7 @@ export default {
                     contextHidden.fillStyle = col;
 
                     context.fillStyle = cScale.color(d[yVar]);
-                    context.fillRect(x(d[vm.x]), y(yVar), barWidth, barHeight);
+                    context.fillRect(x(d[vm.x]) + (barMarginX/2), y(yVar) + (barMarginY/2), barWidth - barMarginX, barHeight - barMarginY);
                     contextHidden.fillRect(x(d[vm.x]), y(yVar), barWidth, barHeight);
                 });
             });

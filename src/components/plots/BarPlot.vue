@@ -58,7 +58,7 @@ import { scaleBand as d3_scaleBand, scaleLinear as d3_scaleLinear } from 'd3-sca
 import { select as d3_select } from 'd3-selection';
 import { mouse as d3_mouse } from 'd3';
 import debounce from 'lodash/debounce';
-import { TOOLTIP_DEBOUNCE } from './../../constants.js';
+import { TOOLTIP_DEBOUNCE, BAR_MARGIN_X_DEFAULT, BAR_WIDTH_MIN } from './../../constants.js';
 import { getRetinaRatio } from './../../helpers.js';
 
 import AbstractScale from './../../scales/AbstractScale.js';
@@ -70,6 +70,7 @@ let uuid = 0;
 /**
  * @prop {string} x The x-scale variable key.
  * @prop {string} y The y-scale variable key.
+ * @prop {number} barMarginX The value for the horizontal margin between bars. Default: 2
  * @extends mixin
  * 
  * @example
@@ -97,6 +98,10 @@ export default {
         },
         'y': {
             type: String
+        },
+        'barMarginX': {
+            type: Number, 
+            default: BAR_MARGIN_X_DEFAULT
         }
     },
     data() {
@@ -133,7 +138,7 @@ export default {
         this._dataContainer.onUpdate(this.uuid, this.drawPlot);
 
         // Subscribe to highlights here
-        this._xScale.onHighlight(this.uuid, this.highlight);
+        this._xScale.onHighlight(this.uuid, this.highlightX);
         this._xScale.onHighlightDestroy(this.uuid, this.highlightDestroy);
     },
     mounted() {
@@ -151,14 +156,16 @@ export default {
             
             // Dispatch highlights
             this._xScale.emitHighlight(x);
+            this._yScale.emitHighlight(y);
         },
         tooltipDestroy: function() {
             this.tooltipHide();
 
             // Destroy all highlights here
             this._xScale.emitHighlightDestroy();
+            this._yScale.emitHighlightDestroy();
         },
-        highlight(value) {
+        highlightX(value) {
             this.highlightX1 = this.highlightScale(value);
             this.highlightX2 = this.highlightScale(value) + this.barWidth;
         },
@@ -240,6 +247,11 @@ export default {
             /*
              * Draw the bars
              */
+            let barMarginX = vm.barMarginX;
+            if(barWidth - vm.barMarginX <= BAR_WIDTH_MIN) {
+                barMarginX = 0;
+            }
+
             data.forEach((d) => {
                 const col = genColor();
                 colToNode[col] = { "x": d[vm.x], "y": d[vm.y] };
@@ -247,8 +259,8 @@ export default {
 
                 let height = vm.pHeight - y(d[vm.y]);
                 context.fillStyle = xScale.color(d[vm.x]);
-                context.fillRect(x(d[vm.x]), y(d[vm.y]), barWidth, height);
-                contextHidden.fillRect(x(d[vm.x]), y(d[vm.y]), barWidth, height);
+                context.fillRect(x(d[vm.x]) + (barMarginX/2), y(d[vm.y]), barWidth - barMarginX, height);
+                contextHidden.fillRect(x(d[vm.x]), 0, barWidth, vm.pHeight);
             });
             
             /*

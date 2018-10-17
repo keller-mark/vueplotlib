@@ -54,7 +54,7 @@ export const filterHierarchy = (data, scale) => {
 };
 
 /**
- * Returns a delaunay implementation that works around the
+ * Returns a delaunay "implementation" that works around the
  * current bugs in the d3-delaunay package.
  * @private
  * @param {array} points

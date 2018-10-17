@@ -58,7 +58,7 @@ import { scaleBand as d3_scaleBand } from 'd3-scale';
 import { select as d3_select } from 'd3-selection';
 import { mouse as d3_mouse } from 'd3';
 import debounce from 'lodash/debounce';
-import { TOOLTIP_DEBOUNCE } from './../../constants.js';
+import { TOOLTIP_DEBOUNCE, BAR_MARGIN_X_DEFAULT, BAR_WIDTH_MIN } from './../../constants.js';
 import { getRetinaRatio } from './../../helpers.js';
 
 import AbstractScale from './../../scales/AbstractScale.js';
@@ -70,6 +70,7 @@ let uuid = 0;
 /**
  * @prop {string} x The x-scale variable key.
  * @prop {string} c The color-scale variable key.
+ * @prop {number} barMarginX The value for the horizontal margin between bars. Default: 2
  * @extends mixin
  * 
  * @example
@@ -97,6 +98,10 @@ export default {
         },
         'c': {
             type: String
+        },
+        'barMarginX': {
+            type: Number, 
+            default: BAR_MARGIN_X_DEFAULT
         }
     },
     data() {
@@ -235,13 +240,18 @@ export default {
             /*
              * Draw the track
              */
+            let barMarginX = vm.barMarginX;
+            if(barWidth - vm.barMarginX <= BAR_WIDTH_MIN) {
+                barMarginX = 0;
+            }
+
             data.forEach((d) => {
                 const col = genColor();
                 colToNode[col] = { "x": d[vm.x], "c": d[vm.c] };
                 contextHidden.fillStyle = col;
 
                 context.fillStyle = cScale.color(d[vm.c]);
-                context.fillRect(x(d[vm.x]), 0, barWidth, vm.pHeight);
+                context.fillRect(x(d[vm.x]) + (barMarginX/2), 0, barWidth - barMarginX, vm.pHeight);
                 contextHidden.fillRect(x(d[vm.x]), 0, barWidth, vm.pHeight);
             });
             

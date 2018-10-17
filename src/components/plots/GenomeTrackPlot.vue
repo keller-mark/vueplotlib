@@ -43,7 +43,7 @@ import { scaleLinear as d3_scaleLinear } from 'd3-scale';
 import { select as d3_select } from 'd3-selection';
 import { mouse as d3_mouse } from 'd3';
 import debounce from 'lodash/debounce';
-import { TOOLTIP_DEBOUNCE } from './../../constants.js';
+import { TOOLTIP_DEBOUNCE, GENOME_EVENT_COLOR_DEFAULT } from './../../constants.js';
 import { getRetinaRatio, getDelaunay } from './../../helpers.js';
 
 import AbstractScale from './../../scales/AbstractScale.js';
@@ -61,6 +61,7 @@ let uuid = 0;
  * @prop {number} eventWidth The width of each observation rectangle. Default: 4
  * @prop {string} eventColor The color of each observation. Default: "#000000". 
  * @prop {string} backgroundColor The background color of the track. Optional.
+ * @prop {string} lineColor The background color of the track. Optional.
  * @extends mixin
  * 
  * @example
@@ -106,9 +107,13 @@ export default {
         },
         'eventColor': {
             type: String,
-            default: "#aaa"
+            default: GENOME_EVENT_COLOR_DEFAULT
         },
         'backgroundColor': {
+            required: false,
+            type: String
+        },
+        'lineColor': {
             required: false,
             type: String
         }
@@ -255,6 +260,11 @@ export default {
             if(vm.backgroundColor !== undefined) {
                 context.fillStyle = vm.backgroundColor;
                 context.fillRect(0, 0, vm.pWidth, vm.pHeight);
+            }
+
+            if(vm.lineColor !== undefined) {
+                context.fillStyle = vm.lineColor;
+                context.fillRect(0, (vm.pHeight/2)-0.5, vm.pWidth, 1);
             }
 
             data.forEach((d) => {
