@@ -391,6 +391,7 @@
       :by="sampleSortBy" 
       :getScale="getScale" 
       :getData="getData"
+      :getStack="getStack"
     />
 
 
@@ -639,7 +640,7 @@ const getScale = function(scaleKey) {
 
 
 // Initialize the stack
-const stack = new HistoryStack(getScale);
+const stack = new HistoryStack(getScale, getData);
 stack.push(new HistoryEvent(HistoryEvent.types.SCALE, "sample_id", "reset"), true);
 stack.push(new HistoryEvent(HistoryEvent.types.SCALE, "exposure", "reset"), true);
 stack.push(new HistoryEvent(HistoryEvent.types.SCALE, "signature", "reset"), true);

@@ -1,5 +1,6 @@
 import HistoryEvent from './HistoryEvent.js';
 
+
 /**
  * Represents a history of all application interaction events,
  * which can be used for forward(redo)/backward(undo) navigation.
@@ -9,9 +10,11 @@ export default class HistoryStack {
     /**
      * Create a new history stack.
      * @param {function} getScale Function that returns a scale object for a provided string key.
+     * @param {function} getData Function that returns a data container object for a provided string key.
      */
-    constructor(getScale) {
+    constructor(getScale, getData) {
         this._getScale = getScale;
+        this._getData = getData;
         this._initial = []; // initial stack
         this._stack = []; // user-event stack
         this._pointer = undefined; // user-event stack pointer
@@ -145,6 +148,29 @@ export default class HistoryStack {
     }
 
     /**
+     * Parse parameters to check for the need to call a getter function.
+     * @param {array} params The serialized parameter array.
+     * @returns {array} Parsed params, replacing with calls to getter functions if necessary.
+     */
+    parseParams(params) {
+        return params.map((p) => {
+            if(typeof p === "object") {
+                if(p.hasOwnProperty("$vdp_val_from_getter")) {
+                    // can assume that this object represents a call to a "getter": getScale, getStack, etc...
+                    console.assert(typeof p.getterFunction === "string");
+                    console.assert(p.getterFunction.substring(0, 3) === "get");
+                    let getterFunction = this[("_" + p.getterFunction)];
+                    console.assert(Array.isArray(p.getterParams));
+                    let getterParams = p.getterParams;
+                    
+                    return getterFunction( ...getterParams );
+                }
+            }
+            return p;
+        });
+    }
+
+    /**
      * Execute a provided event.
      * @param {HistoryEvent} event 
      */
@@ -167,12 +193,9 @@ export default class HistoryStack {
 
         if(getTargetFunc !== undefined) {
             let target = getTargetFunc(event.id);
-            /*
-            TODO: parse event.params to search for symbols?
-                For example, if one wanted to use a specific dataset as a param, 
-                could encode as the string "{data:myDatasetKey}" or something...
-            */
-            target[event.action]( ...event.params );
+            
+            let parsedParams = this.parseParams(event.params)
+            target[event.action]( ...parsedParams );
         } else {
             console.error("Error: the target function specified by the HistoryEvent type is undefined");
         }

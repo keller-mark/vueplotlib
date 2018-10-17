@@ -31,6 +31,7 @@ export default class AbstractScale {
         this._name = name;
         this._domain = domain;
         this._domainFiltered = domain.slice();
+        this._domainOriginal = domain.slice();
         this._dispatch = d3_dispatch(
             DISPATCH_EVENT_UPDATE, 
             DISPATCH_EVENT_HIGHLIGHT, 
@@ -190,7 +191,7 @@ export default class AbstractScale {
      * Resets the filtered domain, using the full original domain.
      */
     reset() {
-        this.setDomainFiltered(this._domain.slice());
+        this.setDomainFiltered(this._domainOriginal);
         this.emitUpdate();
     }
 }

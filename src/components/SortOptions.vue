@@ -23,8 +23,8 @@
 
 <script>
 import SortBy from './../sort/SortBy.js';
+import HistoryEvent from '../history/HistoryEvent.js';
 
-let uuid = 0;
 export default {
     name: 'SortOptions',
     props: {
@@ -38,6 +38,9 @@ export default {
             type: Function
         },
         'getData': {
+            type: Function
+        },
+        'getStack': {
             type: Function
         }
     },
@@ -58,6 +61,8 @@ export default {
     created() {
         console.assert(this.by instanceof SortBy);
         // TODO: Make assertions about scale types?
+
+        this._stack = this.getStack();
     },
     methods: {
         validSelection(varValue) {
@@ -66,6 +71,15 @@ export default {
         go() {
             if(this.validSelection(this.selectedKey)) {
                 this.getScale(this.variable).sort(this.getData(this.by.data), this.selectedKey, this.sortAscending);
+                this._stack.push(new HistoryEvent(HistoryEvent.types.SCALE, this.variable, "sort", [
+                    {
+                        "$vdp_val_from_getter": true,
+                        "getterFunction": "getData",
+                        "getterParams": [this.by.data]
+                    },
+                    this.selectedKey,
+                    this.sortAscending
+                ]));
             }
         }
     }
