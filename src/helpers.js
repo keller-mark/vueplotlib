@@ -57,7 +57,8 @@ export const filterHierarchy = (data, scale) => {
  * Returns a delaunay "implementation" that works around the
  * current bugs in the d3-delaunay package.
  * @private
- * @param {array} points
+ * @param {array} points array of xy points as arrays [[x,y], [x,y], ...]
+ * @param {boolean} randomness Whether or not to inject randomness into points to work around d3-delaunay colinearity issue
  * @returns {object} The delaunay object with find(x,y) method
  */
 export const getDelaunay = (points, randomness) => {

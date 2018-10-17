@@ -44,6 +44,7 @@ import { saveSvgAsPng } from 'save-svg-as-png';
 
 import GenomeScale from './../scales/GenomeScale.js';
 import HistoryEvent from './../history/HistoryEvent.js';
+import HistoryStack from './../history/HistoryStack.js';
 
 const SIDES = Object.freeze({ "TOP": 1, "LEFT": 2, "RIGHT": 3, "BOTTOM": 4 });
 const ORIENTATIONS = Object.freeze({ "VERTICAL": 1, "HORIZONTAL": 2 }); // vertical = left/right, horizontal = top/bottom
@@ -205,6 +206,7 @@ export default {
         this._varScale.onUpdate(this.uuid, this.drawAxis);
 
         this._stack = this.getStack();
+        console.assert(this._stack instanceof HistoryStack);
     },
     mounted() {
         this.drawAxis();

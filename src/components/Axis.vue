@@ -21,6 +21,7 @@ import { saveSvgAsPng } from 'save-svg-as-png';
 
 import AbstractScale from './../scales/AbstractScale.js';
 import HistoryEvent from './../history/HistoryEvent.js';
+import HistoryStack from './../history/HistoryStack.js';
 
 const SIDES = Object.freeze({ "TOP": 1, "LEFT": 2, "RIGHT": 3, "BOTTOM": 4 });
 const ORIENTATIONS = Object.freeze({ "VERTICAL": 1, "HORIZONTAL": 2 }); // vertical = left/right, horizontal = top/bottom
@@ -38,7 +39,7 @@ let uuid = 0;
  * @prop {number} pMarginBottom The plot bottom margin.
  * @prop {function} getScale Function that takes a scale key string and returns a scale instance.
  * @prop {function} getStack Function that returns a HistoryStack instance.
- * @prop {boolean} disableBrushing Whether to disable brushing functionality and hide the zoomed-out "context" view.
+ * @prop {boolean} disableBrushing Whether to disable brushing functionality and hide the zoomed-out "context" view. Default: false
  * 
  * @example
  * <Axis
@@ -184,6 +185,7 @@ export default {
         this._varScale.onUpdate(this.uuid, this.drawAxis);
 
         this._stack = this.getStack();
+        console.assert(this._stack instanceof HistoryStack);
     },
     mounted() {
         this.drawAxis();

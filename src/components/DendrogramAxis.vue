@@ -19,6 +19,7 @@ import { saveSvgAsPng } from 'save-svg-as-png';
 import AbstractScale from './../scales/AbstractScale.js';
 import DataContainer from './../data/DataContainer.js';
 import HistoryEvent from './../history/HistoryEvent.js';
+import HistoryStack from './../history/HistoryStack.js';
 import { filterHierarchy } from '../helpers.js';
 
 const SIDES = Object.freeze({ "TOP": 1, "LEFT": 2, "RIGHT": 3, "BOTTOM": 4 });
@@ -183,6 +184,7 @@ export default {
         this._varScale.onUpdate(this.uuid, this.drawAxis);
 
         this._stack = this.getStack();
+        console.assert(this._stack instanceof HistoryStack);
     },
     mounted() {
         this.drawAxis();
