@@ -1,7 +1,7 @@
 import PlotContainer from './components/PlotContainer.vue';
-import Axis from './components/Axis.vue';
-import GenomeAxis from './components/GenomeAxis.vue';
-import DendrogramAxis from './components/DendrogramAxis.vue';
+import Axis from './components/axes/Axis.vue';
+import GenomeAxis from './components/axes/GenomeAxis.vue';
+import DendrogramAxis from './components/axes/DendrogramAxis.vue';
 
 // Plots
 import StackedBarPlot from './components/plots/StackedBarPlot.vue';

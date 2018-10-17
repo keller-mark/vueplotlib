@@ -403,7 +403,7 @@
 
 <script>
 import { set as d3_set } from 'd3-collection';
-// Plots
+// Components
 import { 
   PlotContainer, 
   Axis, 

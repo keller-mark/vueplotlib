@@ -42,9 +42,9 @@ import { zip as d3_zip } from 'd3-array';
 
 import { saveSvgAsPng } from 'save-svg-as-png';
 
-import GenomeScale from './../scales/GenomeScale.js';
-import HistoryEvent from './../history/HistoryEvent.js';
-import HistoryStack from './../history/HistoryStack.js';
+import GenomeScale from './../../scales/GenomeScale.js';
+import HistoryEvent from './../../history/HistoryEvent.js';
+import HistoryStack from './../../history/HistoryStack.js';
 
 const SIDES = Object.freeze({ "TOP": 1, "LEFT": 2, "RIGHT": 3, "BOTTOM": 4 });
 const ORIENTATIONS = Object.freeze({ "VERTICAL": 1, "HORIZONTAL": 2 }); // vertical = left/right, horizontal = top/bottom
@@ -488,7 +488,7 @@ export default {
 </script>
 
 <style>
-@import '../style/axis-style.css';
+@import '../../style/axis-style.css';
 
 .vdp-genome-input {
     position: absolute;
