@@ -10,6 +10,7 @@ toc:
   - HierarchicalMultiTrackPlot
   - GenomeScatterPlot
   - GenomeTrackPlot
+  - GenomeMultiTrackPlot
   - mixin
   - Axis
   - GenomeAxis

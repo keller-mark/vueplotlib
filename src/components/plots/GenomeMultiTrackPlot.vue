@@ -10,7 +10,7 @@
                 'left': (this.pMarginLeft) + 'px'
             }"
         ></canvas>
-        <div v-show="this.highlightX1 !== null" 
+        <div v-show="this.highlightX1 !== null"  
             :style="{
                 'height': (this.pHeight) + 'px', 
                 'width': '1px',
@@ -19,11 +19,20 @@
             }"
             class="vdp-plot-highlight"
         ></div>
-        <div v-show="this.highlightY1 !== null"
+        <div v-show="this.highlightY1 !== null"  
             :style="{
-                'height': '1px', 
-                'width': (this.pWidth) + 'px', 
+                'height': '1px',
+                'width': (this.pWidth) + 'px',
                 'top': (this.pMarginTop + this.highlightY1 - 0.5) + 'px',
+                'left': (this.pMarginLeft) + 'px'
+            }"
+            class="vdp-plot-highlight"
+        ></div>
+        <div v-show="this.highlightY2 !== null"  
+            :style="{
+                'height': '1px',
+                'width': (this.pWidth) + 'px',
+                'top': (this.pMarginTop + this.highlightY2 - 0.5) + 'px',
                 'left': (this.pMarginLeft) + 'px'
             }"
             class="vdp-plot-highlight"
@@ -42,7 +51,7 @@
                     <th>{{ this._yScale.name }}</th>
                     <td>{{ this.tooltipInfo.y }}</td>
                 </tr>
-                <tr>
+                <tr v-if="this.hasC">
                     <th>{{ this._cScale.name }}</th>
                     <td>{{ this.tooltipInfo.c }}</td>
                 </tr>
@@ -52,7 +61,7 @@
 </template>
 
 <script>
-import { scaleLinear as d3_scaleLinear } from 'd3-scale';
+import { scaleLinear as d3_scaleLinear, scaleBand as d3_scaleBand } from 'd3-scale';
 import { select as d3_select } from 'd3-selection';
 import { mouse as d3_mouse } from 'd3';
 import debounce from 'lodash/debounce';
@@ -61,7 +70,6 @@ import { getRetinaRatio, getDelaunay } from './../../helpers.js';
 
 import AbstractScale from './../../scales/AbstractScale.js';
 import GenomeScale from './../../scales/GenomeScale.js';
-
 import DataContainer from './../../data/DataContainer.js';
 
 import mixin from './mixin.js';
@@ -69,41 +77,49 @@ import mixin from './mixin.js';
 let uuid = 0;
 /**
  * @prop {string} g The genome-scale variable key.
+ * @prop {string} c The event color-scale variable key. Takes precedence over eventColor prop.
  * @prop {string} y The y-scale variable key.
- * @prop {string} c The color-scale variable key.
  * @prop {string} chromosomeVariable The axis chromosome variable key. Default: "chromosome"
  * @prop {string} positionVariable The axis position variable key. Default: "position"
+ * @prop {number} eventWidth The width of each observation rectangle. Default: 4
+ * @prop {string} eventColor The color of each observation. Default: "#000000". 
+ * @prop {string} backgroundColor The background color of the track. Optional.
+ * // TODO: bar padding
  * @extends mixin
  * 
  * @example
- * <GenomeScatterPlot
- *      data="rainfall_data"
+ * <GenomeMultiTrackPlot
+ *      data="rand_genome_multi_data"
  *      g="genome" 
- *      y="mut_dist"
- *      c="category"
+ *      y="sample_id"
+ *      c="event_type"
  *      :pWidth="500"
- *      :pHeight="300"
+ *      :pHeight="40"
  *      :pMarginTop="10"
- *      :pMarginLeft="120"
+ *      :pMarginLeft="10"
  *      :pMarginRight="10"
  *      :pMarginBottom="150"
  *      :getData="getData"
  *      :getScale="getScale"
+ *      :getStack="getStack"
  *      :clickHandler="myClickHandler"
  * />
  */
 export default {
-    name: 'GenomeScatterPlot',
+    name: 'GenomeMultiTrackPlot',
     mixins: [mixin],
     props: {
-        'g': {
-            type: String // genome
-        },
-        'y': {
+        'g': { // genome
+            required: true,
             type: String
         },
-        'c': {
-            type: String // color
+        'y': {
+            required: true,
+            type: String
+        },
+        'c': { // event color
+            required: false,
+            type: String
         },
         'chromosomeVariable': {
             type: String,
@@ -112,22 +128,35 @@ export default {
         'positionVariable': {
             type: String,
             default: "position"
+        },
+        'eventWidth': {
+            type: Number,
+            default: 4
+        },
+        'eventColor': {
+            type: String,
+            default: "#aaa"
+        },
+        'backgroundColor': {
+            required: false,
+            type: String
         }
-        // TODO: allow optional dot size, dot shape variable
-        // TODO: allow specification of filled dots, static dot stroke/fill, etc...
     },
     data() {
         return {
+            hasC: false,
             tooltipInfo: {
                 chromosome: '',
                 position: '',
-                y: '',
-                c: ''
+                c: '',
+                y: ''
             },
             highlightGScales: null,
             highlightYScale: null,
             highlightX1: null,
-            highlightY1: null
+            highlightY1: null,
+            highlightY2: null,
+            barHeight: 0
         }
     },
     beforeCreate() {
@@ -141,15 +170,24 @@ export default {
         // Set scale variables
         this._gScale = this.getScale(this.g);
         this._yScale = this.getScale(this.y);
-        this._cScale = this.getScale(this.c);
+
         console.assert(this._gScale instanceof GenomeScale);
         console.assert(this._yScale instanceof AbstractScale);
-        console.assert(this._cScale instanceof AbstractScale);
+        
+        // Make assertions, but keep c scale optional
+        if(this.c !== undefined) {
+            this.hasC = true;
+            this._cScale = this.getScale(this.c);
+            console.assert(this._cScale instanceof AbstractScale);
+            this._cScale.onUpdate(this.uuid, this.drawPlot);
+        }
+        
+        
 
         // Subscribe to event publishers here
         this._gScale.onUpdate(this.uuid, this.drawPlot);
         this._yScale.onUpdate(this.uuid, this.drawPlot);
-        this._cScale.onUpdate(this.uuid, this.drawPlot);
+
 
         // Subscribe to data mutations here
         this._dataContainer.onUpdate(this.uuid, this.drawPlot);
@@ -160,8 +198,6 @@ export default {
 
         this._yScale.onHighlight(this.uuid, this.highlightY);
         this._yScale.onHighlightDestroy(this.uuid, this.highlightDestroy);
-
-        // TODO: subscribe to color scale highlights??
     },
     mounted() {
         this.drawPlot();
@@ -171,10 +207,11 @@ export default {
             // Set values
             this.tooltipInfo.chromosome = chromosome;
             this.tooltipInfo.position = position.toLocaleString();
-
             this.tooltipInfo.y = this._yScale.toHuman(y);
-            this.tooltipInfo.c = this._cScale.toHuman(c);
 
+            if(this.hasC) {
+                this.tooltipInfo.c = this._cScale.toHuman(c);
+            }
             // Set position
             this.tooltipPosition.left = mouseX + this.pMarginLeft;
             this.tooltipPosition.top = mouseY + this.pMarginTop;
@@ -182,7 +219,9 @@ export default {
             // Dispatch highlights
             this._gScale.emitHighlight(chromosome, position);
             this._yScale.emitHighlight(y);
-            this._cScale.emitHighlight(c);
+            if(this.hasC) {
+                this._cScale.emitHighlight(c);
+            }
         },
         tooltipDestroy: function() {
             this.tooltipHide();
@@ -190,30 +229,37 @@ export default {
             // Destroy all highlights here
             this._gScale.emitHighlightDestroy();
             this._yScale.emitHighlightDestroy();
-            this._cScale.emitHighlightDestroy();
+            if(this.hasC) {
+                this._cScale.emitHighlightDestroy();
+            }
         },
         highlightG(chromosome, position) {
             this.highlightX1 = this.highlightGScales[chromosome](position);
         },
-        highlightY(value) {
-            this.highlightY1 = this.highlightYScale(value);
+        highlightY(val) {
+            this.highlightY1 = this.highlightYScale(val);
+            this.highlightY2 = this.highlightYScale(val) + this.barHeight;
         },
         highlightDestroy() {
             this.highlightX1 = null;
             this.highlightY1 = null;
+            this.highlightY2 = null;
         },
         drawPlot() {
             const vm = this;
             
             let data = this._dataContainer.dataCopy;
-            const cScale = this._cScale;
-            const yScale = this._yScale;
+            let cScale;
+            if(this.hasC) {
+                cScale = this._cScale;
+            }
             const gScale = this._gScale;
+            const yScale = this._yScale;
 
             let chromosomes = gScale.chromosomesFiltered;
 
             data = data.filter((d) => chromosomes.includes(d[vm.chromosomeVariable]));
-
+            data = data.filter((d) => yScale.domainFiltered.includes(d[vm.y]));
 
             const g = {};
             
@@ -232,15 +278,16 @@ export default {
             }
 
             vm.highlightGScales = g;
-            
-            const y = d3_scaleLinear()
-                .domain(yScale.domainFiltered)
+
+            const y = d3_scaleBand()
+                .domain(yScale.domainFiltered.slice().reverse())
                 .range([vm.pHeight, 0]);
 
-            // TODO: figure out option for scale log
-
             vm.highlightYScale = y;
-            
+
+            const barHeight = vm.pHeight / yScale.domainFiltered.length;
+            vm.barHeight = barHeight;
+              
             
             /*
              * Scale up the canvas
@@ -248,6 +295,7 @@ export default {
             const canvas = d3_select(this.plotSelector);
             const context = canvas.node().getContext('2d');
 
+          
             const ratio = getRetinaRatio(context);
             const scaledWidth = vm.pWidth * ratio;
             const scaledHeight = vm.pHeight * ratio;
@@ -257,30 +305,38 @@ export default {
                 .attr("height", scaledHeight);
             context.scale(ratio, ratio);
 
-            if(data.length === 0) {
-                canvas.on("mousemove", () => {});
-                canvas.on("mouseleave", () => {});
-                return;
-            }
-
-
+   
+           
             /*
-             * Draw the points
+             * Draw the track
              */
-            data.forEach((d) => {
-                context.fillStyle = cScale.color(d[vm.c]);
-                context.beginPath();
-                context.arc(g[d[vm.chromosomeVariable]](d[vm.positionVariable]), y(d[vm.y]), 3, 0, 2*Math.PI);
-                context.fill();
+            // Draw track backgrounds
+            yScale.domainFiltered.forEach((yVal) => {
+                if(vm.backgroundColor !== undefined) {
+                    context.fillStyle = vm.backgroundColor;
+                    // TODO: padding stuff
+                    context.fillRect(0, y(yVal), vm.pWidth, barHeight);
+                }
             });
+            // Draw events
+            data.forEach((d) => {
+                if(this.hasC) {
+                    context.fillStyle = cScale.color(d[vm.c]);
+                } else {
+                    context.fillStyle = vm.eventColor;
+                }
 
-
+                const xVal = g[d[vm.chromosomeVariable]](d[vm.positionVariable]) - (vm.eventWidth/2);
+                const yVal = y(d[vm.y]);
+                context.fillRect(xVal, yVal, vm.eventWidth, barHeight);
+            });
 
             /*
              * Prepare for interactivity
              */
+            // TODO: remove this offset thing once delaunay library is fixed
             const points = data.map((d) => [g[d[vm.chromosomeVariable]](d[vm.positionVariable]), y(d[vm.y])]);
-            const delaunay = getDelaunay(points, false);
+            const delaunay = getDelaunay(points, true);
             
             /*
              * Listen for mouse events
@@ -317,10 +373,11 @@ export default {
                     const node = getDataFromMouse(mouseX, mouseY);
 
                     if(node) {
-                        vm.clickHandler(node[vm.chromosomeVariable], node[vm.positionVariable], node[vm.y], node[vm.c]); 
+                        vm.clickHandler(node[vm.chromosomeVariable], node[vm.positionVariable], node[vm.y], node[vm.c]);
                     }
                 });
             }
+            
         }
     }
 }

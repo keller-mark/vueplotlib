@@ -47,10 +47,9 @@
 import { scaleLinear as d3_scaleLinear } from 'd3-scale';
 import { select as d3_select } from 'd3-selection';
 import { mouse as d3_mouse } from 'd3';
-import { Delaunay } from 'd3-delaunay';
 import debounce from 'lodash/debounce';
 import { TOOLTIP_DEBOUNCE } from './../../constants.js';
-import { getRetinaRatio } from './../../helpers.js';
+import { getRetinaRatio, getDelaunay } from './../../helpers.js';
 
 import AbstractScale from './../../scales/AbstractScale.js';
 import DataContainer from './../../data/DataContainer.js';
@@ -218,15 +217,7 @@ export default {
              * Prepare for interactivity
              */
             const points = data.map((d) => [x(d[vm.x]), y(d[vm.y])]);
-            const delaunay = Delaunay.from(points);
-
-            /*
-            // Show the voronoi edges
-            const voronoi = delaunay.voronoi([0, 0, vm.pWidth, vm.pHeight]);
-            context.beginPath();
-            voronoi.render(context);
-            context.stroke();
-            */
+            const delaunay = getDelaunay(points, false);
             
             /*
              * Listen for mouse events

@@ -1,3 +1,5 @@
+import { Delaunay } from 'd3-delaunay';
+
 /**
  * Get the retina ratio to be able to scale up a canvas context.
  * @private
@@ -50,3 +52,45 @@ export const filterHierarchy = (data, scale) => {
     };
     return filterNode(data);
 };
+
+/**
+ * Returns a delaunay implementation that works around the
+ * current bugs in the d3-delaunay package.
+ * @private
+ * @param {array} points
+ * @returns {object} The delaunay object with find(x,y) method
+ */
+export const getDelaunay = (points, randomness) => {
+    if(randomness) {
+        points = points.map((el) => [el[0] + Math.random()*0.0001, el[1] + Math.random()*0.0001]);
+    }
+    points = points.filter((el) => (!Number.isNaN(el[0]) && !Number.isNaN(el[1])));
+    if(points.length > 2) {
+        return Delaunay.from(points);
+    } else if(points.length == 2) {
+        return {
+            find: (x, y) => {
+                let d0 = Math.sqrt(Math.pow((points[0][0] - x), 2) + Math.pow((points[0][1] - y), 2));
+                let d1 = Math.sqrt(Math.pow((points[1][0] - x), 2) + Math.pow((points[1][1] - y), 2));
+                if(d0 < d1) {
+                    return 0;
+                } else {
+                    return 1;
+                }
+            }
+        }
+    } else if(points.length == 1) {
+        return {
+            find: () => {
+                return 0;
+            }
+        }
+    } else {
+        return {
+            find: () => {
+                return undefined;
+            }
+        }
+    }
+
+}

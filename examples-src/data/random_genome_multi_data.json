@@ -1,0 +1,22 @@
+[
+    {"chr": "12", "pos": 61066592, "e_type": "e1", "proj_id": "ICGC-BRCA-EU", "sample_id": "SA543895"}, 
+    {"chr": "10", "pos": 120789548, "e_type": "e2", "proj_id": "ICGC-BRCA-EU", "sample_id": "SA543895"}, 
+    {"chr": "12", "pos": 97438806, "e_type": "e3", "proj_id": "ICGC-BRCA-EU", "sample_id": "SA543895"}, 
+    {"chr": "17", "pos": 16793912, "e_type": "e1", "proj_id": "ICGC-BRCA-EU", "sample_id": "SA543895"}, 
+    {"chr": "16", "pos": 7929566, "e_type": "e2", "proj_id": "TCGA-UCEC", "sample_id": "SA543912"}, 
+    {"chr": "19", "pos": 46228, "e_type": "e2", "proj_id": "TCGA-UCEC", "sample_id": "SA543912"}, 
+    {"chr": "20", "pos": 57893813, "e_type": "e3", "proj_id": "TCGA-UCEC", "sample_id": "SA543912"}, 
+    {"chr": "11", "pos": 82552372, "e_type": "e1", "proj_id": "TCGA-BRCA", "sample_id": "SA569952"}, 
+    {"chr": "22", "pos": 35750707, "e_type": "e1", "proj_id": "TCGA-BRCA", "sample_id": "SA569952"}, 
+    {"chr": "10", "pos": 114838090, "e_type": "e1", "proj_id": "TCGA-BRCA", "sample_id": "SA569952"}, 
+    {"chr": "7", "pos": 116011384, "e_type": "e1", "proj_id": "TCGA-BRCA", "sample_id": "SA569952"}, 
+    {"chr": "16", "pos": 7585359, "e_type": "e1", "proj_id": "TCGA-BRCA", "sample_id": "SA569952"}, 
+    {"chr": "5", "pos": 116021921, "e_type": "e1", "proj_id": "TCGA-BRCA", "sample_id": "SA569952"}, 
+    {"chr": "M", "pos": 6105, "e_type": "e1", "proj_id": "TCGA-BRCA", "sample_id": "SA569952"}, 
+    {"chr": "M", "pos": 2152, "e_type": "e3", "proj_id": "TCGA-BRCA", "sample_id": "SA569952"}, 
+    {"chr": "4", "pos": 114437197, "e_type": "e3", "proj_id": "TCGA-BRCA", "sample_id": "SA569952"}, 
+    {"chr": "21", "pos": 20368037, "e_type": "e3", "proj_id": "TCGA-BRCA", "sample_id": "SA569952"}, 
+    {"chr": "17", "pos": 6118740, "e_type": "e2", "proj_id": "TCGA-BRCA", "sample_id": "SA569952"}, 
+    {"chr": "5", "pos": 141707191, "e_type": "e1", "proj_id": "TCGA-BRCA", "sample_id": "SA569952"}, 
+    {"chr": "7", "pos": 42958425, "e_type": "e1", "proj_id": "TCGA-BRCA", "sample_id": "SA569952"}
+]

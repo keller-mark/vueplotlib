@@ -42,10 +42,9 @@
 import { scaleLinear as d3_scaleLinear } from 'd3-scale';
 import { select as d3_select } from 'd3-selection';
 import { mouse as d3_mouse } from 'd3';
-import { Delaunay } from 'd3-delaunay';
 import debounce from 'lodash/debounce';
 import { TOOLTIP_DEBOUNCE } from './../../constants.js';
-import { getRetinaRatio } from './../../helpers.js';
+import { getRetinaRatio, getDelaunay } from './../../helpers.js';
 
 import AbstractScale from './../../scales/AbstractScale.js';
 import GenomeScale from './../../scales/GenomeScale.js';
@@ -85,13 +84,13 @@ export default {
     name: 'GenomeTrackPlot',
     mixins: [mixin],
     props: {
-        'g': {
+        'g': { // genome
             required: true,
-            type: String // genome
+            type: String
         },
-        'c': {
+        'c': { // event color
             required: false,
-            type: String // event color
+            type: String
         },
         'chromosomeVariable': {
             type: String,
@@ -116,7 +115,6 @@ export default {
     },
     data() {
         return {
-            hasT: true,
             hasC: true,
             tooltipInfo: {
                 chromosome: '',
@@ -274,8 +272,9 @@ export default {
             /*
              * Prepare for interactivity
              */
-            const points = data.map((d, i) => [g[d[vm.chromosomeVariable]](d[vm.positionVariable]), (vm.pHeight / 2 + i*0.0001)]);
-            const delaunay = Delaunay.from(points);
+            // TODO: remove this offset thing once delaunay library is fixed
+            const points = data.map((d) => [g[d[vm.chromosomeVariable]](d[vm.positionVariable]), (vm.pHeight / 2)]);
+            const delaunay = getDelaunay(points, true);
             
             /*
              * Listen for mouse events

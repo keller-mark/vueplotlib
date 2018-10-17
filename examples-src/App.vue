@@ -362,6 +362,44 @@
       />
     </PlotContainer>
 
+    <h3>&lt;GenomeMultiTrackPlot/&gt;</h3>
+    <PlotContainer
+      :pWidth="800"
+      :pHeight="700"
+      :pMarginTop="20"
+      :pMarginLeft="150"
+      :pMarginRight="20"
+      :pMarginBottom="80"
+    > 
+      <Axis
+        slot="axisLeft"
+        variable="sample_id"
+        side="left"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+      <GenomeMultiTrackPlot
+        slot="plot"
+        data="rand_genome_multi_data"
+        g="genome"
+        c="e_type"
+        y="sample_id"
+        backgroundColor="#DCDCDC"
+        chromosomeVariable="chr"
+        positionVariable="pos"
+        :getData="getData"
+        :getScale="getScale"
+        :clickHandler="exampleClickHandler"
+      />
+      <GenomeAxis
+        slot="axisBottom"
+        scaleKey="genome"
+        side="bottom"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+    </PlotContainer>
+
 
     <h3>&lt;SortOptions/&gt;</h3>
     <SortOptions 
@@ -396,7 +434,8 @@ import {
   MultiTrackPlot, 
   HierarchicalMultiTrackPlot,
   GenomeScatterPlot,
-  GenomeTrackPlot
+  GenomeTrackPlot,
+  GenomeMultiTrackPlot
 } from '../src/index.js';
 
 
@@ -411,6 +450,7 @@ import boxplotData from './data/boxplot_data.json';
 import clinicalData from './data/clinical_data.json';
 import clusteringData from './data/clustering.json';
 import randomGenomeData from './data/random_genome_data.json';
+import randomGenomeMultiData from './data/random_genome_multi_data.json';
 
 
 // Scales
@@ -468,6 +508,11 @@ const randomGenomeDataContainer = new DataContainer(
   'Random Genome Data',
   randomGenomeData
 );
+const randomGenomeMultiDataContainer = new DataContainer(
+  'rand_genome_multi_data',
+  'Random Genome Multi Data',
+  randomGenomeMultiData
+);
 
 
 // Initialize data
@@ -489,6 +534,8 @@ const getData = function(dataKey) {
       return clusteringDataContainer;
     case 'rand_genome_data':
       return randomGenomeDataContainer;
+    case 'rand_genome_multi_data':
+      return randomGenomeMultiDataContainer;
   }
 };
 
@@ -566,6 +613,17 @@ const mutDistScale = new ContinuousScale(
   'Distance to Previous Mutation',
   [0, 6000000]
 );
+const projScale = new CategoricalScale(
+  'proj_id',
+  'Project',
+  ["ICGC-BRCA-EU","TCGA-UCEC","TCGA-BRCA"]
+);
+const eventScale = new CategoricalScale(
+  'e_type',
+  'Event Type',
+  ["e1","e2","e3"],
+  ["My Event 1","My Event 2","My Event 3"]
+);
 
 
 const getScale = function(scaleKey) {
@@ -588,6 +646,10 @@ const getScale = function(scaleKey) {
       return catScale;
     case 'mut_dist':
       return mutDistScale;
+    case 'proj_id':
+      return projScale;
+    case 'e_type':
+      return eventScale;
   }
 };
 
@@ -635,7 +697,8 @@ export default {
     MultiTrackPlot,
     HierarchicalMultiTrackPlot,
     GenomeScatterPlot,
-    GenomeTrackPlot
+    GenomeTrackPlot,
+    GenomeMultiTrackPlot
   },
   data() {
     return {
