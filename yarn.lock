@@ -3461,7 +3461,7 @@ d3-transition@1:
     d3-selection "^1.1.0"
     d3-timer "1"
 
-d3-voronoi@1, d3-voronoi@^1.1.4:
+d3-voronoi@1:
   version "1.1.4"
   resolved "https://registry.yarnpkg.com/d3-voronoi/-/d3-voronoi-1.1.4.tgz#dd3c78d7653d2bb359284ae478645d95944c8297"
 
