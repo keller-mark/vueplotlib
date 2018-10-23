@@ -247,7 +247,7 @@ export default {
             data = data.filter((el) => xScale.domainFiltered.includes(el[vm.x]));
 
             // Filter the hierarchy
-            hierarchyData = filterHierarchy(hierarchyData, xScale);
+            hierarchyData = filterHierarchy(hierarchyData, xScale.domainFiltered);
             const root = d3_hierarchy(hierarchyData);
             const leaves = root.leaves();
             // Use leaves to sort x-axis by hierarchy

@@ -1,7 +1,7 @@
 <template>
   <div>
-      <button @click="stack.goBack()" :disabled="!stack.canGoBack()">Back</button>
-      <button @click="stack.goForward()" :disabled="!stack.canGoForward()">Forward</button>
+      <button @click="stack.goBack()" :disabled="!stack.canGoBack()" class="stack-button">Back</button>
+      <button @click="stack.goForward()" :disabled="!stack.canGoForward()" class="stack-button">Forward</button>
       <div class="stack-elements">
         <div v-for="(el, index) in elementsReversed" :key="index">
             <span v-if="isCurrent(index)" class="pointer">&gt;</span>
@@ -36,6 +36,9 @@ export default {
 </script>
 
 <style>
+.stack-button {
+    z-index: 5;
+}
 .pointer {
     color: red;
 }

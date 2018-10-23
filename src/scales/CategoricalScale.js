@@ -1,6 +1,9 @@
 import { descending as d3_descending, ascending as d3_ascending } from "d3-array";
 import { scaleOrdinal as d3_scaleOrdinal } from 'd3-scale';
+import { hierarchy as d3_hierarchy } from 'd3-hierarchy';
 import AbstractScale from './AbstractScale.js';
+import DataContainer from './../data/DataContainer.js';
+import { filterHierarchy } from './../helpers.js';
 
 /**
  * Scale class for categorical variables.
@@ -94,21 +97,22 @@ export default class CategoricalScale extends AbstractScale {
     }
 
     /**
-     * Sort the data based on the variables passed in.
+     * Sort the domain based on the data passed.
      * @param {object} dataContainer DataContainer instance holding the data used to sort.
      * @param {string} var1D
      * @param {boolean} ascending Whether to sort ascending or descending.
      */
     sort(dataContainer, var1D, ascending=true) {
+        console.assert(dataContainer instanceof DataContainer);
+        let data = dataContainer.dataCopy;
+        console.assert(Array.isArray(data));
+
         let comparator;
         let compareFunc = d3_ascending;
         if(!ascending) {
             compareFunc = d3_descending;
         }
 
-        let data = dataContainer.dataCopy;
-        console.assert(Array.isArray(data));
-        
         comparator = (domainA, domainB) => {
             let dataA = data.find((el) => el[this.id] === domainA);
             let dataB = data.find((el) => el[this.id] === domainB);
@@ -128,12 +132,8 @@ export default class CategoricalScale extends AbstractScale {
             return compareFunc(a, b)
         };
         
-        
-
         let domainCopy = this.domain.slice();
         let domainFilteredCopy = this.domainFiltered.slice();
-
-
 
         let newDomain = domainCopy.sort(comparator);
         this.setDomain(newDomain);
@@ -141,6 +141,39 @@ export default class CategoricalScale extends AbstractScale {
         // Set filtered domain
         let newDomainFiltered = domainFilteredCopy.sort(comparator);
         this.setDomainFiltered(newDomainFiltered);
+
+        this.emitUpdate();
+    }
+
+    /**
+     * Filter the domain based on the hierarchy passed.
+     * @param {object} dataContainer DataContainer instance holding the hierarchy data.
+     * @param {string} newParentKey Key of the node that will be used as the parent of the filtered nodes.
+     */
+    filterByHierarchy(dataContainer, newParentKey) {
+        console.assert(dataContainer instanceof DataContainer);
+        const hierarchyData = dataContainer.dataCopy;
+        console.assert(typeof hierarchyData === "object");
+        
+        const getParent = (node) => {
+            if(node.name === newParentKey) {
+                return node;
+            } else {
+                for(let child of node.children) {
+                    let possibleParent = getParent(child);
+                    if(possibleParent !== undefined) {
+                        return possibleParent;
+                    }
+                }
+            }
+        }
+        const filteredHierarchyData = filterHierarchy(hierarchyData, this.domain);
+        const parent = getParent(filteredHierarchyData);
+        const root = d3_hierarchy(parent);
+        const leaves = root.leaves().map((el) => el.data.name);
+        
+        // Set filtered domain
+        this.setDomainFiltered(leaves);
 
         this.emitUpdate();
     }

@@ -19,7 +19,7 @@ import { saveSvgAsPng } from 'save-svg-as-png';
 import AbstractScale from './../../scales/AbstractScale.js';
 import DataContainer from './../../data/DataContainer.js';
 import HistoryEvent from './../../history/HistoryEvent.js';
-import HistoryStack from './../../history/HistoryStack.js';
+import HistoryStack, { computedParam } from './../../history/HistoryStack.js';
 import { filterHierarchy } from '../../helpers.js';
 
 const SIDES = Object.freeze({ "TOP": 1, "LEFT": 2, "RIGHT": 3, "BOTTOM": 4 });
@@ -202,7 +202,7 @@ export default {
             let hierarchyData = vm._hierarchyContainer.dataCopy;
                         
             // filter hierarchyData by x scale
-            hierarchyData = filterHierarchy(hierarchyData, varScale);
+            hierarchyData = filterHierarchy(hierarchyData, varScale.domainFiltered);
 
             /*
                 Prepare the hierarchy
@@ -266,8 +266,44 @@ export default {
                 .attr("dx", "-.6em")
                 .attr("dy", ".6em")
                 .attr("transform", "rotate(-65)"); */
+    
+            // filtering buttons
+            nodes.append("circle")
+                .attr("r", 7)
+                .attr("fill", "#555")
+                .attr("fill-opacity", 0)
+                .style("cursor", "pointer")
+                .on("mouseover", function() {
+                    d3_select(this).attr("fill-opacity", 0.6);
+                })
+                .on("mouseleave", function() {
+                    d3_select(this).attr("fill-opacity", 0);
+                })
+                .on("click", function(d) {
+                    varScale.filterByHierarchy(vm._hierarchyContainer, d.data.name);
+                    stack.push(new HistoryEvent(
+                        HistoryEvent.types.SCALE,
+                        vm.variable,
+                        "filterByHierarchy",
+                        [computedParam("getData", [vm.h]), d.data.name]
+                    ));
+                });
+            
+     /*        // reset button
+            if(vm.showSubset()) {
+                gTree.append("text")
+                    .text("Reset")
+                    .style("font", "10px sans-serif")
+                    .style("text-anchor", "middle")
+                    .style("cursor", "pointer")
+                    .attr("x", vm.width / 2)
+                    .attr("y", -7)
+                    .on("click", () => {
+                        vm.clusteringSubset = null;
+                        vm.drawPlot();
+                    });
+            } */
 
-            // TODO: add node selection for filtering
            
 
             

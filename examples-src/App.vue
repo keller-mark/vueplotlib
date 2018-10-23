@@ -706,7 +706,7 @@ export default {
       sampleSortByAge: sampleSortByAge
     }
   },
-  created() {
+  mounted() {
     
   },
   methods: {
@@ -757,13 +757,13 @@ a {
 
 .stack-wrapper {
   float: right;
-  position: absolute;
-  top: 0;
-  right: 0;
+  position: fixed;
+  top: 8vh;
+  right: 1rem;
   width: 400px;
   background-color: lightsteelblue;
   padding: 0.5rem;
-  height: 90vh;
+  height: 89vh;
   
 }
 
