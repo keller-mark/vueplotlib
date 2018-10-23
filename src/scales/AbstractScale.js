@@ -191,7 +191,8 @@ export default class AbstractScale {
      * Resets the filtered domain, using the full original domain.
      */
     reset() {
-        this.setDomainFiltered(this._domainOriginal);
+        this.setDomain(this._domainOriginal.slice());
+        this.setDomainFiltered(this._domainOriginal.slice());
         this.emitUpdate();
     }
 }
