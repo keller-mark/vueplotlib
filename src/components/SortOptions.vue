@@ -24,6 +24,7 @@
 <script>
 import SortBy from './../sort/SortBy.js';
 import HistoryEvent from '../history/HistoryEvent.js';
+import { computedParam } from '../history/HistoryStack.js';
 
 export default {
     name: 'SortOptions',
@@ -72,11 +73,7 @@ export default {
             if(this.validSelection(this.selectedKey)) {
                 this.getScale(this.variable).sort(this.getData(this.by.data), this.selectedKey, this.sortAscending);
                 this._stack.push(new HistoryEvent(HistoryEvent.types.SCALE, this.variable, "sort", [
-                    {
-                        "$vdp_val_from_getter": true,
-                        "getterFunction": "getData",
-                        "getterParams": [this.by.data]
-                    },
+                    computedParam("getData", [this.by.data]),
                     this.selectedKey,
                     this.sortAscending
                 ]));

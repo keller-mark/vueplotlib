@@ -1,5 +1,20 @@
 import HistoryEvent from './HistoryEvent.js';
 
+const VDP_COMPUTED_PARAM = "$vdp_val_from_getter";
+
+/**
+ * Returns an object that represents a "computed" history event parameter.
+ * @param {string} getterFunction Name of function to be called
+ * @param {array} getterParams Params passed to the function to be called.
+ * @returns {object} Returns an object with an identifier signifying that this parameter should be computed.
+ */
+export const computedParam = (getterFunction, getterParams) => {
+    return {
+        [VDP_COMPUTED_PARAM]: true,
+        "getterFunction": getterFunction,
+        "getterParams": getterParams
+    };
+};
 
 /**
  * Represents a history of all application interaction events,
@@ -155,7 +170,7 @@ export default class HistoryStack {
     parseParams(params) {
         return params.map((p) => {
             if(typeof p === "object") {
-                if(p.hasOwnProperty("$vdp_val_from_getter")) {
+                if(p.hasOwnProperty(VDP_COMPUTED_PARAM)) {
                     // can assume that this object represents a call to a "getter": getScale, getStack, etc...
                     console.assert(typeof p.getterFunction === "string");
                     console.assert(p.getterFunction.substring(0, 3) === "get");

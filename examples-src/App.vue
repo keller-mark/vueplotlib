@@ -388,7 +388,14 @@
     <h3>&lt;SortOptions/&gt;</h3>
     <SortOptions 
       variable="sample_id" 
-      :by="sampleSortBy" 
+      :by="sampleSortByExposures" 
+      :getScale="getScale" 
+      :getData="getData"
+      :getStack="getStack"
+    />
+    <SortOptions 
+      variable="sample_id" 
+      :by="sampleSortByAge" 
       :getScale="getScale" 
       :getData="getData"
       :getStack="getStack"
@@ -657,11 +664,15 @@ const getStack = function() {
   return stack;
 }
 
-const sampleSortBy = new SortBy(
+const sampleSortByExposures = new SortBy(
   "exposures_data", 
   signatureScale.domain
 );
 
+const sampleSortByAge = new SortBy(
+  'clinical_data', 
+  ['age']
+);
 
 
 export default {
@@ -689,9 +700,10 @@ export default {
     return {
       getData: getData,
       getScale: getScale,
-      sampleSortBy: sampleSortBy,
       getStack: getStack,
-      showStack: false
+      showStack: false,
+      sampleSortByExposures: sampleSortByExposures,
+      sampleSortByAge: sampleSortByAge
     }
   },
   created() {
