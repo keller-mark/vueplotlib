@@ -36,3 +36,4 @@ test('able to filter a CategoricalScale', () => {
     expect(scale.domain.length).toBe(6);
     expect(scale.domainFiltered.length).toBe(2);
 });
+

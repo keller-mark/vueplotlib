@@ -100,30 +100,47 @@ export default class CategoricalScale extends AbstractScale {
      * @param {boolean} ascending Whether to sort ascending or descending.
      */
     sort(dataContainer, var1D, ascending=true) {
-        // TODO: use d3_descending/ascending
         let comparator;
         let compareFunc = d3_ascending;
         if(!ascending) {
             compareFunc = d3_descending;
         }
-                
-        comparator = (a, b) => compareFunc(
-            (a[var1D] == "nan" ? -1 : +a[var1D]), 
-            (b[var1D] == "nan" ? -1 : +b[var1D])
-        );
-        
-        // TODO: Sort the data using the comparator, doing something like this
+
         let data = dataContainer.dataCopy;
-        console.assert(data instanceof Array);
-        data = data.sort(comparator);
-        // Use map to get array of this.id, filter using those indices
-        // Set overall domain
-        let elementsSorted = data.map((el) => el[this.id]);
-        this.setDomain(elementsSorted);
+        console.assert(Array.isArray(data));
+        
+        comparator = (domainA, domainB) => {
+            let dataA = data.find((el) => el[this.id] === domainA);
+            let dataB = data.find((el) => el[this.id] === domainB);
+            
+            let a, b;
+            if(dataA === undefined || dataA[var1D] === "nan") {
+                a = -1;
+            } else {
+                a = +dataA[var1D];
+            }
+            if(dataB === undefined || dataB[var1D] === "nan") {
+                b = -1;
+            } else {
+                b = +dataB[var1D];
+            }
+
+            return compareFunc(a, b)
+        };
+        
+        
+
+        let domainCopy = this.domain.slice();
+        let domainFilteredCopy = this.domainFiltered.slice();
+
+
+
+        let newDomain = domainCopy.sort(comparator);
+        this.setDomain(newDomain);
 
         // Set filtered domain
-        let elementsSortedFiltered = elementsSorted.filter((el) => this._domainFiltered.includes(el));
-        this.setDomainFiltered(elementsSortedFiltered);
+        let newDomainFiltered = domainFilteredCopy.sort(comparator);
+        this.setDomainFiltered(newDomainFiltered);
 
         this.emitUpdate();
     }
