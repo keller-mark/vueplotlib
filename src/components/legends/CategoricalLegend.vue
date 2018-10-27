@@ -75,7 +75,7 @@ export default {
     },
     computed: {
         legendElemID: function() {
-            return 'legend_' + this.uuid;
+            return 'l_ctgrcl_' + this.uuid;
         },
         legendSelector: function() {
             return "#" + this.legendElemID;
@@ -268,14 +268,17 @@ export default {
                 .on("click", (d) => {
                     let newDomainIndices;
                     if(varScale.domainFiltered.includes(d)) {
-                        // remove element
+                        // Remove element
                         let newDomain = varScale.domainFiltered.slice();
                         newDomain.splice(newDomain.indexOf(d), 1);
                         newDomainIndices = newDomain.map((el) => varScale.domain.indexOf(el));
                     } else {
+                        // Add element
                         let newDomain = varScale.domainFiltered.slice();
                         newDomainIndices = newDomain.map((el) => varScale.domain.indexOf(el));
-                        newDomainIndices.push(varScale.domain.indexOf(d))
+                        newDomainIndices.push(varScale.domain.indexOf(d));
+                        // TODO: check if this sorting introduces other bugs. if so, maybe use (d, i)
+                        // and get the index of the legend item, then use that to add
                         newDomainIndices.sort((a, b) => (a - b));
                     }
                     varScale.filter(newDomainIndices);

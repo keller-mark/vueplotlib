@@ -40,6 +40,7 @@ let uuid = 0;
  * @prop {function} getScale Function that takes a scale key string and returns a scale instance.
  * @prop {function} getStack Function that returns a HistoryStack instance.
  * @prop {boolean} disableBrushing Whether to disable brushing functionality and hide the zoomed-out "context" view. Default: false
+ *  @prop {boolean} showLabel Whether to show the label. Default: true
  * 
  * @example
  * <Axis
@@ -96,6 +97,10 @@ export default {
         'disableBrushing': {
             type: Boolean,
             default: false
+        },
+        'showLabel': {
+            type: Boolean,
+            default: true
         }
     },
     data() {
@@ -534,6 +539,10 @@ export default {
                 .attr("x", labelX)
                 .attr("y", labelY)
                 .attr("transform", "rotate(" + labelRotate + ")");
+            
+            if(!vm.showLabel) {
+                labelText.attr("fill-opacity", 0);
+            }
             
         },
         downloadAxis() {

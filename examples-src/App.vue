@@ -53,6 +53,14 @@
       :getStack="getStack"
     />
 
+    <h3>&lt;ContinuousLegend/&gt;</h3>
+    <ContinuousLegend
+      variable="age"
+      :lWidth="250"
+      :getScale="getScale"
+      :getStack="getStack"
+    />
+
 
     <h3>&lt;BarPlot/&gt;</h3>
     <PlotContainer
@@ -438,7 +446,8 @@ import {
   GenomeScatterPlot,
   GenomeTrackPlot,
   GenomeMultiTrackPlot,
-  CategoricalLegend
+  CategoricalLegend,
+  ContinuousLegend
 } from '../src/index.js';
 
 
@@ -706,7 +715,8 @@ export default {
     GenomeScatterPlot,
     GenomeTrackPlot,
     GenomeMultiTrackPlot,
-    CategoricalLegend
+    CategoricalLegend,
+    ContinuousLegend
   },
   data() {
     return {

@@ -22,6 +22,7 @@ import GenomeMultiTrackPlot from './components/plots/GenomeMultiTrackPlot.vue';
 
 // Legends
 import CategoricalLegend from './components/legends/CategoricalLegend.vue';
+import ContinuousLegend from './components/legends/ContinuousLegend.vue';
 
 
 
@@ -47,6 +48,7 @@ if (typeof window !== 'undefined' && window.Vue) {
     Vue.component(GenomeMultiTrackPlot.name, GenomeMultiTrackPlot);
     // Legends
     Vue.component(CategoricalLegend.name, CategoricalLegend);
+    Vue.component(ContinuousLegend.name, ContinuousLegend);
 }
 
 export {
@@ -65,5 +67,6 @@ export {
     GenomeScatterPlot,
     GenomeTrackPlot,
     GenomeMultiTrackPlot,
-    CategoricalLegend
+    CategoricalLegend,
+    ContinuousLegend
 }
