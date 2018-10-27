@@ -215,7 +215,7 @@ export default {
             vm.barWidth = barWidth;
               
             const stack = d3_stack()
-                .keys(cScale.domainFiltered)
+                .keys(cScale.domainFiltered.slice().reverse())
                 .value((d, key) => { return d[key] || 0; })
                 .order(d3_stackOrderNone)
                 .offset(d3_stackOffsetNone);

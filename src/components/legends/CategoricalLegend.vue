@@ -254,10 +254,52 @@ export default {
                     .attr("y", marginY)
                     .attr("width", textOffset - marginX) 
                     .attr("height", scale.bandwidth() - 2*marginY)
-                    .attr("fill", (d) => varScale.color(d));
+                    .attr("fill", (d) => varScale.color(d))
+                    .attr("fill-opacity", (d) => varScale.domainFiltered.includes(d) ? 1 : 0);
             }
                 
-                
+            
+            // Action buttons
+            const buttonWidth = 16;
+
+            const filterButtons = items.append("g")
+                .attr("transform", "translate(" + (vm.lWidth - buttonWidth - marginX) + ",0)")
+                .style("cursor", "pointer")
+                .on("click", (d) => {
+                    let newDomainIndices;
+                    if(varScale.domainFiltered.includes(d)) {
+                        // remove element
+                        let newDomain = varScale.domainFiltered.slice();
+                        newDomain.splice(newDomain.indexOf(d), 1);
+                        newDomainIndices = newDomain.map((el) => varScale.domain.indexOf(el));
+                    } else {
+                        let newDomain = varScale.domainFiltered.slice();
+                        newDomainIndices = newDomain.map((el) => varScale.domain.indexOf(el));
+                        newDomainIndices.push(varScale.domain.indexOf(d))
+                        newDomainIndices.sort((a, b) => (a - b));
+                    }
+                    varScale.filter(newDomainIndices);
+                    stack.push(new HistoryEvent(
+                        HistoryEvent.types.SCALE,
+                        varScale.id,
+                        "filter",
+                        [newDomainIndices]
+                    ));
+                });
+
+            filterButtons.append("rect")
+                .attr("x", 0)
+                .attr("y", marginY)
+                .attr("width", buttonWidth)
+                .attr("height", scale.bandwidth() - 2*marginY)
+                .attr("fill", "transparent")
+                .attr("stroke", "#000")
+            
+            filterButtons.append("text")
+                .style("text-anchor", "middle")
+                .attr("y", scale.bandwidth() - 5)
+                .attr("x", buttonWidth / 2)
+                .text((d) => varScale.domainFiltered.includes(d) ? "-" : "+");
             
 
 
