@@ -1,4 +1,3 @@
-import { interpolateYlOrRd as d3_interpolateYlOrRd } from 'd3-scale-chromatic';
 import { descending as d3_descending } from 'd3-array';
 import AbstractScale from './AbstractScale.js';
 
@@ -12,10 +11,6 @@ export default class ContinuousScale extends AbstractScale {
         return AbstractScale.types.CONTINUOUS;
     }
 
-    /** @inheritdoc */
-    get colorScale() {
-        return d3_interpolateYlOrRd;
-    }
 
     /** @inheritdoc */
     color(domainValue) {

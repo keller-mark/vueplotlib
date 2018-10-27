@@ -24,6 +24,7 @@ export default class CategoricalScale extends AbstractScale {
         } else {
             this._humanDomain = domain;
         }
+        this._colorOverrides = {};
     }
 
     /** @inheritdoc */
@@ -64,7 +65,19 @@ export default class CategoricalScale extends AbstractScale {
         if(AbstractScale.isUnknown(domainValue)) {
             return AbstractScale.unknownColor;
         }
+        if(Object.keys(this._colorOverrides).includes(domainValue)) {
+            return this._colorOverrides[domainValue];
+        }
         return this.colorScale(this.domain.findIndex((el) => (el === domainValue)) / parseFloat(this.domain.length - 1));
+    }
+
+    /**
+     * Set overriden value for a color.
+     * @param {*} domainValue The domain value.
+     * @param {*} colorValue The new color for the domain value.
+     */
+    overrideColor(domainValue, colorValue) {
+        this._colorOverrides[domainValue] = colorValue;
     }
 
     /** @inheritdoc */

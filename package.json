@@ -31,6 +31,9 @@
     "coveralls": "^3.0.2",
     "documentation": "9.0.0-alpha.0",
     "jest": "^23.6.0",
+    "node-sass": "^4.9.4",
+    "sass-loader": "^7.1.0",
+    "style-loader": "^0.23.1",
     "vue": "^2.5.13",
     "vue-template-compiler": "^2.5.13"
   },

@@ -21,7 +21,7 @@
                 :pHeight="this.lHeight - 30"
                 :pMarginTop="30"
                 :pMarginLeft="0"
-                :pMarginRight="this.lWidth - 30"
+                :pMarginRight="this.lWidth - 100"
                 :pMarginBottom="5"
                 :variable="this.variable"
                 side="right" 
@@ -30,6 +30,8 @@
                 :showLabel="false"
             />
         </div>
+
+        <ColorScalePicker v-if="showColorScalePicker" @close="showColorScalePicker = false" :onSelect="changeColorScale" />
     </div>
 </template>
 
@@ -45,6 +47,7 @@ import ContinuousScale from './../../scales/ContinuousScale.js';
 import HistoryEvent from './../../history/HistoryEvent.js';
 import HistoryStack from './../../history/HistoryStack.js';
 
+import ColorScalePicker from './../modals/ColorScalePicker.vue';
 import Axis from './../axes/Axis.vue';
 
 const STYLES = Object.freeze({ "BAR": 1, "DOT": 2, "LINE": 3, "SHAPE": 4 });
@@ -68,7 +71,8 @@ let uuid = 0;
 export default {
     name: 'ContinuousLegend',
     components: {
-        Axis
+        Axis,
+        ColorScalePicker
     },
     props: {
         'variable': {
@@ -91,7 +95,8 @@ export default {
     data() {
         return {
             lHeight: 200,
-            highlightScale: null
+            highlightScale: null,
+            showColorScalePicker: false
         }
     },
     computed: {
@@ -169,6 +174,17 @@ export default {
             highlight.selectAll("rect")
                 .attr("fill-opacity", 0);
         },
+        changeColorScale(scaleKey) {
+            console.log(scaleKey);
+            this._varScale.setColorScaleByKey(scaleKey);
+
+            this._stack.push(new HistoryEvent(
+                HistoryEvent.types.SCALE,
+                this._varScale.id,
+                "setColorScaleByKey",
+                [scaleKey]
+            ));
+        },
         drawLegend() {
             const vm = this;
             vm.removeLegend();
@@ -206,6 +222,14 @@ export default {
             const titleTextBbox = titleText.node().getBBox();
             titleText.attr("transform", "translate(" + 0 + "," + titleTextBbox.height + ")");
 
+            title.append("text")
+                .style("text-anchor", "start")
+                .attr("transform", "translate(" + (vm.lWidth - 20) + "," + titleTextBbox.height + ")")
+                .text("c")
+                .on("click", () => {
+                    vm.showColorScalePicker = true;
+                });
+
             const legendInner = legend.append("g")
                 .attr("class", "legend-inner");
 
@@ -225,7 +249,7 @@ export default {
                     .attr("gradientTransform", "rotate(90)")
                     .attr("id", vm.gradientElemID);
 
-            const nStops = 5;
+            const nStops = 10;
             const domainRange = varScale.domainFiltered[1] - varScale.domainFiltered[0];
             const domainStep = domainRange/nStops;
 
