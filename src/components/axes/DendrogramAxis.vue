@@ -279,7 +279,7 @@ export default {
                 .on("mouseleave", function() {
                     d3_select(this).attr("fill-opacity", 0);
                 })
-                .on("click", function(d) {
+                .on("click", (d) => {
                     varScale.filterByHierarchy(vm._hierarchyContainer, d.data.name);
                     stack.push(new HistoryEvent(
                         HistoryEvent.types.SCALE,
@@ -288,24 +288,6 @@ export default {
                         [computedParam("getData", [vm.h]), d.data.name]
                     ));
                 });
-            
-     /*        // reset button
-            if(vm.showSubset()) {
-                gTree.append("text")
-                    .text("Reset")
-                    .style("font", "10px sans-serif")
-                    .style("text-anchor", "middle")
-                    .style("cursor", "pointer")
-                    .attr("x", vm.width / 2)
-                    .attr("y", -7)
-                    .on("click", () => {
-                        vm.clusteringSubset = null;
-                        vm.drawPlot();
-                    });
-            } */
-
-           
-
             
         },
         downloadAxis() {

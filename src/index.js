@@ -1,4 +1,6 @@
 import PlotContainer from './components/PlotContainer.vue';
+
+// Axes
 import Axis from './components/axes/Axis.vue';
 import GenomeAxis from './components/axes/GenomeAxis.vue';
 import DendrogramAxis from './components/axes/DendrogramAxis.vue';
@@ -18,11 +20,15 @@ import GenomeScatterPlot from './components/plots/GenomeScatterPlot.vue';
 import GenomeTrackPlot from './components/plots/GenomeTrackPlot.vue';
 import GenomeMultiTrackPlot from './components/plots/GenomeMultiTrackPlot.vue';
 
+// Legends
+import CategoricalLegend from './components/legends/CategoricalLegend.vue';
+
 
 
 /* eslint-disable no-undef */
 if (typeof window !== 'undefined' && window.Vue) {
     Vue.component(PlotContainer.name, PlotContainer);
+    // Axes
     Vue.component(Axis.name, Axis);
     Vue.component(GenomeAxis.name, GenomeAxis);
     Vue.component(DendrogramAxis.name, DendrogramAxis);
@@ -39,6 +45,8 @@ if (typeof window !== 'undefined' && window.Vue) {
     Vue.component(GenomeScatterPlot.name, GenomeScatterPlot);
     Vue.component(GenomeTrackPlot.name, GenomeTrackPlot);
     Vue.component(GenomeMultiTrackPlot.name, GenomeMultiTrackPlot);
+    // Legends
+    Vue.component(CategoricalLegend.name, CategoricalLegend);
 }
 
 export {
@@ -56,5 +64,6 @@ export {
     HierarchicalMultiTrackPlot,
     GenomeScatterPlot,
     GenomeTrackPlot,
-    GenomeMultiTrackPlot
+    GenomeMultiTrackPlot,
+    CategoricalLegend
 }

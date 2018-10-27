@@ -44,6 +44,16 @@
       />
     </PlotContainer>
 
+    <h3>&lt;CategoricalLegend/&gt;</h3>
+    <CategoricalLegend
+      variable="signature"
+      lStyle="bar"
+      :lWidth="250"
+      :getScale="getScale"
+      :getStack="getStack"
+    />
+
+
     <h3>&lt;BarPlot/&gt;</h3>
     <PlotContainer
       :pWidth="500"
@@ -427,7 +437,8 @@ import {
   HierarchicalMultiTrackPlot,
   GenomeScatterPlot,
   GenomeTrackPlot,
-  GenomeMultiTrackPlot
+  GenomeMultiTrackPlot,
+  CategoricalLegend
 } from '../src/index.js';
 
 
@@ -694,7 +705,8 @@ export default {
     HierarchicalMultiTrackPlot,
     GenomeScatterPlot,
     GenomeTrackPlot,
-    GenomeMultiTrackPlot
+    GenomeMultiTrackPlot,
+    CategoricalLegend
   },
   data() {
     return {

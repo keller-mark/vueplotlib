@@ -164,6 +164,16 @@ yarn run docs
     - will allow "replaying" of the user's interactions
     - will allow sharing of a user session, so that others may replay or step through the interactions
     - but this should also be optional, for example if the user chooses not to supply the stack to a plot via prop
+- [x] because of the emphasis of linked scales across datasets, for now this implies that legends are NOT "attached" to plots
+    - rather, legends should be contained in a separate container component that is fixed on the screen
+        - this container should house all of the legends for all of the plots, then based on highlighting, scroll to the specified inner legend
+            - for example, through a `ScrollingLegendContainer` component
+        - could instead prioritize which legends are showing in the container based on what plots are currently visible on the screen
+            - for example, through a `PriorityLegendContainer` component
+    - this will allow legend styles to be fixed no matter the height (font sizes, listing heights/widths, etc)
+
+    - but the great thing is that because everything is decoupled, in the future this assumption could easily be relaxed through creation of components that act how the axes currently work (fill the space on one side of the plot through the `pMargin***` prop and the `side` prop, then lay out based on available space)
+        - for example, through a set of `AttachedLegend` components 
 
 
 <br><br>
