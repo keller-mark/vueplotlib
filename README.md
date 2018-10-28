@@ -66,10 +66,12 @@ yarn run docs
 - GenomeAxis :white_check_mark:
 - DendrogramAxis :white_check_mark:
 
+### Legend Components
+- CategoricalLegend :white_check_mark:
+- ContinuousLegend :white_check_mark:
 
 ### Other Components
 - PlotContainer :white_check_mark:
-- Legend
 - SortOptions :white_check_mark:
 
 
@@ -92,7 +94,7 @@ yarn run docs
     - [x] scales will be ES6 classes with different APIs depending on whether categorical, continuous, etc...
     - [x] scales will always expose a domain
     - [x] scales will always expose a domain-var-to-color function
-    - [ ] the color scale (or even individual colors) should also be able to be changed programmatically
+    - [x] the color scale (or even individual colors) should also be able to be changed programmatically
     - [x] scales will always expose a domain-var-to-human-readable-text function
     - [x] categorical scales will always expose a sort function that takes in a specification of the data that will define the ordering
     - [x] scales will always expose a filter function (and a corresponding filter-reset function)
