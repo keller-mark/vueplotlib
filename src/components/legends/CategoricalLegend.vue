@@ -22,6 +22,9 @@ import CategoricalScale from './../../scales/CategoricalScale.js';
 import HistoryEvent from './../../history/HistoryEvent.js';
 import HistoryStack from './../../history/HistoryStack.js';
 
+import { COLOR_PICKER_PATH, EYE_PATH, EYE_DISABLED_PATH } from './../../icons.js';
+
+
 
 const STYLES = Object.freeze({ "BAR": 1, "DOT": 2, "LINE": 3, "SHAPE": 4 });
 
@@ -296,13 +299,14 @@ export default {
                 .attr("width", buttonWidth)
                 .attr("height", scale.bandwidth() - 2*marginY)
                 .attr("fill", "transparent")
-                .attr("stroke", "#000")
+                .attr("stroke", "transparent")
             
-            filterButtons.append("text")
-                .style("text-anchor", "middle")
+            filterButtons.append("path")
+                .attr("d", (d) => (varScale.domainFiltered.includes(d) ? EYE_PATH : EYE_DISABLED_PATH))
                 .attr("y", scale.bandwidth() - 5)
                 .attr("x", buttonWidth / 2)
-                .text((d) => varScale.domainFiltered.includes(d) ? "-" : "+");
+                .attr("transform", "scale(0.8 0.8)")
+                .attr("fill", (d) => "silver");
             
 
 

@@ -50,6 +50,8 @@ import HistoryStack from './../../history/HistoryStack.js';
 import ColorScalePicker from './../modals/ColorScalePicker.vue';
 import Axis from './../axes/Axis.vue';
 
+import { COLOR_PICKER_PATH } from './../../icons.js';
+
 const STYLES = Object.freeze({ "BAR": 1, "DOT": 2, "LINE": 3, "SHAPE": 4 });
 
 let uuid = 0;
@@ -175,7 +177,6 @@ export default {
                 .attr("fill-opacity", 0);
         },
         changeColorScale(scaleKey) {
-            console.log(scaleKey);
             this._varScale.setColorScaleByKey(scaleKey);
 
             this._stack.push(new HistoryEvent(
@@ -195,7 +196,6 @@ export default {
             const titleHeight = 30
             const textOffset = 30;
             const marginX = 4;
-            const marginY = 2;
 
             /*
              * Create the SVG elements
@@ -222,10 +222,12 @@ export default {
             const titleTextBbox = titleText.node().getBBox();
             titleText.attr("transform", "translate(" + 0 + "," + titleTextBbox.height + ")");
 
-            title.append("text")
-                .style("text-anchor", "start")
-                .attr("transform", "translate(" + (vm.lWidth - 20) + "," + titleTextBbox.height + ")")
-                .text("c")
+            title.append("path")
+                .attr("d", COLOR_PICKER_PATH)
+                .attr("width", 20)
+                .attr("height", 20)
+                .attr("transform", "translate(" + (vm.lWidth - 20) + "," + (titleTextBbox.height/2) + ") scale(0.7 0.7)")
+                .style("cursor", "pointer")
                 .on("click", () => {
                     vm.showColorScalePicker = true;
                 });

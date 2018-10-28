@@ -11,10 +11,9 @@
 <script>
 import Modal from './Modal.vue';
 
-import { scaleLinear as d3_scaleLinear, scaleBand as d3_scaleBand } from 'd3-scale';
+import { scaleBand as d3_scaleBand } from 'd3-scale';
 
 import { select as d3_select } from 'd3-selection';
-import { event as d3_event } from 'd3';
 import debounce from 'lodash/debounce';
 
 import AbstractScale from './../../scales/AbstractScale.js';
@@ -34,13 +33,14 @@ export default {
         this.uuid = this.$options.name + uuid.toString();
         uuid += 1;
     },
+    beforeDestroy() {
+        this.removePicker();
+    },
     mounted() {
         const vm = this;
         vm.drawPicker();
 
-        window.addEventListener('resize', debounce(() => {
-            vm.drawPicker();
-        }, 250));
+        window.addEventListener('resize', debounce(vm.drawPicker, 250));
     },
     computed: {
         pickerElemID: function() {
@@ -77,7 +77,11 @@ export default {
              * Create the SVG elements
              */
             const div = d3_select(vm.pickerSelector);
-            const divWidth = div.node().offsetWidth;
+            const divNode = div.node();
+            if(divNode === null || divNode === undefined) {
+                return;
+            }
+            const divWidth = divNode.offsetWidth;
             const container = d3_select(vm.pickerSelector)
                 .append("svg")
                     .attr("width", divWidth)
