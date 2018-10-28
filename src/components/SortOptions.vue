@@ -72,11 +72,17 @@ export default {
         go() {
             if(this.validSelection(this.selectedKey)) {
                 this.getScale(this.variable).sort(this.getData(this.by.data), this.selectedKey, this.sortAscending);
-                this._stack.push(new HistoryEvent(HistoryEvent.types.SCALE, this.variable, "sort", [
-                    computedParam("getData", [this.by.data]),
-                    this.selectedKey,
-                    this.sortAscending
-                ]));
+                this._stack.push(new HistoryEvent(
+                    HistoryEvent.types.SCALE, 
+                    HistoryEvent.subtypes.SCALE_DOMAIN_SORT, 
+                    this.variable, 
+                    "sort", 
+                    [
+                        computedParam("getData", [this.by.data]),
+                        this.selectedKey,
+                        this.sortAscending
+                    ]
+                ));
             }
         }
     }

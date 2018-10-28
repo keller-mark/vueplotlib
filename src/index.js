@@ -25,7 +25,6 @@ import CategoricalLegend from './components/legends/CategoricalLegend.vue';
 import ContinuousLegend from './components/legends/ContinuousLegend.vue';
 
 
-
 /* eslint-disable no-undef */
 if (typeof window !== 'undefined' && window.Vue) {
     Vue.component(PlotContainer.name, PlotContainer);

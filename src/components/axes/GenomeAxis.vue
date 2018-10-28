@@ -215,10 +215,21 @@ export default {
         onChromosomeChange(e) {
             if(e.target.value && e.target.value !== "*") {
                 this._varScale.filterByChromosome(e.target.value);
-                this._stack.push(new HistoryEvent(HistoryEvent.types.SCALE, this.scaleKey, "filterByChromosome", [e.target.value]));
+                this._stack.push(new HistoryEvent(
+                    HistoryEvent.types.SCALE, 
+                    HistoryEvent.subtypes.SCALE_DOMAIN_FILTER, 
+                    this.scaleKey, 
+                    "filterByChromosome", 
+                    [e.target.value]
+                ));
             } else {
                 this._varScale.reset();
-                this._stack.push(new HistoryEvent(HistoryEvent.types.SCALE, this.scaleKey, "reset"));
+                this._stack.push(new HistoryEvent(
+                    HistoryEvent.types.SCALE, 
+                    HistoryEvent.subtypes.SCALE_DOMAIN_FILTER,
+                    this.scaleKey, 
+                    "resetFilter"
+                ));
             }
         },
         onChromosomeStartChange(e) {
@@ -230,6 +241,7 @@ export default {
                 this._varScale.filterByChromosomeAndPosition(this.selectedChromosome, val, this.selectedChromosomeEnd);
                 this._stack.push(new HistoryEvent(
                     HistoryEvent.types.SCALE, 
+                    HistoryEvent.subtypes.SCALE_DOMAIN_FILTER, 
                     this.scaleKey, 
                     "filterByChromosomeAndPosition", 
                     [this.selectedChromosome, val, this.selectedChromosomeEnd]
@@ -245,6 +257,7 @@ export default {
                 this._varScale.filterByChromosomeAndPosition(this.selectedChromosome, this.selectedChromosomeStart, val);
                 this._stack.push(new HistoryEvent(
                     HistoryEvent.types.SCALE, 
+                    HistoryEvent.subtypes.SCALE_DOMAIN_FILTER, 
                     this.scaleKey, 
                     "filterByChromosomeAndPosition", 
                     [this.selectedChromosome, this.selectedChromosomeStart, val]
@@ -261,6 +274,7 @@ export default {
                 this._varScale.filterByChromosomeAndPosition(this.selectedChromosome, newStart, newEnd);
                 this._stack.push(new HistoryEvent(
                     HistoryEvent.types.SCALE, 
+                    HistoryEvent.subtypes.SCALE_DOMAIN_FILTER, 
                     this.scaleKey, 
                     "filterByChromosomeAndPosition", 
                     [this.selectedChromosome, newStart, newEnd]
@@ -277,6 +291,7 @@ export default {
                 this._varScale.filterByChromosomeAndPosition(this.selectedChromosome, newStart, newEnd);
                 this._stack.push(new HistoryEvent(
                     HistoryEvent.types.SCALE, 
+                    HistoryEvent.subtypes.SCALE_DOMAIN_FILTER, 
                     this.scaleKey, 
                     "filterByChromosomeAndPosition", 
                     [this.selectedChromosome, newStart, newEnd]
@@ -293,6 +308,7 @@ export default {
                 this._varScale.filterByChromosomeAndPosition(this.selectedChromosome, newStart, newEnd);
                 this._stack.push(new HistoryEvent(
                     HistoryEvent.types.SCALE, 
+                    HistoryEvent.subtypes.SCALE_DOMAIN_FILTER, 
                     this.scaleKey, 
                     "filterByChromosomeAndPosition", 
                     [this.selectedChromosome, newStart, newEnd]
@@ -310,6 +326,7 @@ export default {
                 this._varScale.filterByChromosomeAndPosition(this.selectedChromosome, newStart, newEnd);
                 this._stack.push(new HistoryEvent(
                     HistoryEvent.types.SCALE, 
+                    HistoryEvent.subtypes.SCALE_DOMAIN_FILTER, 
                     this.scaleKey, 
                     "filterByChromosomeAndPosition", 
                     [this.selectedChromosome, newStart, newEnd]

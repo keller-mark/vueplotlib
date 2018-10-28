@@ -24,6 +24,7 @@ export default class CategoricalScale extends AbstractScale {
         } else {
             this._humanDomain = domain;
         }
+        this._colorOverrides = {};
     }
 
     /** @inheritdoc */
@@ -51,6 +52,13 @@ export default class CategoricalScale extends AbstractScale {
             .range(this.humanDomain);
     }
 
+    /**
+     * @returns {object} Mapping from domain value to colors for overridden values.
+     */
+    get colorOverrides() {
+        return this._colorOverrides;
+    }
+
     /** @inheritdoc */
     toHuman(domainValue) {
         if(AbstractScale.isUnknown(domainValue)) {
@@ -64,7 +72,19 @@ export default class CategoricalScale extends AbstractScale {
         if(AbstractScale.isUnknown(domainValue)) {
             return AbstractScale.unknownColor;
         }
+        if(Object.keys(this._colorOverrides).includes(domainValue)) {
+            return this._colorOverrides[domainValue];
+        }
         return this.colorScale(this.domain.findIndex((el) => (el === domainValue)) / parseFloat(this.domain.length - 1));
+    }
+
+    /**
+     * Set overridden values for colors.
+     * @param {object} colorOverrides Mapping of domain values to colors.
+     */
+    setColorOverrides(colorOverrides) {
+        this._colorOverrides = colorOverrides;
+        this.emitUpdate();
     }
 
     /** @inheritdoc */
@@ -175,6 +195,24 @@ export default class CategoricalScale extends AbstractScale {
         // Set filtered domain
         this.setDomainFiltered(leaves);
 
+        this.emitUpdate();
+    }
+
+    /**
+     * Resets the color override object.
+     */
+    resetColorOverride() {
+        this.setColorOverrides({});
+        this.emitUpdate();
+    }
+
+    /**
+     * Resets the color override object.
+     */
+    resetSort() {
+        this.setDomain(this._domainOriginal.slice());
+        const newDomainFiltered = this._domainOriginal.slice().filter((el) => this._domainFiltered.includes(el));
+        this.setDomainFiltered(newDomainFiltered);
         this.emitUpdate();
     }
     

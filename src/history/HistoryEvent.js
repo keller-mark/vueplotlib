@@ -11,17 +11,35 @@ export default class HistoryEvent {
     /**
      * Enum of the available event types.
      */
-    static types = Object.freeze({ SCALE: 1 });
+    static types = Object.freeze({ 
+        SCALE: 1 
+    });
+
+    static subtypes = Object.freeze({ 
+        SCALE_DOMAIN_FILTER: 1,
+        SCALE_DOMAIN_SORT: 2,
+        SCALE_COLOR_SCALE: 3,
+        SCALE_COLOR_OVERRIDE: 4 
+    });
+
+    static resets = Object.freeze({ 
+        [HistoryEvent.subtypes.SCALE_DOMAIN_FILTER]: "resetFilter",
+        [HistoryEvent.subtypes.SCALE_DOMAIN_SORT]: "resetSort",
+        [HistoryEvent.subtypes.SCALE_COLOR_SCALE]: "resetColorScale",
+        [HistoryEvent.subtypes.SCALE_COLOR_OVERRIDE]: "resetColorOverride",
+    });
 
     /**
      * 
      * @param {number} type Event type, such as SCALE, etc...
+     * @param {number} subtype Event subtype, such as SCALE_DOMAIN, etc...
      * @param {string} id Event identifier, used for history
      * @param {string} action Method to call on the object.
      * @param {array} params Parameters with which to call the method.
      */
-    constructor(type, id, action, params) {
+    constructor(type, subtype, id, action, params) {
         this._type = type;
+        this._subtype = subtype;
         this._id = id;
         this._action = action;
         this._params = params || [];
@@ -32,6 +50,13 @@ export default class HistoryEvent {
      */
     get type() {
         return this._type;
+    }
+
+    /**
+     * @returns {number} The event subtype.
+     */
+    get subtype() {
+        return this._subtype;
     }
 
     /**
@@ -61,7 +86,7 @@ export default class HistoryEvent {
      * @returns {boolean} Whether the other history event is related to this.
      */
     isRelated(event) {
-        return (event._type === this._type && event._id === this._id);
+        return (event._type === this._type && event._subtype === this._subtype && event._id === this._id);
     } 
 
     /**
@@ -70,6 +95,7 @@ export default class HistoryEvent {
     toJson() {
         return {
             "type": this._type,
+            "subtype": this._subtype,
             "id": this._id,
             "action": this._action,
             "params": this._params

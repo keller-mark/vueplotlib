@@ -1,14 +1,28 @@
 <template>
-    <div 
-        :id="this.legendElemID" 
-        class="vdp-legend" 
-        :style="{
-            'height': this.computedHeight + 'px', 
-            'width': this.computedWidth + 'px',
-            'top': this.computedTop + 'px',
-            'left': this.computedLeft + 'px'
-        }"
-    ></div>
+    <div>
+        <div 
+            :id="this.legendElemID" 
+            class="vdp-legend" 
+            :style="{
+                'height': this.computedHeight + 'px', 
+                'width': this.computedWidth + 'px',
+                'top': this.computedTop + 'px',
+                'left': this.computedLeft + 'px'
+            }"
+        ></div>
+
+        <ColorScalePicker 
+            v-if="showColorScalePicker" 
+            @close="showColorScalePicker = false" 
+            :onSelect="changeColorScale" 
+        />
+        <ColorPicker 
+            v-if="showColorPicker" 
+            @close="showColorPicker = false" 
+            :onSelect="changeColor" 
+            :initialColor="initialColor" 
+        />
+    </div>
 </template>
 
 <script>
@@ -22,6 +36,10 @@ import CategoricalScale from './../../scales/CategoricalScale.js';
 import HistoryEvent from './../../history/HistoryEvent.js';
 import HistoryStack from './../../history/HistoryStack.js';
 
+import ColorScalePicker from './../modals/ColorScalePicker.vue';
+import ColorPicker from './../modals/ColorPicker.vue';
+
+import { COLOR_PICKER_PATH, EYE_PATH, EYE_DISABLED_PATH, PAINT_BUCKET_PATH } from './../../icons.js';
 
 const STYLES = Object.freeze({ "BAR": 1, "DOT": 2, "LINE": 3, "SHAPE": 4 });
 
@@ -46,6 +64,10 @@ let uuid = 0;
  */
 export default {
     name: 'CategoricalLegend',
+    components: {
+        ColorScalePicker,
+        ColorPicker
+    },
     props: {
         'variable': {
             type: String
@@ -70,7 +92,11 @@ export default {
     data() {
         return {
             lHeight: 0,
-            highlightScale: null
+            highlightScale: null,
+            showColorScalePicker: false,
+            showColorPicker: false,
+            initialColor: "#FFFFFF",
+            changeColor: () => {}
         }
     },
     computed: {
@@ -146,6 +172,17 @@ export default {
             highlight.selectAll("rect")
                 .attr("fill-opacity", 0);
         },
+        changeColorScale(scaleKey) {
+            this._varScale.setColorScaleByKey(scaleKey);
+
+            this._stack.push(new HistoryEvent(
+                HistoryEvent.types.SCALE,
+                HistoryEvent.subtypes.SCALE_COLOR_SCALE,
+                this._varScale.id,
+                "setColorScaleByKey",
+                [scaleKey]
+            ));
+        },
         drawLegend() {
             const vm = this;
             vm.removeLegend();
@@ -184,6 +221,17 @@ export default {
             const titleTextBbox = titleText.node().getBBox();
             titleText.attr("transform", "translate(" + 0 + "," + titleTextBbox.height + ")");
 
+            title.append("path")
+                .attr("d", PAINT_BUCKET_PATH)
+                .attr("width", 20)
+                .attr("height", 20)
+                .attr("transform", "translate(" + (vm.lWidth - 1.5*marginX) + "," + (titleTextBbox.height/2) + ") scale(-0.7 0.7)")
+                .style("cursor", "pointer")
+                .attr("fill", "silver")
+                .on("click", () => {
+                    vm.showColorScalePicker = true;
+                });
+
             const legendInner = legend.append("g")
                 .attr("class", "legend-inner");
 
@@ -208,7 +256,6 @@ export default {
                 .attr("transform", "translate(0," + (vm.lItemHeight) + ")");
 
             
-
             
             const range = [vm.lHeight, titleHeight];
 
@@ -263,7 +310,7 @@ export default {
             const buttonWidth = 16;
 
             const filterButtons = items.append("g")
-                .attr("transform", "translate(" + (vm.lWidth - buttonWidth - marginX) + ",0)")
+                .attr("transform", "translate(" + (vm.lWidth - 2*(buttonWidth + 2*marginX)) + ",0)")
                 .style("cursor", "pointer")
                 .on("click", (d) => {
                     let newDomainIndices;
@@ -284,6 +331,7 @@ export default {
                     varScale.filter(newDomainIndices);
                     stack.push(new HistoryEvent(
                         HistoryEvent.types.SCALE,
+                        HistoryEvent.subtypes.SCALE_DOMAIN_FILTER,
                         varScale.id,
                         "filter",
                         [newDomainIndices]
@@ -296,13 +344,51 @@ export default {
                 .attr("width", buttonWidth)
                 .attr("height", scale.bandwidth() - 2*marginY)
                 .attr("fill", "transparent")
-                .attr("stroke", "#000")
+                .attr("stroke", "transparent")
             
-            filterButtons.append("text")
-                .style("text-anchor", "middle")
+            filterButtons.append("path")
+                .attr("d", (d) => (varScale.domainFiltered.includes(d) ? EYE_PATH : EYE_DISABLED_PATH))
                 .attr("y", scale.bandwidth() - 5)
                 .attr("x", buttonWidth / 2)
-                .text((d) => varScale.domainFiltered.includes(d) ? "-" : "+");
+                .attr("transform", "scale(0.8 0.8)")
+                .attr("fill", (d) => "silver");
+            
+
+            const colorButtons = items.append("g")
+                .attr("transform", "translate(" + (vm.lWidth - 1*(buttonWidth + 2*marginX)) + ",0)")
+                .style("cursor", "pointer")
+                .on("click", (d) => {
+                    vm.initialColor = varScale.color(d);
+                    vm.changeColor = (color) => {
+                        const colorOverrides = varScale.colorOverrides;
+                        colorOverrides[d] = color;
+                        varScale.setColorOverrides(colorOverrides);
+
+                        stack.push(new HistoryEvent(
+                            HistoryEvent.types.SCALE,
+                            HistoryEvent.subtypes.SCALE_COLOR_OVERRIDE,
+                            varScale.id,
+                            "setColorOverrides",
+                            [Object.assign({}, colorOverrides)] 
+                        ));
+                    };
+                    vm.showColorPicker = true;
+                });
+
+            colorButtons.append("rect")
+                .attr("x", 0)
+                .attr("y", marginY)
+                .attr("width", buttonWidth)
+                .attr("height", scale.bandwidth() - 2*marginY)
+                .attr("fill", "transparent")
+                .attr("stroke", "transparent")
+            
+            colorButtons.append("path")
+                .attr("d", COLOR_PICKER_PATH)
+                .attr("y", scale.bandwidth() - 5)
+                .attr("x", buttonWidth / 2)
+                .attr("transform", "scale(0.7 0.7)")
+                .attr("fill", (d) => "silver");
             
 
 

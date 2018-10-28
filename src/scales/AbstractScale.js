@@ -1,4 +1,41 @@
-import { interpolateRdYlBu as d3_interpolateRdYlBu } from "d3-scale-chromatic";
+import { 
+    interpolateBrBG as d3_interpolateBrBG,
+    interpolatePRGn as d3_interpolatePRGn,
+    interpolatePiYG as d3_interpolatePiYG,
+    interpolatePuOr as d3_interpolatePuOr,
+    interpolateRdBu as d3_interpolateRdBu,
+    interpolateRdGy as d3_interpolateRdGy,
+    interpolateRdYlBu as d3_interpolateRdYlBu,
+    interpolateRdYlGn as d3_interpolateRdYlGn,
+    interpolateSpectral as d3_interpolateSpectral,
+    interpolateBlues as d3_interpolateBlues,
+    interpolateGreens as d3_interpolateGreens,
+    interpolateGreys as d3_interpolateGreys,
+    interpolateOranges as d3_interpolateOranges,
+    interpolatePurples as d3_interpolatePurples,
+    interpolateReds as d3_interpolateReds,
+    interpolateViridis as d3_interpolateViridis,
+    interpolateInferno as d3_interpolateInferno,
+    interpolateMagma as d3_interpolateMagma,
+    interpolatePlasma as d3_interpolatePlasma,
+    interpolateWarm as d3_interpolateWarm,
+    interpolateCool as d3_interpolateCool,
+    interpolateCubehelixDefault as d3_interpolateCubehelixDefault,
+    interpolateBuGn as d3_interpolateBuGn,
+    interpolateBuPu as d3_interpolateBuPu,
+    interpolateGnBu as d3_interpolateGnBu,
+    interpolateOrRd as d3_interpolateOrRd,
+    interpolatePuBuGn as d3_interpolatePuBuGn,
+    interpolatePuBu as d3_interpolatePuBu,
+    interpolatePuRd as d3_interpolatePuRd,
+    interpolateRdPu as d3_interpolateRdPu,
+    interpolateYlGnBu as d3_interpolateYlGnBu,
+    interpolateYlGn as d3_interpolateYlGn,
+    interpolateYlOrBr as d3_interpolateYlOrBr,
+    interpolateYlOrRd as d3_interpolateYlOrRd,
+    interpolateRainbow as d3_interpolateRainbow,
+    interpolateSinebow as d3_interpolateSinebow
+} from "d3-scale-chromatic";
 import { dispatch as d3_dispatch } from "d3-dispatch";
 
 const DISPATCH_EVENT_UPDATE = "update";
@@ -17,8 +54,48 @@ export default class AbstractScale {
      * @readonly
      */
     static types = Object.freeze({ DISCRETE: 1, CONTINUOUS: 2 });
+    static colorScales = Object.freeze({
+        "BrBG": d3_interpolateBrBG,
+        "PRGn": d3_interpolatePRGn,
+        "PiYG": d3_interpolatePiYG,
+        "PuOr": d3_interpolatePuOr,
+        "RdBu": d3_interpolateRdBu,
+        "RdGy": d3_interpolateRdGy,
+        "RdYlBu": d3_interpolateRdYlBu,
+        "RdYlGn": d3_interpolateRdYlGn,
+        "Spectral": d3_interpolateSpectral,
+        "Blues": d3_interpolateBlues,
+        "Greens": d3_interpolateGreens,
+        "Greys": d3_interpolateGreys,
+        "Oranges": d3_interpolateOranges,
+        "Purples": d3_interpolatePurples,
+        "Reds": d3_interpolateReds,
+        "Viridis": d3_interpolateViridis,
+        "Inferno": d3_interpolateInferno,
+        "Magma": d3_interpolateMagma,
+        "Plasma": d3_interpolatePlasma,
+        "Warm": d3_interpolateWarm,
+        "Cool": d3_interpolateCool,
+        "CubehelixDefault": d3_interpolateCubehelixDefault,
+        "BuGn": d3_interpolateBuGn,
+        "BuPu": d3_interpolateBuPu,
+        "GnBu": d3_interpolateGnBu,
+        "OrRd": d3_interpolateOrRd,
+        "PuBuGn": d3_interpolatePuBuGn,
+        "PuBu": d3_interpolatePuBu,
+        "PuRd": d3_interpolatePuRd,
+        "RdPu": d3_interpolateRdPu,
+        "YlGnBu": d3_interpolateYlGnBu,
+        "YlGn": d3_interpolateYlGn,
+        "YlOrBr": d3_interpolateYlOrBr,
+        "YlOrRd": d3_interpolateYlOrRd,
+        "Rainbow": d3_interpolateRainbow,
+        "Sinebow": d3_interpolateSinebow
+    });
     static unknownColor = "#E3E3E3";
     static unknownString = "Unknown";
+
+    static defaultColorScale = d3_interpolateRdYlBu;
 
     /**
      * Create a scale.
@@ -37,6 +114,7 @@ export default class AbstractScale {
             DISPATCH_EVENT_HIGHLIGHT, 
             DISPATCH_EVENT_HIGHLIGHT_DESTROY
         );
+        this._colorScale = AbstractScale.defaultColorScale;
     }
     
     /**
@@ -78,7 +156,7 @@ export default class AbstractScale {
      * @returns {function} Function that converts a value between [0, 1] to a color
      */
     get colorScale() {
-        return d3_interpolateRdYlBu;
+        return this._colorScale;
     }
 
     /**
@@ -188,11 +266,38 @@ export default class AbstractScale {
     }
 
     /**
-     * Resets the filtered domain, using the full original domain.
+     * Set the color scale function by its name.
+     * @param {string} scaleKey The string key for the color scale.
      */
-    reset() {
-        this.setDomain(this._domainOriginal.slice());
-        this.setDomainFiltered(this._domainOriginal.slice());
+    setColorScaleByKey(scaleKey) {
+        if(Object.keys(AbstractScale.colorScales).includes(scaleKey)) {
+            this.setColorScale(AbstractScale.colorScales[scaleKey]);
+            this.emitUpdate();
+        }
+    }
+    /**
+     * Set the color scale function.
+     * @param {function} scale The new color scale
+     */
+    setColorScale(scale) {
+        this._colorScale = scale;
+    }
+
+    /**
+     * Resets the color scale.
+     */
+    resetColorScale() {
+        this.setColorScale(AbstractScale.defaultColorScale);
         this.emitUpdate();
     }
+
+    /**
+     * Resets the filtered domain, using the full domain.
+     */
+    resetFilter() {
+        this.setDomainFiltered(this._domain.slice());
+        this.emitUpdate();
+    }
+
+    
 }

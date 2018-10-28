@@ -478,7 +478,6 @@ import SortBy from '../src/sort/SortBy.js';
 // History
 import Stack from './Stack.vue';
 import HistoryStack from './../src/history/HistoryStack.js';
-import HistoryEvent from './../src/history/HistoryEvent.js';
 
 const exposuresDataContainer = new DataContainer(
   'exposures_data', 
@@ -668,15 +667,6 @@ const getScale = function(scaleKey) {
 
 // Initialize the stack
 const stack = new HistoryStack(getScale, getData);
-stack.push(new HistoryEvent(HistoryEvent.types.SCALE, "sample_id", "reset"), true);
-stack.push(new HistoryEvent(HistoryEvent.types.SCALE, "exposure", "reset"), true);
-stack.push(new HistoryEvent(HistoryEvent.types.SCALE, "signature", "reset"), true);
-stack.push(new HistoryEvent(HistoryEvent.types.SCALE, "y", "reset"), true);
-stack.push(new HistoryEvent(HistoryEvent.types.SCALE, "x", "reset"), true);
-stack.push(new HistoryEvent(HistoryEvent.types.SCALE, "age", "reset"), true);
-stack.push(new HistoryEvent(HistoryEvent.types.SCALE, "genome", "reset"), true);
-stack.push(new HistoryEvent(HistoryEvent.types.SCALE, "cat", "reset"), true);
-stack.push(new HistoryEvent(HistoryEvent.types.SCALE, "mut_dist", "reset"), true);
 
 
 

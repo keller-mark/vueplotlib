@@ -438,8 +438,13 @@ export default {
                             let s = d3_event.selection || scaleZoomedOut.range().slice().reverse();
                             let s2 = s.map(scaleZoomedOut.invert, scaleZoomedOut);
                             varScale.zoom(s2[1], s2[0]);
-                            stack.push(new HistoryEvent(HistoryEvent.types.SCALE, varScale.id, "zoom", [s2[1], s2[0]]));
-
+                            stack.push(new HistoryEvent(
+                                HistoryEvent.types.SCALE, 
+                                HistoryEvent.subtypes.SCALE_DOMAIN_FILTER, 
+                                varScale.id, 
+                                "zoom", 
+                                [s2[1], s2[0]]
+                            ));
                         }
                     } else if(varScale.type === AbstractScale.types.DISCRETE) {
                         brushed = () => {
@@ -448,8 +453,13 @@ export default {
                             let startIndex = Math.floor((s[0] / eachBand));
                             let endIndex = Math.ceil((s[1] / eachBand));
                             varScale.zoom(startIndex, endIndex);
-                            stack.push(new HistoryEvent(HistoryEvent.types.SCALE, varScale.id, "zoom", [startIndex, endIndex]));
-                            
+                            stack.push(new HistoryEvent(
+                                HistoryEvent.types.SCALE, 
+                                HistoryEvent.subtypes.SCALE_DOMAIN_FILTER,
+                                varScale.id, 
+                                "zoom", 
+                                [startIndex, endIndex]
+                            ));
                         }
                     }
                     let brushExtent;
@@ -469,7 +479,13 @@ export default {
                             let s = d3_event.selection || scaleZoomedOut.range().slice();
                             let s2 = s.map(scaleZoomedOut.invert, scaleZoomedOut);
                             varScale.zoom(s2[0], s2[1]);
-                            stack.push(new HistoryEvent(HistoryEvent.types.SCALE, varScale.id, "zoom", [s2[0], s2[1]]));
+                            stack.push(new HistoryEvent(
+                                HistoryEvent.types.SCALE, 
+                                HistoryEvent.subtypes.SCALE_DOMAIN_FILTER, 
+                                varScale.id, 
+                                "zoom", 
+                                [s2[0], s2[1]]
+                            ));
                         }
                     } else if(varScale.type === AbstractScale.types.DISCRETE) {
                         brushed = () => {
@@ -478,7 +494,13 @@ export default {
                             let startIndex = Math.floor((s[0] / eachBand));
                             let endIndex = Math.ceil((s[1] / eachBand));
                             varScale.zoom(startIndex, endIndex);
-                            stack.push(new HistoryEvent(HistoryEvent.types.SCALE, varScale.id, "zoom", [startIndex, endIndex]));
+                            stack.push(new HistoryEvent(
+                                HistoryEvent.types.SCALE, 
+                                HistoryEvent.subtypes.SCALE_DOMAIN_FILTER,
+                                varScale.id, 
+                                "zoom", 
+                                [startIndex, endIndex]
+                            ));
                         }
                     }
                     let brushExtent;

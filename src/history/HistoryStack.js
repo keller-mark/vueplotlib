@@ -30,7 +30,6 @@ export default class HistoryStack {
     constructor(getScale, getData) {
         this._getScale = getScale;
         this._getData = getData;
-        this._initial = []; // initial stack
         this._stack = []; // user-event stack
         this._pointer = undefined; // user-event stack pointer
     }
@@ -38,18 +37,13 @@ export default class HistoryStack {
     /**
      * Push an event onto the stack.
      * @param {HistoryEvent} event The event to push.
-     * @param {boolean} initial Whether this event is an initialization event.
      */
-    push(event, initial) {
-        if(initial === undefined || initial === false) {
-            if(this.canGoForward()) {
-                this.prune();
-            }
-            this._stack.push(event);
-            this.incrementPointer();
-        } else {
-            this._initial.push(event);
+    push(event) {
+        if(this.canGoForward()) {
+            this.prune();
         }
+        this._stack.push(event);
+        this.incrementPointer();
     }
 
     /**
@@ -91,7 +85,7 @@ export default class HistoryStack {
                 return this._stack[i];
             }
         }
-        return this._initial.find((el) => event.isRelated(el));
+        return new HistoryEvent(event.type, event.subtype, event.id, HistoryEvent.resets[event.subtype]);
     }
 
     /**

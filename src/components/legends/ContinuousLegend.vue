@@ -21,7 +21,7 @@
                 :pHeight="this.lHeight - 30"
                 :pMarginTop="30"
                 :pMarginLeft="0"
-                :pMarginRight="this.lWidth - 30"
+                :pMarginRight="this.lWidth - 100"
                 :pMarginBottom="5"
                 :variable="this.variable"
                 side="right" 
@@ -30,14 +30,15 @@
                 :showLabel="false"
             />
         </div>
+
+        <ColorScalePicker v-if="showColorScalePicker" @close="showColorScalePicker = false" :onSelect="changeColorScale" />
     </div>
 </template>
 
 <script>
 import { scaleLinear as d3_scaleLinear } from 'd3-scale';
-
 import { select as d3_select } from 'd3-selection';
-import { event as d3_event } from 'd3';
+import { mouse as d3_mouse } from 'd3';
 
 import { saveSvgAsPng } from 'save-svg-as-png';
 
@@ -45,9 +46,11 @@ import ContinuousScale from './../../scales/ContinuousScale.js';
 import HistoryEvent from './../../history/HistoryEvent.js';
 import HistoryStack from './../../history/HistoryStack.js';
 
+import ColorScalePicker from './../modals/ColorScalePicker.vue';
 import Axis from './../axes/Axis.vue';
 
-const STYLES = Object.freeze({ "BAR": 1, "DOT": 2, "LINE": 3, "SHAPE": 4 });
+import { PAINT_BUCKET_PATH } from './../../icons.js';
+
 
 let uuid = 0;
 /**
@@ -68,7 +71,8 @@ let uuid = 0;
 export default {
     name: 'ContinuousLegend',
     components: {
-        Axis
+        Axis,
+        ColorScalePicker
     },
     props: {
         'variable': {
@@ -91,7 +95,8 @@ export default {
     data() {
         return {
             lHeight: 200,
-            highlightScale: null
+            highlightScale: null,
+            showColorScalePicker: false
         }
     },
     computed: {
@@ -169,17 +174,27 @@ export default {
             highlight.selectAll("rect")
                 .attr("fill-opacity", 0);
         },
+        changeColorScale(scaleKey) {
+            this._varScale.setColorScaleByKey(scaleKey);
+
+            this._stack.push(new HistoryEvent(
+                HistoryEvent.types.SCALE,
+                HistoryEvent.subtypes.SCALE_COLOR_SCALE,
+                this._varScale.id,
+                "setColorScaleByKey",
+                [scaleKey]
+            ));
+        },
         drawLegend() {
             const vm = this;
             vm.removeLegend();
             
             const varScale = vm._varScale;
-            const stack = vm._stack;
+            //const stack = vm._stack;
 
             const titleHeight = 30
             const textOffset = 30;
             const marginX = 4;
-            const marginY = 2;
 
             /*
              * Create the SVG elements
@@ -206,17 +221,20 @@ export default {
             const titleTextBbox = titleText.node().getBBox();
             titleText.attr("transform", "translate(" + 0 + "," + titleTextBbox.height + ")");
 
+            title.append("path")
+                .attr("d", PAINT_BUCKET_PATH)
+                .attr("width", 20)
+                .attr("height", 20)
+                .attr("transform", "translate(" + (vm.lWidth - 1.5*marginX) + "," + (titleTextBbox.height/2) + ") scale(-0.7 0.7)")
+                .style("cursor", "pointer")
+                .attr("fill", "silver")
+                .on("click", () => {
+                    vm.showColorScalePicker = true;
+                });
+
             const legendInner = legend.append("g")
                 .attr("class", "legend-inner");
-
-            
-            const range = [vm.lHeight, titleHeight];
-
-            const scale = d3_scaleLinear()
-                .domain(varScale.domain.slice().reverse())
-                .range(range);
-
-            vm.highlightScale = scale;
+           
 
             const innerHeight = (vm.lHeight - titleHeight);
 
@@ -225,7 +243,7 @@ export default {
                     .attr("gradientTransform", "rotate(90)")
                     .attr("id", vm.gradientElemID);
 
-            const nStops = 5;
+            const nStops = 10;
             const domainRange = varScale.domainFiltered[1] - varScale.domainFiltered[0];
             const domainStep = domainRange/nStops;
 
@@ -244,16 +262,46 @@ export default {
                 .attr("fill", "url(" + vm.gradientSelector + ")")
                 .attr("transform", "rotate(180)");
             
-            legendInner.append("rect")
+            const hoverRect = legendInner.append("rect")
                 .attr("x", marginX)
                 .attr("y", titleHeight)
-                .attr("width", (textOffset - 2*marginX))
+                .attr("width", (textOffset - marginX))
                 .attr("height", innerHeight)
-                .attr("fill", "transparent")
-                .on("mouseenter", (d) => {
+                .attr("fill", "transparent");
 
-                });
+            const highlight = legendInner.append("g")
+                .attr("class", "highlight")
+                .attr("transform", "translate(" + marginX + "," + titleHeight + ")");
             
+            highlight.append("rect")
+                .attr("x", marginX)
+                .attr("y", titleHeight)
+                .attr("width", (textOffset - marginX))
+                .attr("height", "1px")
+                .attr("fill", "black")
+                .attr("fill-opacity", 0);
+            
+            
+            const hoverRectNode = hoverRect.node();
+
+            const y = d3_scaleLinear()
+                .domain(varScale.domainFiltered)
+                .range([innerHeight, 0]);
+
+            vm.highlightScale = y;
+            
+
+            hoverRect.on("mousemove", () => {
+                const mouse = d3_mouse(hoverRectNode);
+                const mouseY = mouse[1] - titleHeight;
+                const yVal = y.invert(mouseY);
+                if(yVal >= varScale.domain[0] && yVal <= varScale.domain[1]) {
+                    varScale.emitHighlight(yVal);
+                }
+            })
+            .on("mouseleave", () => {
+                varScale.emitHighlightDestroy();
+            });
             
             
         },

@@ -283,6 +283,7 @@ export default {
                     varScale.filterByHierarchy(vm._hierarchyContainer, d.data.name);
                     stack.push(new HistoryEvent(
                         HistoryEvent.types.SCALE,
+                        HistoryEvent.subtypes.SCALE_DOMAIN_FILTER,
                         vm.variable,
                         "filterByHierarchy",
                         [computedParam("getData", [vm.h]), d.data.name]
