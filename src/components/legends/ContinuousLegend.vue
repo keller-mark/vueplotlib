@@ -37,9 +37,8 @@
 
 <script>
 import { scaleLinear as d3_scaleLinear } from 'd3-scale';
-
 import { select as d3_select } from 'd3-selection';
-import { event as d3_event } from 'd3';
+import { mouse as d3_mouse } from 'd3';
 
 import { saveSvgAsPng } from 'save-svg-as-png';
 
@@ -50,9 +49,8 @@ import HistoryStack from './../../history/HistoryStack.js';
 import ColorScalePicker from './../modals/ColorScalePicker.vue';
 import Axis from './../axes/Axis.vue';
 
-import { COLOR_PICKER_PATH, PAINT_BUCKET_PATH } from './../../icons.js';
+import { PAINT_BUCKET_PATH } from './../../icons.js';
 
-const STYLES = Object.freeze({ "BAR": 1, "DOT": 2, "LINE": 3, "SHAPE": 4 });
 
 let uuid = 0;
 /**
@@ -192,7 +190,7 @@ export default {
             vm.removeLegend();
             
             const varScale = vm._varScale;
-            const stack = vm._stack;
+            //const stack = vm._stack;
 
             const titleHeight = 30
             const textOffset = 30;
@@ -236,15 +234,7 @@ export default {
 
             const legendInner = legend.append("g")
                 .attr("class", "legend-inner");
-
-            
-            const range = [vm.lHeight, titleHeight];
-
-            const scale = d3_scaleLinear()
-                .domain(varScale.domain.slice().reverse())
-                .range(range);
-
-            vm.highlightScale = scale;
+           
 
             const innerHeight = (vm.lHeight - titleHeight);
 
@@ -272,16 +262,46 @@ export default {
                 .attr("fill", "url(" + vm.gradientSelector + ")")
                 .attr("transform", "rotate(180)");
             
-            legendInner.append("rect")
+            const hoverRect = legendInner.append("rect")
                 .attr("x", marginX)
                 .attr("y", titleHeight)
-                .attr("width", (textOffset - 2*marginX))
+                .attr("width", (textOffset - marginX))
                 .attr("height", innerHeight)
-                .attr("fill", "transparent")
-                .on("mouseenter", (d) => {
+                .attr("fill", "transparent");
 
-                });
+            const highlight = legendInner.append("g")
+                .attr("class", "highlight")
+                .attr("transform", "translate(" + marginX + "," + titleHeight + ")");
             
+            highlight.append("rect")
+                .attr("x", marginX)
+                .attr("y", titleHeight)
+                .attr("width", (textOffset - marginX))
+                .attr("height", "1px")
+                .attr("fill", "black")
+                .attr("fill-opacity", 0);
+            
+            
+            const hoverRectNode = hoverRect.node();
+
+            const y = d3_scaleLinear()
+                .domain(varScale.domainFiltered)
+                .range([innerHeight, 0]);
+
+            vm.highlightScale = y;
+            
+
+            hoverRect.on("mousemove", () => {
+                const mouse = d3_mouse(hoverRectNode);
+                const mouseY = mouse[1] - titleHeight;
+                const yVal = y.invert(mouseY);
+                if(yVal >= varScale.domain[0] && yVal <= varScale.domain[1]) {
+                    varScale.emitHighlight(yVal);
+                }
+            })
+            .on("mouseleave", () => {
+                varScale.emitHighlightDestroy();
+            });
             
             
         },

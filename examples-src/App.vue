@@ -478,7 +478,6 @@ import SortBy from '../src/sort/SortBy.js';
 // History
 import Stack from './Stack.vue';
 import HistoryStack from './../src/history/HistoryStack.js';
-import HistoryEvent from './../src/history/HistoryEvent.js';
 
 const exposuresDataContainer = new DataContainer(
   'exposures_data', 

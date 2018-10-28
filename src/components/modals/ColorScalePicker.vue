@@ -41,6 +41,7 @@ export default {
         vm.drawPicker();
 
         window.addEventListener('resize', debounce(vm.drawPicker, 250));
+        // TODO: remove event listener upon destroy
     },
     computed: {
         pickerElemID: function() {

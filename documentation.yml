@@ -17,6 +17,11 @@ toc:
   - DendrogramAxis
   - PlotContainer
   - SortOptions
+  - CategoricalLegend
+  - ContinuousLegend
+  - ColorPicker
+  - ColorScalePicker
+  - Modal
   - name: Data
   - DataContainer
   - name: History

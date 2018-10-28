@@ -24,10 +24,6 @@ import GenomeMultiTrackPlot from './components/plots/GenomeMultiTrackPlot.vue';
 import CategoricalLegend from './components/legends/CategoricalLegend.vue';
 import ContinuousLegend from './components/legends/ContinuousLegend.vue';
 
-// Modals
-import ColorScalePicker from './components/modals/ColorScalePicker.vue';
-
-
 
 /* eslint-disable no-undef */
 if (typeof window !== 'undefined' && window.Vue) {
@@ -52,8 +48,6 @@ if (typeof window !== 'undefined' && window.Vue) {
     // Legends
     Vue.component(CategoricalLegend.name, CategoricalLegend);
     Vue.component(ContinuousLegend.name, ContinuousLegend);
-    //Modals
-    Vue.component(ColorScalePicker.name, ColorScalePicker);
 }
 
 export {
@@ -73,6 +67,5 @@ export {
     GenomeTrackPlot,
     GenomeMultiTrackPlot,
     CategoricalLegend,
-    ContinuousLegend,
-    ColorScalePicker
+    ContinuousLegend
 }

@@ -52,6 +52,13 @@ export default class CategoricalScale extends AbstractScale {
             .range(this.humanDomain);
     }
 
+    /**
+     * @returns {object} Mapping from domain value to colors for overridden values.
+     */
+    get colorOverrides() {
+        return this._colorOverrides;
+    }
+
     /** @inheritdoc */
     toHuman(domainValue) {
         if(AbstractScale.isUnknown(domainValue)) {
@@ -72,11 +79,12 @@ export default class CategoricalScale extends AbstractScale {
     }
 
     /**
-     * Set overriden values for colors.
+     * Set overridden values for colors.
      * @param {object} colorOverrides Mapping of domain values to colors.
      */
     setColorOverrides(colorOverrides) {
         this._colorOverrides = colorOverrides;
+        this.emitUpdate();
     }
 
     /** @inheritdoc */

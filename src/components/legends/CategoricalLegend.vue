@@ -11,7 +11,17 @@
             }"
         ></div>
 
-        <ColorScalePicker v-if="showColorScalePicker" @close="showColorScalePicker = false" :onSelect="changeColorScale" />
+        <ColorScalePicker 
+            v-if="showColorScalePicker" 
+            @close="showColorScalePicker = false" 
+            :onSelect="changeColorScale" 
+        />
+        <ColorPicker 
+            v-if="showColorPicker" 
+            @close="showColorPicker = false" 
+            :onSelect="changeColor" 
+            :initialColor="initialColor" 
+        />
     </div>
 </template>
 
@@ -27,10 +37,9 @@ import HistoryEvent from './../../history/HistoryEvent.js';
 import HistoryStack from './../../history/HistoryStack.js';
 
 import ColorScalePicker from './../modals/ColorScalePicker.vue';
+import ColorPicker from './../modals/ColorPicker.vue';
 
 import { COLOR_PICKER_PATH, EYE_PATH, EYE_DISABLED_PATH, PAINT_BUCKET_PATH } from './../../icons.js';
-
-
 
 const STYLES = Object.freeze({ "BAR": 1, "DOT": 2, "LINE": 3, "SHAPE": 4 });
 
@@ -57,6 +66,7 @@ export default {
     name: 'CategoricalLegend',
     components: {
         ColorScalePicker,
+        ColorPicker
     },
     props: {
         'variable': {
@@ -83,7 +93,10 @@ export default {
         return {
             lHeight: 0,
             highlightScale: null,
-            showColorScalePicker: false
+            showColorScalePicker: false,
+            showColorPicker: false,
+            initialColor: "#FFFFFF",
+            changeColor: () => {}
         }
     },
     computed: {
@@ -243,7 +256,6 @@ export default {
                 .attr("transform", "translate(0," + (vm.lItemHeight) + ")");
 
             
-
             
             const range = [vm.lHeight, titleHeight];
 
@@ -346,29 +358,21 @@ export default {
                 .attr("transform", "translate(" + (vm.lWidth - 1*(buttonWidth + 2*marginX)) + ",0)")
                 .style("cursor", "pointer")
                 .on("click", (d) => {
-                    let newDomainIndices;
-                    if(varScale.domainFiltered.includes(d)) {
-                        // Remove element
-                        let newDomain = varScale.domainFiltered.slice();
-                        newDomain.splice(newDomain.indexOf(d), 1);
-                        newDomainIndices = newDomain.map((el) => varScale.domain.indexOf(el));
-                    } else {
-                        // Add element
-                        let newDomain = varScale.domainFiltered.slice();
-                        newDomainIndices = newDomain.map((el) => varScale.domain.indexOf(el));
-                        newDomainIndices.push(varScale.domain.indexOf(d));
-                        // TODO: check if this sorting introduces other bugs. if so, maybe use (d, i)
-                        // and get the index of the legend item, then use that to add
-                        newDomainIndices.sort((a, b) => (a - b));
-                    }
-                    varScale.filter(newDomainIndices);
-                    stack.push(new HistoryEvent(
-                        HistoryEvent.types.SCALE,
-                        HistoryEvent.subtypes.SCALE_DOMAIN_FILTER,
-                        varScale.id,
-                        "filter",
-                        [newDomainIndices]
-                    ));
+                    vm.initialColor = varScale.color(d);
+                    vm.changeColor = (color) => {
+                        const colorOverrides = varScale.colorOverrides;
+                        colorOverrides[d] = color;
+                        varScale.setColorOverrides(colorOverrides);
+
+                        stack.push(new HistoryEvent(
+                            HistoryEvent.types.SCALE,
+                            HistoryEvent.subtypes.SCALE_COLOR_OVERRIDE,
+                            varScale.id,
+                            "setColorOverrides",
+                            [Object.assign({}, colorOverrides)] 
+                        ));
+                    };
+                    vm.showColorPicker = true;
                 });
 
             colorButtons.append("rect")
