@@ -320,7 +320,7 @@ export default class GenomeScale {
     /**
      * Resets the filtered domain, using the full original domain.
      */
-    reset() {
+    resetFilter() {
         this._domainsFiltered = this._domains.slice();
         this._chromosomesFiltered = this._chromosomes.slice();
         this.emitUpdate();

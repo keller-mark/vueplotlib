@@ -284,12 +284,20 @@ export default class AbstractScale {
     }
 
     /**
-     * Resets the filtered domain, using the full original domain.
+     * Resets the color scale.
      */
-    reset() {
-        this.setDomain(this._domainOriginal.slice());
-        this.setDomainFiltered(this._domainOriginal.slice());
+    resetColorScale() {
         this.setColorScale(AbstractScale.defaultColorScale);
         this.emitUpdate();
     }
+
+    /**
+     * Resets the filtered domain, using the full domain.
+     */
+    resetFilter() {
+        this.setDomainFiltered(this._domain.slice());
+        this.emitUpdate();
+    }
+
+    
 }

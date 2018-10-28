@@ -181,6 +181,7 @@ export default {
 
             this._stack.push(new HistoryEvent(
                 HistoryEvent.types.SCALE,
+                HistoryEvent.subtypes.SCALE_COLOR_SCALE,
                 this._varScale.id,
                 "setColorScaleByKey",
                 [scaleKey]

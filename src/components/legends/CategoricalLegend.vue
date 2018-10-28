@@ -287,6 +287,7 @@ export default {
                     varScale.filter(newDomainIndices);
                     stack.push(new HistoryEvent(
                         HistoryEvent.types.SCALE,
+                        HistoryEvent.subtypes.SCALE_DOMAIN_FILTER,
                         varScale.id,
                         "filter",
                         [newDomainIndices]

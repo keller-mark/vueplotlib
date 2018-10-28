@@ -72,12 +72,11 @@ export default class CategoricalScale extends AbstractScale {
     }
 
     /**
-     * Set overriden value for a color.
-     * @param {*} domainValue The domain value.
-     * @param {*} colorValue The new color for the domain value.
+     * Set overriden values for colors.
+     * @param {object} colorOverrides Mapping of domain values to colors.
      */
-    overrideColor(domainValue, colorValue) {
-        this._colorOverrides[domainValue] = colorValue;
+    setColorOverrides(colorOverrides) {
+        this._colorOverrides = colorOverrides;
     }
 
     /** @inheritdoc */
@@ -188,6 +187,24 @@ export default class CategoricalScale extends AbstractScale {
         // Set filtered domain
         this.setDomainFiltered(leaves);
 
+        this.emitUpdate();
+    }
+
+    /**
+     * Resets the color override object.
+     */
+    resetColorOverride() {
+        this.setColorOverrides({});
+        this.emitUpdate();
+    }
+
+    /**
+     * Resets the color override object.
+     */
+    resetSort() {
+        this.setDomain(this._domainOriginal.slice());
+        const newDomainFiltered = this._domainOriginal.slice().filter((el) => this._domainFiltered.includes(el));
+        this.setDomainFiltered(newDomainFiltered);
         this.emitUpdate();
     }
     

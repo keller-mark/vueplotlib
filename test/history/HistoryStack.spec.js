@@ -48,7 +48,7 @@ test('able to create a HistoryStack', () => {
 
 test('able to push onto a HistoryStack', () => {
     let stack = new HistoryStack(getScale);
-    let event = new HistoryEvent(HistoryEvent.types.SCALE, "sample_id", "zoom", [2, 5]);
+    let event = new HistoryEvent(HistoryEvent.types.SCALE, HistoryEvent.subtypes.SCALE_DOMAIN_FILTER, "sample_id", "zoom", [2, 5]);
     stack.push(event);
     expect(stack.isEmpty()).toBe(false);
     expect(stack.canGoBack()).toBe(true);
@@ -57,7 +57,7 @@ test('able to push onto a HistoryStack', () => {
 
 test('able to pop off of a HistoryStack', () => {
     let stack = new HistoryStack(getScale);
-    let event = new HistoryEvent(HistoryEvent.types.SCALE, "sample_id", "zoom", [2, 5]);
+    let event = new HistoryEvent(HistoryEvent.types.SCALE, HistoryEvent.subtypes.SCALE_DOMAIN_FILTER, "sample_id", "zoom", [2, 5]);
     stack.push(event);
     expect(stack.isEmpty()).toBe(false);
     expect(stack.canGoBack()).toBe(true);
@@ -70,9 +70,9 @@ test('able to pop off of a HistoryStack', () => {
 
 test('able to get previous related event from HistoryStack', () => {
     let stack = new HistoryStack(getScale);
-    let e1 = new HistoryEvent(HistoryEvent.types.SCALE, "sample_id", "zoom", [2, 5]);
-    let e2 = new HistoryEvent(HistoryEvent.types.SCALE, "signatures", "filter", [[0, 1]]);
-    let e3 = new HistoryEvent(HistoryEvent.types.SCALE, "sample_id", "zoom", [1, 5]);
+    let e1 = new HistoryEvent(HistoryEvent.types.SCALE, HistoryEvent.subtypes.SCALE_DOMAIN_FILTER, "sample_id", "zoom", [2, 5]);
+    let e2 = new HistoryEvent(HistoryEvent.types.SCALE, HistoryEvent.subtypes.SCALE_DOMAIN_FILTER, "signatures", "filter", [[0, 1]]);
+    let e3 = new HistoryEvent(HistoryEvent.types.SCALE, HistoryEvent.subtypes.SCALE_DOMAIN_FILTER, "sample_id", "zoom", [1, 5]);
     stack.push(e1);
     stack.push(e2);
     stack.push(e3);
@@ -89,17 +89,17 @@ test('able to execute event, go back and go forward', () => {
     let stack = new HistoryStack(getScale);
 
     sampleScale.zoom(2, 5);
-    let e1 = new HistoryEvent(HistoryEvent.types.SCALE, "sample_id", "zoom", [2, 5]);
+    let e1 = new HistoryEvent(HistoryEvent.types.SCALE, HistoryEvent.subtypes.SCALE_DOMAIN_FILTER, "sample_id", "zoom", [2, 5]);
     expect(sampleScale.domainFiltered.length).toBe(3);
     stack.push(e1);
 
     sampleScale.filter([0, 1]);
-    let e2 = new HistoryEvent(HistoryEvent.types.SCALE, "signatures", "filter", [[0, 1]]);
+    let e2 = new HistoryEvent(HistoryEvent.types.SCALE, HistoryEvent.subtypes.SCALE_DOMAIN_FILTER, "signatures", "filter", [[0, 1]]);
     expect(sampleScale.domainFiltered.length).toBe(2);
     stack.push(e2);
 
     sampleScale.zoom(1, 5);
-    let e3 = new HistoryEvent(HistoryEvent.types.SCALE, "sample_id", "zoom", [1, 5]);
+    let e3 = new HistoryEvent(HistoryEvent.types.SCALE, HistoryEvent.subtypes.SCALE_DOMAIN_FILTER, "sample_id", "zoom", [1, 5]);
     expect(sampleScale.domainFiltered.length).toBe(4);
     stack.push(e3);
 
@@ -124,7 +124,7 @@ test('able to get computedParam JSON object', () => {
 test('able to execute event with computed parameter', () => {
     let stack = new HistoryStack(getScale, getData);
 
-    let e0 = new HistoryEvent(HistoryEvent.types.SCALE, "sample_id", "reset");
+    let e0 = new HistoryEvent(HistoryEvent.types.SCALE, HistoryEvent.subtypes.SCALE_DOMAIN_FILTER, "sample_id", "reset");
     stack.push(e0, true);
 
     expect(sampleScale.domain).toEqual(sampleScale.domainFiltered);
@@ -132,7 +132,7 @@ test('able to execute event with computed parameter', () => {
     
     // Sort by age ascending, store in stack
     sampleScale.sort(getData(), "age", true);
-    let e1 = new HistoryEvent(HistoryEvent.types.SCALE, "sample_id", "sort", [computedParam("getData", []), "age", true]);
+    let e1 = new HistoryEvent(HistoryEvent.types.SCALE, HistoryEvent.subtypes.SCALE_DOMAIN_FILTER, "sample_id", "sort", [computedParam("getData", []), "age", true]);
     stack.push(e1);
 
     expect(sampleScale.domain).toEqual(sampleScale.domainFiltered);
@@ -140,7 +140,7 @@ test('able to execute event with computed parameter', () => {
 
     // Sort by age descending, store in stack
     sampleScale.sort(getData(), "age", false);
-    let e2 = new HistoryEvent(HistoryEvent.types.SCALE, "sample_id", "sort", [computedParam("getData", []), "age", false]);
+    let e2 = new HistoryEvent(HistoryEvent.types.SCALE, HistoryEvent.subtypes.SCALE_DOMAIN_FILTER, "sample_id", "sort", [computedParam("getData", []), "age", false]);
     stack.push(e2);
 
     expect(sampleScale.domain).toEqual(sampleScale.domainFiltered);
