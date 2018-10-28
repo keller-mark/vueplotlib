@@ -50,7 +50,7 @@ import HistoryStack from './../../history/HistoryStack.js';
 import ColorScalePicker from './../modals/ColorScalePicker.vue';
 import Axis from './../axes/Axis.vue';
 
-import { COLOR_PICKER_PATH } from './../../icons.js';
+import { COLOR_PICKER_PATH, PAINT_BUCKET_PATH } from './../../icons.js';
 
 const STYLES = Object.freeze({ "BAR": 1, "DOT": 2, "LINE": 3, "SHAPE": 4 });
 
@@ -224,11 +224,12 @@ export default {
             titleText.attr("transform", "translate(" + 0 + "," + titleTextBbox.height + ")");
 
             title.append("path")
-                .attr("d", COLOR_PICKER_PATH)
+                .attr("d", PAINT_BUCKET_PATH)
                 .attr("width", 20)
                 .attr("height", 20)
-                .attr("transform", "translate(" + (vm.lWidth - 20) + "," + (titleTextBbox.height/2) + ") scale(0.7 0.7)")
+                .attr("transform", "translate(" + (vm.lWidth - 1.5*marginX) + "," + (titleTextBbox.height/2) + ") scale(-0.7 0.7)")
                 .style("cursor", "pointer")
+                .attr("fill", "silver")
                 .on("click", () => {
                     vm.showColorScalePicker = true;
                 });
