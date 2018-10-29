@@ -19,6 +19,7 @@ import HierarchicalMultiTrackPlot from './components/plots/HierarchicalMultiTrac
 import GenomeScatterPlot from './components/plots/GenomeScatterPlot.vue';
 import GenomeTrackPlot from './components/plots/GenomeTrackPlot.vue';
 import GenomeMultiTrackPlot from './components/plots/GenomeMultiTrackPlot.vue';
+import GenomeStackedBarPlot from './components/plots/GenomeStackedBarPlot.vue';
 
 // Legends
 import CategoricalLegend from './components/legends/CategoricalLegend.vue';
@@ -45,6 +46,7 @@ if (typeof window !== 'undefined' && window.Vue) {
     Vue.component(GenomeScatterPlot.name, GenomeScatterPlot);
     Vue.component(GenomeTrackPlot.name, GenomeTrackPlot);
     Vue.component(GenomeMultiTrackPlot.name, GenomeMultiTrackPlot);
+    Vue.component(GenomeStackedBarPlot.name, GenomeStackedBarPlot);
     // Legends
     Vue.component(CategoricalLegend.name, CategoricalLegend);
     Vue.component(ContinuousLegend.name, ContinuousLegend);
@@ -66,6 +68,7 @@ export {
     GenomeScatterPlot,
     GenomeTrackPlot,
     GenomeMultiTrackPlot,
+    GenomeStackedBarPlot,
     CategoricalLegend,
     ContinuousLegend
 }

@@ -52,14 +52,12 @@ yarn run docs
 - MultiBoxPlot :white_check_mark:
 - HierarchicalMultiTrackPlot :white_check_mark:
 
-
 #### Genome Plot Components
 - GenomeScatterPlot :white_check_mark:
 - GenomeBarPlot
-- GenomeStackedBarPlot
+- GenomeStackedBarPlot :white_check_mark:
 - GenomeTrackPlot :white_check_mark:
 - GenomeMultiTrackPlot :white_check_mark:
-
 
 ### Axis Components
 - Axis :white_check_mark:
@@ -73,6 +71,15 @@ yarn run docs
 ### Other Components
 - PlotContainer :white_check_mark:
 - SortOptions :white_check_mark:
+
+### Future Plans for Components
+- Grouped Bar Plot
+- Karyotype
+- Violin Plot
+- Horizontal Bar Plot
+- Horizontal Stacked Bar Plot
+- Line Plot
+
 
 
 ### Goals: 

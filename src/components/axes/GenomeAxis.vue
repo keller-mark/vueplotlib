@@ -223,7 +223,7 @@ export default {
                     [e.target.value]
                 ));
             } else {
-                this._varScale.reset();
+                this._varScale.resetFilter();
                 this._stack.push(new HistoryEvent(
                     HistoryEvent.types.SCALE, 
                     HistoryEvent.subtypes.SCALE_DOMAIN_FILTER,

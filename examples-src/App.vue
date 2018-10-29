@@ -265,6 +265,43 @@
       />
     </PlotContainer>
 
+    <h3>&lt;GenomeStackedBarPlot/&gt;</h3>
+    <PlotContainer
+      :pWidth="800"
+      :pHeight="500"
+      :pMarginTop="20"
+      :pMarginLeft="150"
+      :pMarginRight="20"
+      :pMarginBottom="80"
+    > 
+      <Axis
+        slot="axisLeft"
+        variable="genome_exposure"
+        side="left"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+      <GenomeStackedBarPlot
+        slot="plot"
+        data="genome_bins_data"
+        g="genome"
+        chromosomeVariable="chr"
+        positionVariable="pos"
+        c="signature"
+        y="genome_exposure"
+        :getData="getData"
+        :getScale="getScale"
+        :clickHandler="exampleClickHandler"
+      />
+      <GenomeAxis
+        slot="axisBottom"
+        scaleKey="genome"
+        side="bottom"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+    </PlotContainer>
+
     <h3>&lt;MultiTrackPlot/&gt;</h3>
     <PlotContainer
       :pWidth="780"
@@ -446,6 +483,7 @@ import {
   GenomeScatterPlot,
   GenomeTrackPlot,
   GenomeMultiTrackPlot,
+  GenomeStackedBarPlot,
   CategoricalLegend,
   ContinuousLegend
 } from '../src/index.js';
@@ -463,6 +501,7 @@ import clinicalData from './data/clinical_data.json';
 import clusteringData from './data/clustering.json';
 import randomGenomeData from './data/random_genome_data.json';
 import randomGenomeMultiData from './data/random_genome_multi_data.json';
+import genomeBinsData from './data/genome_bins.json';
 
 
 // Scales
@@ -524,6 +563,11 @@ const randomGenomeMultiDataContainer = new DataContainer(
   'Random Genome Multi Data',
   randomGenomeMultiData
 );
+const genomeBinsDataContainer = new DataContainer(
+  'genome_bins_data',
+  'Signature Exposures across the Genome',
+  genomeBinsData
+);
 
 
 // Initialize data
@@ -547,6 +591,8 @@ const getData = function(dataKey) {
       return randomGenomeDataContainer;
     case 'rand_genome_multi_data':
       return randomGenomeMultiDataContainer;
+    case 'genome_bins_data':
+      return genomeBinsDataContainer;
   }
 };
 
@@ -636,6 +682,12 @@ const eventScale = new CategoricalScale(
   ["My Event 1","My Event 2","My Event 3"]
 );
 
+const genomeExposureScale = new ContinuousScale(
+  'genome_exposure',
+  'Exposure per Genome Bin',
+  [0, 50]
+);
+
 
 const getScale = function(scaleKey) {
   switch(scaleKey) {
@@ -661,6 +713,8 @@ const getScale = function(scaleKey) {
       return projScale;
     case 'e_type':
       return eventScale;
+    case 'genome_exposure':
+      return genomeExposureScale;
   }
 };
 
@@ -705,6 +759,7 @@ export default {
     GenomeScatterPlot,
     GenomeTrackPlot,
     GenomeMultiTrackPlot,
+    GenomeStackedBarPlot,
     CategoricalLegend,
     ContinuousLegend
   },
