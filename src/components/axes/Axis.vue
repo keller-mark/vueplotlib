@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import { scaleBand as d3_scaleBand, scaleLinear as d3_scaleLinear } from 'd3-scale';
+import { scaleBand as d3_scaleBand, scaleLinear as d3_scaleLinear, scaleLog as d3_scaleLog } from 'd3-scale';
 import { select as d3_select } from 'd3-selection';
 import { axisTop as d3_axisTop, axisLeft as d3_axisLeft, axisRight as d3_axisRight, axisBottom as d3_axisBottom } from 'd3-axis';
 import { brushX as d3_brushX, brushY as d3_brushY } from 'd3-brush';
@@ -40,7 +40,8 @@ let uuid = 0;
  * @prop {function} getScale Function that takes a scale key string and returns a scale instance.
  * @prop {function} getStack Function that returns a HistoryStack instance.
  * @prop {boolean} disableBrushing Whether to disable brushing functionality and hide the zoomed-out "context" view. Default: false
- *  @prop {boolean} showLabel Whether to show the label. Default: true
+ * @prop {boolean} log Whether to have log scaled variable. Default: false
+ * @prop {boolean} showLabel Whether to show the label. Default: true
  * 
  * @example
  * <Axis
@@ -101,6 +102,10 @@ export default {
         'showLabel': {
             type: Boolean,
             default: true
+        },
+        'log': {
+            type: Boolean,
+            default: false
         }
     },
     data() {
@@ -245,10 +250,14 @@ export default {
                 }
                 tickSizeOuter = 0;
             } else if(varScale.type === AbstractScale.types.CONTINUOUS) {
-                scaleZoomedOut = d3_scaleLinear()
+                let continuousScaleFunc = d3_scaleLinear;
+                if(vm.log) {
+                    continuousScaleFunc = d3_scaleLog;
+                }
+                scaleZoomedOut = continuousScaleFunc()
                     .domain(varScale.domain)
                     .range(range);
-                scaleZoomedIn = d3_scaleLinear()
+                scaleZoomedIn = continuousScaleFunc()
                     .domain(varScale.domainFiltered)
                     .range(range);
                 tickSizeOuter = 6;

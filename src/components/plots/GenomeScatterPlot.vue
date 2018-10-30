@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import { scaleLinear as d3_scaleLinear } from 'd3-scale';
+import { scaleLinear as d3_scaleLinear, scaleLog as d3_scaleLog } from 'd3-scale';
 import { select as d3_select } from 'd3-selection';
 import { mouse as d3_mouse } from 'd3';
 import debounce from 'lodash/debounce';
@@ -73,6 +73,7 @@ let uuid = 0;
  * @prop {string} c The color-scale variable key.
  * @prop {string} chromosomeVariable The axis chromosome variable key. Default: "chromosome"
  * @prop {string} positionVariable The axis position variable key. Default: "position"
+ * @prop {boolean} log Whether to have log scaled y. Default: false
  * @extends mixin
  * 
  * @example
@@ -112,6 +113,10 @@ export default {
         'positionVariable': {
             type: String,
             default: "position"
+        },
+        'log': {
+            type: Boolean,
+            default: false
         }
         // TODO: allow optional dot size, dot shape variable
         // TODO: allow specification of filled dots, static dot stroke/fill, etc...
@@ -232,8 +237,13 @@ export default {
             }
 
             vm.highlightGScales = g;
+
+            let continuousScaleFunc = d3_scaleLinear;
+            if(vm.log) {
+                continuousScaleFunc = d3_scaleLog;
+            }
             
-            const y = d3_scaleLinear()
+            const y = continuousScaleFunc()
                 .domain(yScale.domainFiltered)
                 .range([vm.pHeight, 0]);
 

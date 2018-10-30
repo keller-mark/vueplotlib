@@ -244,6 +244,7 @@
         slot="axisLeft"
         variable="mut_dist"
         side="left"
+        :log="true"
         :getScale="getScale"
         :getStack="getStack"
       />
@@ -255,6 +256,7 @@
         positionVariable="pos"
         c="cat"
         y="mut_dist"
+        :log="true"
         :getData="getData"
         :getScale="getScale"
         :clickHandler="exampleClickHandler"
@@ -663,7 +665,7 @@ const catScale = new CategoricalScale(
 const mutDistScale = new ContinuousScale(
   'mut_dist',
   'Distance to Previous Mutation',
-  [0, 6000000]
+  [1, 6000000]
 );
 const projScale = new CategoricalScale(
   'proj_id',
