@@ -154,8 +154,10 @@
       />
       <BoxPlot
         slot="plot"
-        data="boxplot_data"
+        data="exposures_data"
+        variable="COSMIC 3"
         y="exposure"
+        o="sample_id"
         :getData="getData"
         :getScale="getScale"
         :clickHandler="exampleClickHandler"
@@ -185,6 +187,7 @@
         data="exposures_data"
         x="signature"
         y="exposure"
+        o="sample_id"
         :getData="getData"
         :getScale="getScale"
         :clickHandler="exampleClickHandler"
@@ -496,7 +499,6 @@ import exposuresData from './data/exposures.json';
 import exposuresSingleData from './data/exposures_single.json';
 import rainfallData from './data/rainfall.json';
 import xyData from './data/xy.json';
-import boxplotData from './data/boxplot_data.json';
 import clinicalData from './data/clinical_data.json';
 import clusteringData from './data/clustering.json';
 import randomGenomeData from './data/random_genome_data.json';
@@ -538,11 +540,6 @@ const xyDataContainer = new DataContainer(
   'Random Data',
   xyData
 );
-const boxplotDataContainer = new DataContainer(
-  'boxplot_data',
-  'COSMIC 1 Exposures',
-  boxplotData
-);
 const clinicalDataContainer = new DataContainer(
   'clinical_data',
   'Clinical Data',
@@ -581,8 +578,6 @@ const getData = function(dataKey) {
       return rainfallDataContainer;
     case 'xy_data':
       return xyDataContainer;
-    case 'boxplot_data':
-      return boxplotDataContainer;
     case 'clinical_data':
       return clinicalDataContainer;
     case 'clustering':

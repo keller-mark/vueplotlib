@@ -94,6 +94,7 @@ let uuid = 0;
 /**
  * @prop {string} x The x-scale variable key.
  * @prop {string} y The y-scale variable key.
+ * @prop {string} o The observation-scale variable key. Optional.
  * @prop {number} pointSize The diameter of outlier (and mean) points. Default: 6
  * @prop {boolean} drawOutliers Whether or not to draw outlier points on the plot.
  * @extends mixin
@@ -103,6 +104,7 @@ let uuid = 0;
  *      data="exposures_data"
  *      x="signature"
  *      y="exposure"
+ *      o="sample_id"
  *      :pWidth="500"
  *      :pHeight="300"
  *      :pMarginTop="10"
@@ -124,6 +126,9 @@ export default {
         'y': {
             type: String
         },
+        'o': { // observation
+            type: String
+        },
         'pointSize': {
             type: Number,
             default: 6
@@ -135,6 +140,7 @@ export default {
     },
     data() {
         return {
+            hasO: false,
             tooltipInfo: {
                 x: '',
                 min: '',
@@ -168,6 +174,13 @@ export default {
         // Subscribe to event publishers here
         this._xScale.onUpdate(this.uuid, this.drawPlot);
         this._yScale.onUpdate(this.uuid, this.drawPlot);
+
+        if(this.o !== undefined) {
+            this._oScale = this.getScale(this.o);
+            console.assert(this._oScale instanceof AbstractScale);
+            this._oScale.onUpdate(this.uuid, this.drawPlot);
+            this.hasO = true;
+        }
 
         // Subscribe to data mutations here
         this._dataContainer.onUpdate(this.uuid, this.drawPlot);
@@ -217,6 +230,11 @@ export default {
             let data = this._dataContainer.dataCopy;
             const xScale = this._xScale;
             const yScale = this._yScale;
+
+            if(this.hasO) {
+                const oScale = this._oScale;
+                data = data.filter((el) => oScale.domainFiltered.includes(el[vm.o]));
+            }
 
             const x = d3_scaleBand()
                 .domain(xScale.domainFiltered)

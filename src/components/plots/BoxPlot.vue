@@ -69,7 +69,9 @@ import mixin from './mixin.js';
 
 let uuid = 0;
 /**
+ * @prop {string} variable The key to access the values in the data array objects.
  * @prop {string} y The y-scale variable key.
+ * @prop {string} o The observation-scale variable key. Optional.
  * @prop {number} pointSize The diameter of outlier (and mean) points. Default: 6
  * @prop {boolean} drawOutliers Whether or not to draw outlier points on the plot. Default: true
  * @extends mixin
@@ -78,6 +80,7 @@ let uuid = 0;
  * <BoxPlot
  *      data="boxplot_data"
  *      y="exposure"
+ *      o="signature"
  *      :pWidth="500"
  *      :pHeight="300"
  *      :pMarginTop="10"
@@ -93,7 +96,13 @@ export default {
     name: 'BoxPlot',
     mixins: [mixin],
     props: {
+        'variable': {
+            type: String
+        },
         'y': {
+            type: String
+        },
+        'o': { // observation
             type: String
         },
         'pointSize': {
@@ -107,6 +116,7 @@ export default {
     },
     data() {
         return {
+            hasO: false,
             tooltipInfo: {
                 min: '',
                 q1: '',
@@ -132,6 +142,13 @@ export default {
 
         // Subscribe to event publishers here
         this._yScale.onUpdate(this.uuid, this.drawPlot);
+
+        if(this.o !== undefined) {
+            this._oScale = this.getScale(this.o);
+            console.assert(this._oScale instanceof AbstractScale);
+            this._oScale.onUpdate(this.uuid, this.drawPlot);
+            this.hasO = true;
+        }
 
         // Subscribe to data mutations here
         this._dataContainer.onUpdate(this.uuid, this.drawPlot);
@@ -166,6 +183,11 @@ export default {
             
             let data = this._dataContainer.dataCopy;
             const yScale = this._yScale;
+
+            if(this.hasO) {
+                const oScale = this._oScale;
+                data = data.filter((el) => oScale.domainFiltered.includes(el[vm.o]));
+            }
             
             const y = d3_scaleLinear()
                 .domain(yScale.domainFiltered)
@@ -232,7 +254,7 @@ export default {
             const diamondSize = vm.pointSize + 2;
 
             
-            let boxData = data;
+            let boxData = data.map((el) => el[vm.variable] || 0);
             let quantile = d3_scaleQuantile()
                 .domain(boxData)
                 .range([0, 1, 2, 3]);
