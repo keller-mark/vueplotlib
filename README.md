@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/keller-mark/vue-declarative-plots.svg?branch=master)](https://travis-ci.org/keller-mark/vue-declarative-plots)
 [![Coverage Status](https://coveralls.io/repos/github/keller-mark/vue-declarative-plots/badge.svg?branch=master)](https://coveralls.io/github/keller-mark/vue-declarative-plots?branch=master)
+[![npm version](https://img.shields.io/npm/v/vue-declarative-plots.svg?maxAge=2592000)](https://www.npmjs.com/package/vue-declarative-plots)
 
 # vue-declarative-plots
 
