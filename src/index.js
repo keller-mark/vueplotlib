@@ -1,5 +1,5 @@
 import PlotContainer from './components/PlotContainer.vue';
-
+import SortOptions from './components/SortOptions.vue';
 // Axes
 import Axis from './components/axes/Axis.vue';
 import GenomeAxis from './components/axes/GenomeAxis.vue';
@@ -25,35 +25,22 @@ import GenomeStackedBarPlot from './components/plots/GenomeStackedBarPlot.vue';
 import CategoricalLegend from './components/legends/CategoricalLegend.vue';
 import ContinuousLegend from './components/legends/ContinuousLegend.vue';
 
-
-/* eslint-disable no-undef */
-if (typeof window !== 'undefined' && window.Vue) {
-    Vue.component(PlotContainer.name, PlotContainer);
-    // Axes
-    Vue.component(Axis.name, Axis);
-    Vue.component(GenomeAxis.name, GenomeAxis);
-    Vue.component(DendrogramAxis.name, DendrogramAxis);
-    // Plots
-    Vue.component(StackedBarPlot.name, StackedBarPlot);
-    Vue.component(BarPlot.name, BarPlot);
-    Vue.component(ScatterPlot.name, ScatterPlot);
-    Vue.component(BoxPlot.name, BoxPlot);
-    Vue.component(MultiBoxPlot.name, MultiBoxPlot);
-    Vue.component(TrackPlot.name, TrackPlot);
-    Vue.component(MultiTrackPlot.name, MultiTrackPlot);
-    Vue.component(HierarchicalMultiTrackPlot.name, HierarchicalMultiTrackPlot);
-    // Genome Plots
-    Vue.component(GenomeScatterPlot.name, GenomeScatterPlot);
-    Vue.component(GenomeTrackPlot.name, GenomeTrackPlot);
-    Vue.component(GenomeMultiTrackPlot.name, GenomeMultiTrackPlot);
-    Vue.component(GenomeStackedBarPlot.name, GenomeStackedBarPlot);
-    // Legends
-    Vue.component(CategoricalLegend.name, CategoricalLegend);
-    Vue.component(ContinuousLegend.name, ContinuousLegend);
-}
+// Classes
+import DataContainer from './data/DataContainer';
+import AsyncDataContainer from './data/AsyncDataContainer';
+import HistoryStack from './history/HistoryStack';
+import HistoryEvent from './history/HistoryEvent';
+import AbstractScale from './scales/AbstractScale';
+import BinaryScale from './scales/BinaryScale';
+import CategoricalScale from './scales/CategoricalScale';
+import ContinuousScale from './scales/ContinuousScale';
+import GenomeScale from './scales/GenomeScale';
+import SortBy from './sort/SortBy';
 
 export {
+    // Components
     PlotContainer,
+    SortOptions,
     Axis,
     GenomeAxis,
     DendrogramAxis,
@@ -70,5 +57,16 @@ export {
     GenomeMultiTrackPlot,
     GenomeStackedBarPlot,
     CategoricalLegend,
-    ContinuousLegend
+    ContinuousLegend,
+    // Classes
+    DataContainer,
+    AsyncDataContainer,
+    HistoryStack,
+    HistoryEvent,
+    AbstractScale,
+    BinaryScale,
+    CategoricalScale,
+    ContinuousScale,
+    GenomeScale,
+    SortBy,
 }

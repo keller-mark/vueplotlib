@@ -509,32 +509,38 @@
 import { set as d3_set } from 'd3-collection';
 // Components
 import { 
-  PlotContainer, 
-  Axis, 
-  GenomeAxis,
-  DendrogramAxis,
-  StackedBarPlot, 
-  BarPlot, 
-  ScatterPlot, 
-  BoxPlot, 
-  MultiBoxPlot, 
-  TrackPlot, 
-  MultiTrackPlot, 
-  HierarchicalMultiTrackPlot,
-  GenomeScatterPlot,
-  GenomeTrackPlot,
-  GenomeMultiTrackPlot,
-  GenomeStackedBarPlot,
-  CategoricalLegend,
-  ContinuousLegend
+  // Components
+    PlotContainer,
+    SortOptions,
+    Axis,
+    GenomeAxis,
+    DendrogramAxis,
+    StackedBarPlot,
+    BarPlot,
+    ScatterPlot,
+    BoxPlot,
+    MultiBoxPlot,
+    TrackPlot,
+    MultiTrackPlot,
+    HierarchicalMultiTrackPlot,
+    GenomeScatterPlot,
+    GenomeTrackPlot,
+    GenomeMultiTrackPlot,
+    GenomeStackedBarPlot,
+    CategoricalLegend,
+    ContinuousLegend,
+    // Classes
+    DataContainer,
+    AsyncDataContainer,
+    HistoryStack,
+    CategoricalScale,
+    ContinuousScale,
+    GenomeScale,
+    SortBy,
 } from '../src/index.js';
 
 
 // Data
-import DataContainer from '../src/data/DataContainer.js';
-import AsyncDataContainer from '../src/data/AsyncDataContainer.js';
-
-
 import exposuresData from './data/exposures.json';
 import exposuresSingleData from './data/exposures_single.json';
 import rainfallData from './data/rainfall.json';
@@ -545,20 +551,8 @@ import randomGenomeData from './data/random_genome_data.json';
 import randomGenomeMultiData from './data/random_genome_multi_data.json';
 import genomeBinsData from './data/genome_bins.json';
 
-
-// Scales
-import CategoricalScale from '../src/scales/CategoricalScale.js';
-import ContinuousScale from '../src/scales/ContinuousScale.js';
-import GenomeScale from '../src/scales/GenomeScale.js';
-
-// Sort
-import SortOptions from '../src/components/SortOptions.vue';
-
-import SortBy from '../src/sort/SortBy.js';
-
 // History
 import Stack from './Stack.vue';
-import HistoryStack from './../src/history/HistoryStack.js';
 import { EVENT_TYPES, EVENT_SUBTYPE_RESETS } from '../src/history/base-events.js';
 
 const exposuresDataContainer = new DataContainer(

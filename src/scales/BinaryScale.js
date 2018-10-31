@@ -1,5 +1,6 @@
 import { descending as d3_descending } from "d3-array";
 import CategoricalScale from './CategoricalScale.js';
+import AbstractScale from './AbstractScale.js';
 
 /**
  * Scale class for binary variables.
