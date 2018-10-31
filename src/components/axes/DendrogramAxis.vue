@@ -288,7 +288,7 @@ export default {
                         EVENT_SUBTYPES.SCALE_DOMAIN_FILTER,
                         vm.variable,
                         "filterByHierarchy",
-                        [computedParam("getData", [vm.h]), d.data.name]
+                        [computedParam(EVENT_TYPES.DATA, [vm.h]), d.data.name]
                     ));
                 });
             
