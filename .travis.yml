@@ -16,4 +16,10 @@ deploy:
   skip-cleanup: true
   github-token: $github_token
   local-dir: examples
+deploy:
+  provider: npm
+  email: $npm_email
+  api_key: $npm_token
+  on:
+    tags: true
 keep-history: true

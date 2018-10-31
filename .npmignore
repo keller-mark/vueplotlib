@@ -1,0 +1,12 @@
+.DS_Store
+examples/
+docs/
+coverage/
+.vscode/
+examples-src/
+dist/demo.html
+.travis.yml
+test/
+documentation.yml
+jest.config.js
+vue.config.js
