@@ -16,6 +16,7 @@ export default class DataContainer {
         this._id = id;
         this._name = name;
         this._data = data;
+        this._isLoading = false;
         this._dispatch = d3_dispatch(DISPATCH_EVENT_UPDATE);
     }
     
@@ -49,6 +50,13 @@ export default class DataContainer {
             return Array.from(this.data);
         }
         return this.data;
+    }
+
+    /**
+     * @returns {boolean} The loading status.
+     */
+    get isLoading() {
+        return this._isLoading;
     }
     
     /**

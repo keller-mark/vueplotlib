@@ -135,6 +135,42 @@
       />
     </PlotContainer>
 
+    <h3>&lt;ScatterPlot/&gt; and AsyncDataContainer</h3>
+    <PlotContainer
+      :pWidth="500"
+      :pHeight="300"
+      :pMarginTop="10"
+      :pMarginLeft="120"
+      :pMarginRight="10"
+      :pMarginBottom="100"
+    >
+      <Axis
+        slot="axisLeft"
+        variable="Horsepower"
+        side="left" 
+        :tickRotation="-35"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+      <ScatterPlot
+        slot="plot"
+        data="async_cars_data"
+        x="Cylinders"
+        y="Horsepower"
+        :getData="getData"
+        :getScale="getScale"
+        :clickHandler="exampleClickHandler"
+      />
+      <Axis
+        slot="axisBottom"
+        variable="Cylinders"
+        side="bottom" 
+        :tickRotation="0"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+    </PlotContainer>
+
     <h3>&lt;BoxPlot/&gt;</h3>
     <PlotContainer
       :pWidth="200"
@@ -496,6 +532,8 @@ import {
 
 // Data
 import DataContainer from '../src/data/DataContainer.js';
+import AsyncDataContainer from '../src/data/AsyncDataContainer.js';
+
 
 import exposuresData from './data/exposures.json';
 import exposuresSingleData from './data/exposures_single.json';
@@ -569,6 +607,14 @@ const genomeBinsDataContainer = new DataContainer(
   genomeBinsData
 );
 
+const carsAsyncDataContainer = new AsyncDataContainer(
+  'async_cars_data',
+  'Cars',
+  fetch('http://vega.github.io/vega-datasets/data/cars.json', {mode: 'cors'}).then(function(response) {
+    return response.json();
+  })
+);
+
 
 // Initialize data
 const getData = function(dataKey) {
@@ -591,6 +637,8 @@ const getData = function(dataKey) {
       return randomGenomeMultiDataContainer;
     case 'genome_bins_data':
       return genomeBinsDataContainer;
+    case 'async_cars_data':
+      return carsAsyncDataContainer;
   }
 };
 
@@ -686,6 +734,17 @@ const genomeExposureScale = new ContinuousScale(
   [0, 50]
 );
 
+const carsCylinderScale = new ContinuousScale(
+  'Cylinders',
+  'Cylinders',
+  [0, 10]
+);
+const carsHorsepowerScale = new ContinuousScale(
+  'Horsepower',
+  'Horsepower',
+  [0, 400]
+);
+
 
 const getScale = function(scaleKey) {
   switch(scaleKey) {
@@ -713,6 +772,10 @@ const getScale = function(scaleKey) {
       return eventScale;
     case 'genome_exposure':
       return genomeExposureScale;
+    case 'Cylinders':
+      return carsCylinderScale;
+    case 'Horsepower':
+      return carsHorsepowerScale;
   }
 };
 

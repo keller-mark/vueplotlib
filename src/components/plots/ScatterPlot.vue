@@ -217,7 +217,7 @@ export default {
              * Prepare for interactivity
              */
             const points = data.map((d) => [x(d[vm.x]), y(d[vm.y])]);
-            const delaunay = getDelaunay(points, false);
+            const delaunay = getDelaunay(points, true);
             
             /*
              * Listen for mouse events

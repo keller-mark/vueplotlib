@@ -1,6 +1,6 @@
 import HistoryEvent from './HistoryEvent.js';
 
-const VDP_COMPUTED_PARAM = "$vdp_val_from_getter";
+const VDP_COMPUTED_PARAM = "$vdp_vfg";
 const GETTER_FUNCTION_KEY = "gfk";
 const GETTER_PARAMS = "gp";
 
