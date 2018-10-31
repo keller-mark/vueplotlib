@@ -40,6 +40,7 @@ import ColorScalePicker from './../modals/ColorScalePicker.vue';
 import ColorPicker from './../modals/ColorPicker.vue';
 
 import { COLOR_PICKER_PATH, EYE_PATH, EYE_DISABLED_PATH, PAINT_BUCKET_PATH } from './../../icons.js';
+import { EVENT_TYPES, EVENT_SUBTYPES } from '../../history/base-events.js';
 
 const STYLES = Object.freeze({ "BAR": 1, "DOT": 2, "LINE": 3, "SHAPE": 4 });
 
@@ -176,8 +177,8 @@ export default {
             this._varScale.setColorScaleByKey(scaleKey);
 
             this._stack.push(new HistoryEvent(
-                HistoryEvent.types.SCALE,
-                HistoryEvent.subtypes.SCALE_COLOR_SCALE,
+                EVENT_TYPES.SCALE,
+                EVENT_SUBTYPES.SCALE_COLOR_SCALE,
                 this._varScale.id,
                 "setColorScaleByKey",
                 [scaleKey]
@@ -330,8 +331,8 @@ export default {
                     }
                     varScale.filter(newDomainIndices);
                     stack.push(new HistoryEvent(
-                        HistoryEvent.types.SCALE,
-                        HistoryEvent.subtypes.SCALE_DOMAIN_FILTER,
+                        EVENT_TYPES.SCALE,
+                        EVENT_SUBTYPES.SCALE_DOMAIN_FILTER,
                         varScale.id,
                         "filter",
                         [newDomainIndices]
@@ -365,8 +366,8 @@ export default {
                         varScale.setColorOverrides(colorOverrides);
 
                         stack.push(new HistoryEvent(
-                            HistoryEvent.types.SCALE,
-                            HistoryEvent.subtypes.SCALE_COLOR_OVERRIDE,
+                            EVENT_TYPES.SCALE,
+                            EVENT_SUBTYPES.SCALE_COLOR_OVERRIDE,
                             varScale.id,
                             "setColorOverrides",
                             [Object.assign({}, colorOverrides)] 

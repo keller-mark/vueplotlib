@@ -9,27 +9,6 @@
 export default class HistoryEvent {
 
     /**
-     * Enum of the available event types.
-     */
-    static types = Object.freeze({ 
-        SCALE: 1 
-    });
-
-    static subtypes = Object.freeze({ 
-        SCALE_DOMAIN_FILTER: 1,
-        SCALE_DOMAIN_SORT: 2,
-        SCALE_COLOR_SCALE: 3,
-        SCALE_COLOR_OVERRIDE: 4 
-    });
-
-    static resets = Object.freeze({ 
-        [HistoryEvent.subtypes.SCALE_DOMAIN_FILTER]: "resetFilter",
-        [HistoryEvent.subtypes.SCALE_DOMAIN_SORT]: "resetSort",
-        [HistoryEvent.subtypes.SCALE_COLOR_SCALE]: "resetColorScale",
-        [HistoryEvent.subtypes.SCALE_COLOR_OVERRIDE]: "resetColorOverride",
-    });
-
-    /**
      * 
      * @param {number} type Event type, such as SCALE, etc...
      * @param {number} subtype Event subtype, such as SCALE_DOMAIN, etc...

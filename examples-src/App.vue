@@ -521,6 +521,7 @@ import SortBy from '../src/sort/SortBy.js';
 // History
 import Stack from './Stack.vue';
 import HistoryStack from './../src/history/HistoryStack.js';
+import { EVENT_TYPES, EVENT_SUBTYPE_RESETS } from '../src/history/base-events.js';
 
 const exposuresDataContainer = new DataContainer(
   'exposures_data', 
@@ -717,7 +718,13 @@ const getScale = function(scaleKey) {
 
 
 // Initialize the stack
-const stack = new HistoryStack(getScale, getData);
+const stack = new HistoryStack(
+  {
+    [EVENT_TYPES.SCALE]: getScale,
+    [EVENT_TYPES.DATA]: getData
+  }, 
+  EVENT_SUBTYPE_RESETS
+);
 
 
 

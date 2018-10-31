@@ -23,6 +23,8 @@ import AbstractScale from './../../scales/AbstractScale.js';
 import HistoryEvent from './../../history/HistoryEvent.js';
 import HistoryStack from './../../history/HistoryStack.js';
 
+import { EVENT_TYPES, EVENT_SUBTYPES } from './../../history/base-events.js';
+
 const SIDES = Object.freeze({ "TOP": 1, "LEFT": 2, "RIGHT": 3, "BOTTOM": 4 });
 const ORIENTATIONS = Object.freeze({ "VERTICAL": 1, "HORIZONTAL": 2 }); // vertical = left/right, horizontal = top/bottom
 
@@ -448,8 +450,8 @@ export default {
                             let s2 = s.map(scaleZoomedOut.invert, scaleZoomedOut);
                             varScale.zoom(s2[1], s2[0]);
                             stack.push(new HistoryEvent(
-                                HistoryEvent.types.SCALE, 
-                                HistoryEvent.subtypes.SCALE_DOMAIN_FILTER, 
+                                EVENT_TYPES.SCALE, 
+                                EVENT_SUBTYPES.SCALE_DOMAIN_FILTER, 
                                 varScale.id, 
                                 "zoom", 
                                 [s2[1], s2[0]]
@@ -463,8 +465,8 @@ export default {
                             let endIndex = Math.ceil((s[1] / eachBand));
                             varScale.zoom(startIndex, endIndex);
                             stack.push(new HistoryEvent(
-                                HistoryEvent.types.SCALE, 
-                                HistoryEvent.subtypes.SCALE_DOMAIN_FILTER,
+                                EVENT_TYPES.SCALE, 
+                                EVENT_SUBTYPES.SCALE_DOMAIN_FILTER,
                                 varScale.id, 
                                 "zoom", 
                                 [startIndex, endIndex]
@@ -489,8 +491,8 @@ export default {
                             let s2 = s.map(scaleZoomedOut.invert, scaleZoomedOut);
                             varScale.zoom(s2[0], s2[1]);
                             stack.push(new HistoryEvent(
-                                HistoryEvent.types.SCALE, 
-                                HistoryEvent.subtypes.SCALE_DOMAIN_FILTER, 
+                                EVENT_TYPES.SCALE, 
+                                EVENT_SUBTYPES.SCALE_DOMAIN_FILTER, 
                                 varScale.id, 
                                 "zoom", 
                                 [s2[0], s2[1]]
@@ -504,8 +506,8 @@ export default {
                             let endIndex = Math.ceil((s[1] / eachBand));
                             varScale.zoom(startIndex, endIndex);
                             stack.push(new HistoryEvent(
-                                HistoryEvent.types.SCALE, 
-                                HistoryEvent.subtypes.SCALE_DOMAIN_FILTER,
+                                EVENT_TYPES.SCALE, 
+                                EVENT_SUBTYPES.SCALE_DOMAIN_FILTER,
                                 varScale.id, 
                                 "zoom", 
                                 [startIndex, endIndex]

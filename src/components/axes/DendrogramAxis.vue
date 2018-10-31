@@ -22,6 +22,8 @@ import HistoryEvent from './../../history/HistoryEvent.js';
 import HistoryStack, { computedParam } from './../../history/HistoryStack.js';
 import { filterHierarchy } from '../../helpers.js';
 
+import { EVENT_TYPES, EVENT_SUBTYPES } from './../../history/base-events.js';
+
 const SIDES = Object.freeze({ "TOP": 1, "LEFT": 2, "RIGHT": 3, "BOTTOM": 4 });
 const ORIENTATIONS = Object.freeze({ "VERTICAL": 1, "HORIZONTAL": 2 }); // vertical = left/right, horizontal = top/bottom
 
@@ -282,8 +284,8 @@ export default {
                 .on("click", (d) => {
                     varScale.filterByHierarchy(vm._hierarchyContainer, d.data.name);
                     stack.push(new HistoryEvent(
-                        HistoryEvent.types.SCALE,
-                        HistoryEvent.subtypes.SCALE_DOMAIN_FILTER,
+                        EVENT_TYPES.SCALE,
+                        EVENT_SUBTYPES.SCALE_DOMAIN_FILTER,
                         vm.variable,
                         "filterByHierarchy",
                         [computedParam("getData", [vm.h]), d.data.name]

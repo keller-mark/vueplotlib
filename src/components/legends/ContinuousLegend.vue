@@ -50,6 +50,7 @@ import ColorScalePicker from './../modals/ColorScalePicker.vue';
 import Axis from './../axes/Axis.vue';
 
 import { PAINT_BUCKET_PATH } from './../../icons.js';
+import { EVENT_TYPES, EVENT_SUBTYPES } from '../../history/base-events.js';
 
 
 let uuid = 0;
@@ -178,8 +179,8 @@ export default {
             this._varScale.setColorScaleByKey(scaleKey);
 
             this._stack.push(new HistoryEvent(
-                HistoryEvent.types.SCALE,
-                HistoryEvent.subtypes.SCALE_COLOR_SCALE,
+                EVENT_TYPES.SCALE,
+                EVENT_SUBTYPES.SCALE_COLOR_SCALE,
                 this._varScale.id,
                 "setColorScaleByKey",
                 [scaleKey]

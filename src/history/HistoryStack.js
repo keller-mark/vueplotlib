@@ -1,18 +1,20 @@
 import HistoryEvent from './HistoryEvent.js';
 
 const VDP_COMPUTED_PARAM = "$vdp_val_from_getter";
+const GETTER_FUNCTION_KEY = "gfk";
+const GETTER_PARAMS = "gp";
 
 /**
  * Returns an object that represents a "computed" history event parameter.
- * @param {string} getterFunction Name of function to be called
+ * @param {int} getterFunctionKey Key of function to be called (match to getterFunctionMapping passed to HistoryStack).
  * @param {array} getterParams Params passed to the function to be called.
  * @returns {object} Returns an object with an identifier signifying that this parameter should be computed.
  */
-export const computedParam = (getterFunction, getterParams) => {
+export const computedParam = (getterFunctionKey, getterParams) => {
     return {
         [VDP_COMPUTED_PARAM]: true,
-        "getterFunction": getterFunction,
-        "getterParams": getterParams
+        [GETTER_FUNCTION_KEY]: getterFunctionKey,
+        [GETTER_PARAMS]: getterParams
     };
 };
 
@@ -24,12 +26,12 @@ export default class HistoryStack {
 
     /**
      * Create a new history stack.
-     * @param {function} getScale Function that returns a scale object for a provided string key.
-     * @param {function} getData Function that returns a data container object for a provided string key.
+     * @param {object} getterFunctionMapping Mapping from event type (int) -> getter function (function).
+     * @param {object} resetFunctionNameMapping Mapping from event subtype (int) -> reset function name (string).
      */
-    constructor(getScale, getData) {
-        this._getScale = getScale;
-        this._getData = getData;
+    constructor(getterFunctionMapping, resetFunctionNameMapping) {
+        this._getters = getterFunctionMapping;
+        this._resetters = resetFunctionNameMapping;
         this._stack = []; // user-event stack
         this._pointer = undefined; // user-event stack pointer
     }
@@ -85,7 +87,7 @@ export default class HistoryStack {
                 return this._stack[i];
             }
         }
-        return new HistoryEvent(event.type, event.subtype, event.id, HistoryEvent.resets[event.subtype]);
+        return new HistoryEvent(event.type, event.subtype, event.id, this._resetters[event.subtype]);
     }
 
     /**
@@ -166,11 +168,11 @@ export default class HistoryStack {
             if(typeof p === "object") {
                 if(p.hasOwnProperty(VDP_COMPUTED_PARAM)) {
                     // can assume that this object represents a call to a "getter": getScale, getStack, etc...
-                    console.assert(typeof p.getterFunction === "string");
-                    console.assert(p.getterFunction.substring(0, 3) === "get");
-                    let getterFunction = this[("_" + p.getterFunction)];
-                    console.assert(Array.isArray(p.getterParams));
-                    let getterParams = p.getterParams;
+                    console.assert(typeof p.getterFunctionKey === "number");
+                    console.assert(this._getters.hasOwnProperty(p[GETTER_FUNCTION_KEY]));
+                    let getterFunction = this._getters[p[GETTER_FUNCTION_KEY]];
+                    console.assert(Array.isArray(p[GETTER_PARAMS]));
+                    let getterParams = p[GETTER_PARAMS];
                     
                     return getterFunction( ...getterParams );
                 }
@@ -190,19 +192,10 @@ export default class HistoryStack {
             return;
         }
 
-        let getTargetFunc;
-
-        switch(event.type) {
-            case HistoryEvent.types.SCALE:
-                getTargetFunc = this._getScale;
-                break;
-            default:
-                getTargetFunc = undefined;
-        }
+        let getTargetFunc = this._getters[event.type];
 
         if(getTargetFunc !== undefined) {
             let target = getTargetFunc(event.id);
-            
             let parsedParams = this.parseParams(event.params)
             target[event.action]( ...parsedParams );
         } else {
