@@ -604,7 +604,7 @@ const genomeBinsDataContainer = new DataContainer(
 const carsAsyncDataContainer = new AsyncDataContainer(
   'async_cars_data',
   'Cars',
-  fetch('http://vega.github.io/vega-datasets/data/cars.json', {mode: 'cors'}).then(function(response) {
+  fetch('https://vega.github.io/vega-datasets/data/cars.json', {mode: 'cors'}).then(function(response) {
     return response.json();
   })
 );
