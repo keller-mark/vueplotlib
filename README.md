@@ -11,7 +11,9 @@ These components were developed for use in [iMuSE](https://github.com/lrgr/mutat
 
 
 ### Installation
-*Coming soon*
+```bash
+yarn add vue-declarative-plots
+```
 
 
 ### Development

@@ -2,7 +2,7 @@ import HistoryEvent from '../../src/history/HistoryEvent';
 import HistoryStack, { computedParam } from '../../src/history/HistoryStack';
 import CategoricalScale from '../../src/scales/CategoricalScale';
 import DataContainer from '../../src/data/DataContainer';
-import { EVENT_SUBTYPES } from '../../src/history/base-events';
+import { EVENT_TYPES, EVENT_SUBTYPES } from '../../src/history/base-events';
 
 let getScale;
 let getData;
