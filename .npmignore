@@ -4,7 +4,6 @@ docs/
 coverage/
 .vscode/
 examples-src/
-dist/demo.html
 .travis.yml
 test/
 documentation.yml
