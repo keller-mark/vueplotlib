@@ -17,6 +17,7 @@ deploy:
     github-token: $github_token
     local-dir: examples
   - provider: npm
+    skip_cleanup: true
     email: $npm_email
     api_key: $npm_token
     on:
