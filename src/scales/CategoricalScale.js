@@ -22,7 +22,7 @@ export default class CategoricalScale extends AbstractScale {
         if(Array.isArray(humanDomain) && domain.length === humanDomain.length) {
             this._humanDomain = humanDomain;
         } else {
-            this._humanDomain = domain;
+            this._humanDomain = undefined;
         }
         this._colorOverrides = {};
     }
@@ -47,9 +47,13 @@ export default class CategoricalScale extends AbstractScale {
      * @returns {function} Function that converts domain value -> humanDomain value
      */
     get humanScale() {
-        return d3_scaleOrdinal()
-            .domain(this.domain)
-            .range(this.humanDomain);
+        if(this.humanDomain !== undefined) {
+            return d3_scaleOrdinal()
+                .domain(this.domain)
+                .range(this.humanDomain);
+        } else {
+            return ((a) => (a));
+        }
     }
 
     /**

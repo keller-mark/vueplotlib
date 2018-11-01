@@ -28,7 +28,7 @@ import ContinuousLegend from './components/legends/ContinuousLegend.vue';
 // Classes
 import DataContainer from './data/DataContainer';
 import AsyncDataContainer from './data/AsyncDataContainer';
-import HistoryStack from './history/HistoryStack';
+import HistoryStack, { computedParam } from './history/HistoryStack';
 import HistoryEvent from './history/HistoryEvent';
 import AbstractScale from './scales/AbstractScale';
 import BinaryScale from './scales/BinaryScale';
@@ -36,6 +36,10 @@ import CategoricalScale from './scales/CategoricalScale';
 import ContinuousScale from './scales/ContinuousScale';
 import GenomeScale from './scales/GenomeScale';
 import SortBy from './sort/SortBy';
+
+// Other
+import { EVENT_TYPES, EVENT_SUBTYPES, EVENT_SUBTYPE_RESETS } from './history/base-events';
+
 
 export {
     // Components
@@ -69,4 +73,7 @@ export {
     ContinuousScale,
     GenomeScale,
     SortBy,
+    // Other
+    computedParam,
+    EVENT_TYPES, EVENT_SUBTYPES, EVENT_SUBTYPE_RESETS,
 }
