@@ -4,6 +4,8 @@
 
 # vue-declarative-plots
 
+![V](./examples-src/screenshot.png)
+
 This repository will serve as a place for reusable Vue plot components (built with D3).
 These components were developed for use in [iMuSE](https://github.com/lrgr/mutation-signature-explorer).
 
