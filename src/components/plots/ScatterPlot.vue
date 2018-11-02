@@ -38,6 +38,10 @@
                     <th>{{ this._yScale.name }}</th>
                     <td>{{ this.tooltipInfo.y }}</td>
                 </tr>
+                <tr v-if="this.hasC">
+                    <th>{{ this._cScale.name }}</th>
+                    <td>{{ this.tooltipInfo.c }}</td>
+                </tr>
             </table>
         </div>
     </div>
@@ -60,6 +64,10 @@ let uuid = 0;
 /**
  * @prop {string} x The x-scale variable key.
  * @prop {string} y The y-scale variable key.
+ * @prop {string} c The color-scale variable key. Takes precedence over pointColor prop.
+ * @prop {boolean} fillPoints Whether or not to fill points. Default: false
+ * @prop {string} pointColor Default color for points. Default: "#4682B4"
+ * @prop {number} pointSize Default size for points. Default: 3
  * @extends mixin
  * 
  * @example
@@ -87,13 +95,29 @@ export default {
         },
         'y': {
             type: String
+        },
+        'c': {
+            type: String // color
+        },
+        'pointColor': {
+            type: String,
+            default: "#4682B4"
+        },
+        'pointSize': {
+            type: Number,
+            default: 3
+        },
+        'fillPoints': {
+            type: Boolean,
+            default: false
         }
-        // TODO: allow optional color variable
         // TODO: allow optional dot size variable
     },
     data() {
         return {
+            hasC: false,
             tooltipInfo: {
+                c: '',
                 x: '',
                 y: ''
             },
@@ -121,6 +145,14 @@ export default {
         this._xScale.onUpdate(this.uuid, this.drawPlot);
         this._yScale.onUpdate(this.uuid, this.drawPlot);
 
+        // Make assertions, but keep c scale optional
+        if(this.c !== undefined) {
+            this.hasC = true;
+            this._cScale = this.getScale(this.c);
+            console.assert(this._cScale instanceof AbstractScale);
+            this._cScale.onUpdate(this.uuid, this.drawPlot);
+        }
+
         // Subscribe to data mutations here
         this._dataContainer.onUpdate(this.uuid, this.drawPlot);
 
@@ -135,10 +167,14 @@ export default {
         this.drawPlot();
     },
     methods: {
-        tooltip: function(mouseX, mouseY, x, y) {
+        tooltip: function(mouseX, mouseY, x, y, c) {
             // Set values
             this.tooltipInfo.x = this._xScale.toHuman(x);
             this.tooltipInfo.y = this._yScale.toHuman(y);
+
+            if(this.hasC) {
+                this.tooltipInfo.c = this._cScale.toHuman(c);
+            }
 
             // Set position
             this.tooltipPosition.left = mouseX + this.pMarginLeft;
@@ -147,6 +183,10 @@ export default {
             // Dispatch highlights
             this._xScale.emitHighlight(x);
             this._yScale.emitHighlight(y);
+
+            if(this.hasC) {
+                this._cScale.emitHighlight(c);
+            }
         },
         tooltipDestroy: function() {
             this.tooltipHide();
@@ -154,6 +194,10 @@ export default {
             // Destroy all highlights here
             this._xScale.emitHighlightDestroy();
             this._yScale.emitHighlightDestroy();
+
+            if(this.hasC) {
+                this._cScale.emitHighlightDestroy();
+            }
         },
         highlightX(value) {
             this.highlightX1 = this.highlightXScale(value);
@@ -171,6 +215,10 @@ export default {
             let data = this._dataContainer.dataCopy;
             const xScale = this._xScale;
             const yScale = this._yScale;
+            let cScale;
+            if(this.hasC) {
+                cScale = this._cScale;
+            }
 
 
             const x = d3_scaleLinear()
@@ -206,11 +254,19 @@ export default {
              * Draw the points
              */
             data.forEach((d) => {
-                //context.strokeStyle = cScale.color(d[vm.c]);
-                context.strokeStyle = "#4682B4";
+                if(this.hasC) {
+                    context.fillStyle = cScale.color(d[vm.c]);
+                    context.strokeStyle = cScale.color(d[vm.c]);
+                } else {
+                    context.fillStyle = vm.pointColor;
+                    context.strokeStyle = vm.pointColor;
+                }
                 context.beginPath();
-                context.arc(x(d[vm.x]), y(d[vm.y]), 3, 0, 2*Math.PI);
+                context.arc(x(d[vm.x]), y(d[vm.y]), vm.pointSize, 0, 2*Math.PI);
                 context.stroke();
+                if(vm.fillPoints) {
+                    context.fill();
+                }
             });
 
             /*
@@ -238,7 +294,7 @@ export default {
                 const node = getDataFromMouse(mouseX, mouseY);
 
                 if(node) {
-                    vm.tooltip(mouseX, mouseY, node[vm.x], node[vm.y]); 
+                    vm.tooltip(mouseX, mouseY, node[vm.x], node[vm.y], node[vm.c]); 
                 } else {
                     debouncedTooltipDestroy();
                 }
@@ -254,7 +310,7 @@ export default {
                     const node = getDataFromMouse(mouseX, mouseY);
 
                     if(node) {
-                        vm.clickHandler(node[vm.x], node[vm.y]); 
+                        vm.clickHandler(node[vm.x], node[vm.y], node[vm.c]); 
                     }
                 });
             }

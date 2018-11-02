@@ -7,6 +7,44 @@
 
     <button @click="showStack = !showStack" :style="{display: 'block'}">Toggle Stack</button>
 
+    <PlotContainer
+      :pWidth="500"
+      :pHeight="300"
+      :pMarginTop="10"
+      :pMarginLeft="120"
+      :pMarginRight="10"
+      :pMarginBottom="100"
+    >
+      <Axis
+        slot="axisLeft"
+        variable="vue_y"
+        side="left" 
+        :tickRotation="-35"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+      <ScatterPlot
+        slot="plot"
+        data="vue_data"
+        x="vue_x"
+        y="vue_y"
+        c="vue_c"
+        :pointSize="5"
+        :fillPoints="true"
+        :getData="getData"
+        :getScale="getScale"
+        :clickHandler="exampleClickHandler"
+      />
+      <Axis
+        slot="axisBottom"
+        variable="vue_x"
+        side="bottom" 
+        :tickRotation="0"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+    </PlotContainer>
+
     <h3>&lt;StackedBarPlot/&gt;</h3>
     <PlotContainer
       :pWidth="800"
@@ -550,6 +588,7 @@ import clusteringData from './data/clustering.json';
 import randomGenomeData from './data/random_genome_data.json';
 import randomGenomeMultiData from './data/random_genome_multi_data.json';
 import genomeBinsData from './data/genome_bins.json';
+import vueData from './data/vue.json';
 
 // History
 import Stack from './Stack.vue';
@@ -600,6 +639,11 @@ const genomeBinsDataContainer = new DataContainer(
   'Signature Exposures across the Genome',
   genomeBinsData
 );
+const vueDataContainer = new DataContainer(
+  'vue_data',
+  'Vue Logo',
+  vueData
+);
 
 const carsAsyncDataContainer = new AsyncDataContainer(
   'async_cars_data',
@@ -633,6 +677,8 @@ const getData = function(dataKey) {
       return genomeBinsDataContainer;
     case 'async_cars_data':
       return carsAsyncDataContainer;
+    case 'vue_data':
+      return vueDataContainer;
   }
 };
 
@@ -739,6 +785,24 @@ const carsHorsepowerScale = new ContinuousScale(
   [0, 400]
 );
 
+const vueXScale = new ContinuousScale(
+  'vue_x',
+  'Vue X',
+  [0, 12]
+);
+const vueYScale = new ContinuousScale(
+  'vue_y',
+  'Vue Y',
+  [-0.5, 10]
+);
+const vueColorScale = new CategoricalScale(
+  'vue_c',
+  'Vue Color',
+  ["0", "1", "2"]
+);
+
+vueColorScale.setColorOverrides({ "0": "#45B280", "1": "#36495D" });
+
 
 const getScale = function(scaleKey) {
   switch(scaleKey) {
@@ -770,6 +834,12 @@ const getScale = function(scaleKey) {
       return carsCylinderScale;
     case 'Horsepower':
       return carsHorsepowerScale;
+    case 'vue_x':
+      return vueXScale;
+    case 'vue_y':
+      return vueYScale;
+    case 'vue_c':
+      return vueColorScale;
   }
 };
 
