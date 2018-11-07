@@ -1,9 +1,6 @@
-import { dispatch as d3_dispatch } from "d3-dispatch";
-import { sum as d3_sum } from "d3-array";
 
-const DISPATCH_EVENT_UPDATE = "update";
-const DISPATCH_EVENT_HIGHLIGHT = "highlight";
-const DISPATCH_EVENT_HIGHLIGHT_DESTROY = "highlight-destroy";
+import AbstractScaleDispatcher from "./AbstractScaleDispatcher.js";
+import { sum as d3_sum } from "d3-array";
 
 export const CHROMOSOMES = [
     '1',
@@ -65,7 +62,7 @@ export const CHROMOSOME_LENGTHS = {
  * Scale class for a genome variable.
  * Note: this does NOT inherit from AbstractScale.
  */
-export default class GenomeScale {
+export default class GenomeScale extends AbstractScaleDispatcher {
 
     /**
      * Create a genomic scale.
@@ -73,6 +70,7 @@ export default class GenomeScale {
      * @param {*} name The name for the scale.
      */
     constructor(id, name) {
+        super();
         this._id = id;
         this._name = name;
 
@@ -81,12 +79,6 @@ export default class GenomeScale {
 
         this._domains = CHROMOSOMES.map((el) => [0, CHROMOSOME_LENGTHS[el]]);
         this._domainsFiltered = this._domains.slice();
-
-        this._dispatch = d3_dispatch(
-            DISPATCH_EVENT_UPDATE, 
-            DISPATCH_EVENT_HIGHLIGHT, 
-            DISPATCH_EVENT_HIGHLIGHT_DESTROY
-        );
     }
     
     /**
@@ -267,54 +259,6 @@ export default class GenomeScale {
         this._chromosomesFiltered = [selectedChromosome];
         this._domainsFiltered = [[start, end]];
         this.emitUpdate();
-    }
-
-    /**
-     * Subscribe to highlight events.
-     * @param {string} componentId 
-     * @param {function} callback 
-     */
-    onHighlight(componentId, callback) {
-        this._dispatch.on(DISPATCH_EVENT_HIGHLIGHT + "." + componentId, callback);
-    }
-
-    /**
-     * Subscribe to highlight destroy events.
-     * @param {string} componentId 
-     * @param {function} callback 
-     */
-    onHighlightDestroy(componentId, callback) {
-        this._dispatch.on(DISPATCH_EVENT_HIGHLIGHT_DESTROY + "." + componentId, callback);
-    }
-
-    /**
-     * Subscribe to update events.
-     * @param {string} componentId 
-     * @param {function} callback 
-     */
-    onUpdate(componentId, callback) {
-        this._dispatch.on(DISPATCH_EVENT_UPDATE + "." + componentId, callback);
-    }
-
-    /**
-     * Emit the highlight event.
-     */
-    emitHighlight(chromosome, position) {
-        this._dispatch.call(DISPATCH_EVENT_HIGHLIGHT, null, chromosome, position);
-    }
-
-    /**
-     * Emit the highlight destroy event.
-     */
-    emitHighlightDestroy() {
-        this._dispatch.call(DISPATCH_EVENT_HIGHLIGHT_DESTROY);
-    }
-
-    /**
-     * Emit the update event.
-     */
-    emitUpdate() {
-        this._dispatch.call(DISPATCH_EVENT_UPDATE);
     }
 
     /**

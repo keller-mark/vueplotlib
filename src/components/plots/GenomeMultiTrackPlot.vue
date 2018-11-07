@@ -254,8 +254,13 @@ export default {
         },
         drawPlot() {
             const vm = this;
+
+            if(vm._dataContainer.isLoading || vm._yScale.isLoading || (vm.hasC && vm._cScale.isLoading)) {
+                return;
+            }
             
-            let data = this._dataContainer.dataCopy;
+            let data = vm._dataContainer.dataCopy;
+
             let cScale;
             if(this.hasC) {
                 cScale = this._cScale;

@@ -226,13 +226,18 @@ export default {
         },
         drawPlot() {
             const vm = this;
+
+            if(vm._dataContainer.isLoading || vm._xScale.isLoading || vm._yScale.isLoading || (vm.hasO && vm._oScale.isLoading)) {
+                return;
+            }
             
             let data = this._dataContainer.dataCopy;
-            const xScale = this._xScale;
-            const yScale = this._yScale;
 
-            if(this.hasO) {
-                const oScale = this._oScale;
+            const xScale = vm._xScale;
+            const yScale = vm._yScale;
+
+            if(vm.hasO) {
+                const oScale = vm._oScale;
                 data = data.filter((el) => oScale.domainFiltered.includes(el[vm.o]));
             }
 

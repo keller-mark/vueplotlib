@@ -194,11 +194,16 @@ export default {
         },
         drawPlot() {
             const vm = this;
+
+            if(vm._dataContainer.isLoading || vm._cScale.isLoading || vm._yScale.isLoading) {
+                return;
+            }
             
-            let data = this._dataContainer.dataCopy;
-            const cScale = this._cScale;
-            const yScale = this._yScale;
-            const gScale = this._gScale;
+            let data = vm._dataContainer.dataCopy;
+
+            const cScale = vm._cScale;
+            const yScale = vm._yScale;
+            const gScale = vm._gScale;
 
             let chromosomes = gScale.chromosomesFiltered;
 

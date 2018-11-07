@@ -1,3 +1,4 @@
+import AbstractScaleDispatcher from './AbstractScaleDispatcher.js';
 import { 
     interpolateBrBG as d3_interpolateBrBG,
     interpolatePRGn as d3_interpolatePRGn,
@@ -36,24 +37,18 @@ import {
     interpolateRainbow as d3_interpolateRainbow,
     interpolateSinebow as d3_interpolateSinebow
 } from "d3-scale-chromatic";
-import { dispatch as d3_dispatch } from "d3-dispatch";
-
-const DISPATCH_EVENT_UPDATE = "update";
-const DISPATCH_EVENT_HIGHLIGHT = "highlight";
-const DISPATCH_EVENT_HIGHLIGHT_DESTROY = "highlight-destroy";
 
 
 /**
  * Abstract class representing a scale.
  * @interface
  */
-export default class AbstractScale {
+export default class AbstractScale extends AbstractScaleDispatcher {
 
     /**
      * @enum
      * @readonly
      */
-    static types = Object.freeze({ DISCRETE: 1, CONTINUOUS: 2 });
     static colorScales = Object.freeze({
         "BrBG": d3_interpolateBrBG,
         "PRGn": d3_interpolatePRGn,
@@ -103,18 +98,25 @@ export default class AbstractScale {
      * @param {*} name The name for the scale.
      * @param {*} domain The domain for the scale.
      */
-    constructor(id, name, domain) {
+    constructor(id, name, domain, colorScaleKey) {
+        super();
         this._id = id;
         this._name = name;
-        this._domain = domain;
-        this._domainFiltered = domain.slice();
-        this._domainOriginal = domain.slice();
-        this._dispatch = d3_dispatch(
-            DISPATCH_EVENT_UPDATE, 
-            DISPATCH_EVENT_HIGHLIGHT, 
-            DISPATCH_EVENT_HIGHLIGHT_DESTROY
-        );
+        
         this._colorScale = AbstractScale.defaultColorScale;
+
+        this._domain = [];
+        this._domainFiltered = [];
+        this._domainOriginal = [];
+        
+        this._isLoading = true;
+        Promise.resolve(domain).then((d) => {
+            this._domain = d.slice();
+            this._domainFiltered = d.slice();
+            this._domainOriginal = d.slice();
+            this._isLoading = false;
+            this.emitUpdate();
+        });
     }
     
     /**
@@ -132,11 +134,12 @@ export default class AbstractScale {
     }
 
     /**
-     * @returns {enum} An integer representing the scale type (discrete, continuous)
+     * @returns {boolean} The loading status.
      */
-    get type() {
-        throw new Error('You have to implement the getter type!');
+    get isLoading() {
+        return this._isLoading;
     }
+
 
     /**
      * @returns {array} The values that variables using this scale can take.
@@ -202,59 +205,17 @@ export default class AbstractScale {
     }
 
     /**
-     * Subscribe to update events.
-     * @param {string} componentId 
-     * @param {function} callback 
-     */
-    onUpdate(componentId, callback) {
-        this._dispatch.on(DISPATCH_EVENT_UPDATE + "." + componentId, callback);
-    }
-
-    /**
-     * Subscribe to highlight events.
-     * @param {string} componentId 
-     * @param {function} callback 
-     */
-    onHighlight(componentId, callback) {
-        this._dispatch.on(DISPATCH_EVENT_HIGHLIGHT + "." + componentId, callback);
-    }
-
-    /**
-     * Subscribe to highlight destroy events.
-     * @param {string} componentId 
-     * @param {function} callback 
-     */
-    onHighlightDestroy(componentId, callback) {
-        this._dispatch.on(DISPATCH_EVENT_HIGHLIGHT_DESTROY + "." + componentId, callback);
-    }
-
-    /**
-     * Emit the update event.
-     */
-    emitUpdate() {
-        this._dispatch.call(DISPATCH_EVENT_UPDATE);
-    }
-
-    /**
-     * Emit the highlight event.
-     */
-    emitHighlight(domainValue) {
-        this._dispatch.call(DISPATCH_EVENT_HIGHLIGHT, null, domainValue);
-    }
-
-    /**
-     * Emit the highlight destroy event.
-     */
-    emitHighlightDestroy() {
-        this._dispatch.call(DISPATCH_EVENT_HIGHLIGHT_DESTROY);
-    }
-
-    /**
      * Set the domain directly.
-     * @param {array} newDomain An array of new domain values.
+     * @param {array} newDomain An array of new domain values, or a promise that will return the array.
      */
     setDomain(newDomain) {
-        this._domain = newDomain;
+        this._isLoading = true;
+        this.emitUpdate();
+        Promise.resolve(newDomain).then((d) => {
+            this._domain = d.slice();
+            this._isLoading = false;
+            this.emitUpdate();
+        });
     }
 
     /**
@@ -262,7 +223,13 @@ export default class AbstractScale {
      * @param {array} newDomainFiltered An array of new filtered domain values.
      */
     setDomainFiltered(newDomainFiltered) {
-        this._domainFiltered = newDomainFiltered;
+        this._isLoading = true;
+        this.emitUpdate();
+        Promise.resolve(newDomainFiltered).then((d) => {
+            this._domainFiltered = d.slice();
+            this._isLoading = false;
+            this.emitUpdate();
+        });
     }
 
     /**
@@ -271,23 +238,16 @@ export default class AbstractScale {
      */
     setColorScaleByKey(scaleKey) {
         if(Object.keys(AbstractScale.colorScales).includes(scaleKey)) {
-            this.setColorScale(AbstractScale.colorScales[scaleKey]);
+            this._colorScale = AbstractScale.colorScales[scaleKey];
             this.emitUpdate();
         }
-    }
-    /**
-     * Set the color scale function.
-     * @param {function} scale The new color scale
-     */
-    setColorScale(scale) {
-        this._colorScale = scale;
     }
 
     /**
      * Resets the color scale.
      */
     resetColorScale() {
-        this.setColorScale(AbstractScale.defaultColorScale);
+        this._colorScale = AbstractScale.defaultColorScale;
         this.emitUpdate();
     }
 
@@ -296,7 +256,6 @@ export default class AbstractScale {
      */
     resetFilter() {
         this.setDomainFiltered(this._domain.slice());
-        this.emitUpdate();
     }
 
     

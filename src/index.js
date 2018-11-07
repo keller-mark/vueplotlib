@@ -27,7 +27,6 @@ import ContinuousLegend from './components/legends/ContinuousLegend.vue';
 
 // Classes
 import DataContainer from './data/DataContainer';
-import AsyncDataContainer from './data/AsyncDataContainer';
 import HistoryStack, { computedParam } from './history/HistoryStack';
 import HistoryEvent from './history/HistoryEvent';
 import AbstractScale from './scales/AbstractScale';
@@ -64,7 +63,6 @@ export {
     ContinuousLegend,
     // Classes
     DataContainer,
-    AsyncDataContainer,
     HistoryStack,
     HistoryEvent,
     AbstractScale,

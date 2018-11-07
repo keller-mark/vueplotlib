@@ -14,23 +14,22 @@ export default class CategoricalScale extends AbstractScale {
      * Create a categorical scale.
      * @param {string} id The ID for the scale.
      * @param {string} name The name for the scale.
-     * @param {array} domain The domain for the scale.
-     * @param {array} humanDomain The humanDomain for the scale.
+     * @param {array} domain The domain for the scale, or a promise.
+     * @param {array} humanDomain The humanDomain for the scale, or a promise. Optional.
      */
     constructor(id, name, domain, humanDomain) {
         super(id, name, domain);
-        if(Array.isArray(humanDomain) && domain.length === humanDomain.length) {
-            this._humanDomain = humanDomain;
-        } else {
-            this._humanDomain = undefined;
+
+        this._humanDomain = undefined;
+
+        if(humanDomain !== undefined) {
+            Promise.resolve(humanDomain).then((d) => {
+                this._humanDomain = d;
+            });
         }
         this._colorOverrides = {};
     }
 
-    /** @inheritdoc */
-    get type() {
-        return AbstractScale.types.DISCRETE;
-    }
     /**
      * Human-readable domain values
      * - Example domain:        [0, 1, 2]
@@ -107,7 +106,6 @@ export default class CategoricalScale extends AbstractScale {
     zoom(newMinIndex, newMaxIndex) {
         let elementsFiltered = this._domain.slice(newMinIndex, newMaxIndex);
         this.setDomainFiltered(elementsFiltered);
-        this.emitUpdate();
     }
 
     /**
@@ -117,7 +115,6 @@ export default class CategoricalScale extends AbstractScale {
     filter(indicesToKeep) {
         let elementsFiltered = indicesToKeep.map(index => this._domain[index]);
         this.setDomainFiltered(elementsFiltered);
-        this.emitUpdate();
     }
 
     /**
@@ -128,6 +125,9 @@ export default class CategoricalScale extends AbstractScale {
      */
     sort(dataContainer, var1D, ascending=true) {
         console.assert(dataContainer instanceof DataContainer);
+        if(dataContainer.isLoading) {
+            return;
+        }
         let data = dataContainer.dataCopy;
         console.assert(Array.isArray(data));
 
@@ -166,7 +166,6 @@ export default class CategoricalScale extends AbstractScale {
         let newDomainFiltered = domainFilteredCopy.sort(comparator);
         this.setDomainFiltered(newDomainFiltered);
 
-        this.emitUpdate();
     }
 
     /**
@@ -176,6 +175,9 @@ export default class CategoricalScale extends AbstractScale {
      */
     filterByHierarchy(dataContainer, newParentKey) {
         console.assert(dataContainer instanceof DataContainer);
+        if(dataContainer.isLoading) {
+            return;
+        }
         const hierarchyData = dataContainer.dataCopy;
         console.assert(typeof hierarchyData === "object");
         
@@ -199,7 +201,6 @@ export default class CategoricalScale extends AbstractScale {
         // Set filtered domain
         this.setDomainFiltered(leaves);
 
-        this.emitUpdate();
     }
 
     /**
@@ -207,7 +208,6 @@ export default class CategoricalScale extends AbstractScale {
      */
     resetColorOverride() {
         this.setColorOverrides({});
-        this.emitUpdate();
     }
 
     /**
@@ -217,7 +217,6 @@ export default class CategoricalScale extends AbstractScale {
         this.setDomain(this._domainOriginal.slice());
         const newDomainFiltered = this._domainOriginal.slice().filter((el) => this._domainFiltered.includes(el));
         this.setDomainFiltered(newDomainFiltered);
-        this.emitUpdate();
     }
     
 

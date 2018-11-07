@@ -10,14 +10,20 @@ export default class DataContainer {
      * Create a data container.
      * @param {string} id The ID for the data.
      * @param {string} name The name for the data.
-     * @param {array} data The data to hold.
+     * @param {*} data The data to hold, or a promise that will return the data.
      */
     constructor(id, name, data) {
         this._id = id;
         this._name = name;
-        this._data = data;
-        this._isLoading = false;
+        this._isLoading = true;
+        this._data = null;
         this._dispatch = d3_dispatch(DISPATCH_EVENT_UPDATE);
+
+        Promise.resolve(data).then((d) => {
+            this._data = d;
+            this._isLoading = false;
+            this.emitUpdate();
+        });
     }
     
     /**
@@ -42,13 +48,15 @@ export default class DataContainer {
     }
 
     /**
-     * @returns {array} The data copied.
+     * @returns {*} The data copied.
      */
     get dataCopy() {
         if(this.data instanceof Array) {
             // Shallow copy
+            // TODO: change to deep copy
             return Array.from(this.data);
         }
+        // TODO: deep copy if object
         return this.data;
     }
 
@@ -57,6 +65,20 @@ export default class DataContainer {
      */
     get isLoading() {
         return this._isLoading;
+    }
+
+    /**
+     * Set the data variable.
+     * @param {*} newData The data to be set, or a promise that will return the data to be set..
+     */
+    setData(newData) {
+        this._isLoading = true;
+        this.emitUpdate();
+        Promise.resolve(newData).then((d) => {
+            this._data = d;
+            this._isLoading = false;
+            this.emitUpdate();
+        });
     }
     
     /**

@@ -198,9 +198,14 @@ export default {
         drawAxis() {
             const vm = this;
             vm.removeAxis();
+
+            if(vm._varScale.isLoading || vm._hierarchyContainer.isLoading) {
+                return;
+            }
             
             const varScale = vm._varScale;
             const stack = vm._stack;
+
             let hierarchyData = vm._hierarchyContainer.dataCopy;
                         
             // filter hierarchyData by x scale

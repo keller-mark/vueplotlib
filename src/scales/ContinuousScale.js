@@ -7,12 +7,6 @@ import AbstractScale from './AbstractScale.js';
 export default class ContinuousScale extends AbstractScale {
 
     /** @inheritdoc */
-    get type() {
-        return AbstractScale.types.CONTINUOUS;
-    }
-
-
-    /** @inheritdoc */
     color(domainValue) {
         if(AbstractScale.isUnknown(domainValue)) {
             return AbstractScale.unknownColor;
@@ -34,8 +28,7 @@ export default class ContinuousScale extends AbstractScale {
      * @param {number} newMax New maximum domain element value.
      */
     zoom(newMin, newMax) {
-        this._domainFiltered = [newMin, newMax];
-        this.emitUpdate();
+        this.setDomainFiltered([newMin, newMax]);
     }
 
 }

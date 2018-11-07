@@ -175,8 +175,13 @@ export default {
         },
         drawPlot() {
             const vm = this;
+
+            if(vm._dataContainer.isLoading || vm._xScale.isLoading || vm._yScale.isLoading) {
+                return;
+            }
             
-            let data = this._dataContainer.dataCopy;
+            let data = vm._dataContainer.dataCopy;
+
             const xScale = this._xScale;
             const yScale = this._yScale;
 

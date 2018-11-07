@@ -180,12 +180,17 @@ export default {
         },
         drawPlot() {
             const vm = this;
-            
-            let data = this._dataContainer.dataCopy;
-            const yScale = this._yScale;
 
-            if(this.hasO) {
-                const oScale = this._oScale;
+            if(vm._dataContainer.isLoading || vm._yScale.isLoading || (vm.hasO && vm._oScale.isLoading)) {
+                return;
+            }
+            
+            let data = vm._dataContainer.dataCopy;
+
+            const yScale = vm._yScale;
+
+            if(vm.hasO) {
+                const oScale = vm._oScale;
                 data = data.filter((el) => oScale.domainFiltered.includes(el[vm.o]));
             }
             

@@ -211,13 +211,18 @@ export default {
         },
         drawPlot() {
             const vm = this;
+
+            if(vm._dataContainer.isLoading || vm._xScale.isLoading || vm._yScale.isLoading || (vm.hasC && vm._cScale.isLoading)) {
+                return;
+            }
             
-            let data = this._dataContainer.dataCopy;
-            const xScale = this._xScale;
-            const yScale = this._yScale;
+            let data = vm._dataContainer.dataCopy;
+            
+            const xScale = vm._xScale;
+            const yScale = vm._yScale;
             let cScale;
-            if(this.hasC) {
-                cScale = this._cScale;
+            if(vm.hasC) {
+                cScale = vm._cScale;
             }
 
 

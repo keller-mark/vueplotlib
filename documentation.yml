@@ -29,6 +29,7 @@ toc:
   - HistoryEvent
   - HistoryStack
   - name: Scale
+  - AbstractScaleDispatcher
   - AbstractScale
   - BinaryScale
   - CategoricalScale

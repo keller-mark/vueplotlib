@@ -24,6 +24,8 @@ import HistoryEvent from './../../history/HistoryEvent.js';
 import HistoryStack from './../../history/HistoryStack.js';
 
 import { EVENT_TYPES, EVENT_SUBTYPES } from './../../history/base-events.js';
+import CategoricalScale from './../../scales/CategoricalScale.js';
+import ContinuousScale from './../../scales/ContinuousScale.js';
 
 const SIDES = Object.freeze({ "TOP": 1, "LEFT": 2, "RIGHT": 3, "BOTTOM": 4 });
 const ORIENTATIONS = Object.freeze({ "VERTICAL": 1, "HORIZONTAL": 2 }); // vertical = left/right, horizontal = top/bottom
@@ -209,11 +211,13 @@ export default {
         drawAxis() {
             const vm = this;
             vm.removeAxis();
+
+            if(vm._varScale.isLoading) {
+                return;
+            }
             
             const varScale = vm._varScale;
             const stack = vm._stack;
-            
-            
 
             let range;
             if(vm._orientation === ORIENTATIONS.HORIZONTAL) {
@@ -234,7 +238,7 @@ export default {
             }
 
             let scaleZoomedOut, scaleZoomedIn, tickSizeOuter;
-            if(varScale.type === AbstractScale.types.DISCRETE) {
+            if(varScale instanceof CategoricalScale) {
                 if(vm._orientation === ORIENTATIONS.HORIZONTAL) {
                     scaleZoomedOut = d3_scaleBand()
                         .domain(varScale.domain)
@@ -251,7 +255,7 @@ export default {
                         .range(range);
                 }
                 tickSizeOuter = 0;
-            } else if(varScale.type === AbstractScale.types.CONTINUOUS) {
+            } else if(varScale instanceof ContinuousScale) {
                 let continuousScaleFunc = d3_scaleLinear;
                 if(vm.log) {
                     continuousScaleFunc = d3_scaleLog;
@@ -308,7 +312,7 @@ export default {
             // Get the width/height of the zoomed-in axis, before removing the text
             const axisBboxZoomedIn = container.select(".axis-zoomed-in").node().getBBox();
             
-            if(varScale.type === AbstractScale.types.DISCRETE) {
+            if(varScale instanceof CategoricalScale) {
                 const barWidth = vm.pWidth / varScale.domainFiltered.length;
                 if(barWidth < textBboxZoomedIn.height) {
                     ticksZoomedIn.selectAll("text")
@@ -355,7 +359,7 @@ export default {
                 // Get the width/height of the zoomed-out axis, before removing the text
                 axisBboxZoomedOut = container.select(".axis-zoomed-out").node().getBBox();
                 
-                if(varScale.type === AbstractScale.types.DISCRETE) {
+                if(varScale instanceof CategoricalScale) {
                     const barWidth = vm.pWidth / varScale.domain.length;
                     if(barWidth < textBboxZoomedOut.height) {
                         ticksZoomedOut.selectAll("text")
@@ -382,7 +386,7 @@ export default {
                     } else if(vm._side === SIDES.RIGHT) {
                         zoomRectTranslateX = 0;
                     }
-                    if(varScale.type === AbstractScale.types.CONTINUOUS) {  
+                    if(varScale instanceof ContinuousScale) {  
                         let start = varScale.domainFiltered[0];
                         let end = varScale.domainFiltered[1];
                         containerZoomedOut.append("rect")
@@ -393,7 +397,7 @@ export default {
                             .attr("fill", "silver")
                             .attr("fill-opacity", 0.5)
                             .attr("transform", "translate(" + zoomRectTranslateX + ",0)");
-                    } else if(varScale.type === AbstractScale.types.DISCRETE) {
+                    } else if(varScale instanceof CategoricalScale) {
                         let eachBand = vm.pHeight / varScale.domain.length;
                         for(let domainFilteredItem of varScale.domainFiltered) {
                             containerZoomedOut.append("rect")
@@ -413,7 +417,7 @@ export default {
                     } else if(vm._side === SIDES.BOTTOM) {
                         zoomRectTranslateY = 0;
                     }
-                    if(varScale.type === AbstractScale.types.DISCRETE) {  
+                    if(varScale instanceof CategoricalScale) {  
                         let eachBand = vm.pWidth / varScale.domain.length;
                         for(let domainFilteredItem of varScale.domainFiltered) {
                             containerZoomedOut.append("rect")
@@ -425,7 +429,7 @@ export default {
                                 .attr("fill-opacity", 0.5)
                                 .attr("transform", "translate(0," + zoomRectTranslateY + ")");
                         }
-                    } else if(varScale.type === AbstractScale.types.CONTINUOUS) {
+                    } else if(varScale instanceof ContinuousScale) {
                         let start = varScale.domainFiltered[0];
                         let end = varScale.domainFiltered[1];
                         containerZoomedOut.append("rect")
@@ -444,7 +448,7 @@ export default {
                 let brush, brushed;
                 if(vm._orientation === ORIENTATIONS.VERTICAL) {
                     axisContainerSize = axisBboxZoomedOut.width;
-                    if(varScale.type === AbstractScale.types.CONTINUOUS) {
+                    if(varScale instanceof ContinuousScale) {
                         brushed = () => {
                             let s = d3_event.selection || scaleZoomedOut.range().slice().reverse();
                             let s2 = s.map(scaleZoomedOut.invert, scaleZoomedOut);
@@ -457,7 +461,7 @@ export default {
                                 [s2[1], s2[0]]
                             ));
                         }
-                    } else if(varScale.type === AbstractScale.types.DISCRETE) {
+                    } else if(varScale instanceof CategoricalScale) {
                         brushed = () => {
                             let s = d3_event.selection || scaleZoomedOut.range().slice().reverse();
                             let eachBand = vm.pHeight / varScale.domain.length;
@@ -485,7 +489,7 @@ export default {
                     
                 } else if(vm._orientation === ORIENTATIONS.HORIZONTAL) {
                     axisContainerSize = axisBboxZoomedOut.height;
-                    if(varScale.type === AbstractScale.types.CONTINUOUS) {
+                    if(varScale instanceof ContinuousScale) {
                         brushed = () => {
                             let s = d3_event.selection || scaleZoomedOut.range().slice();
                             let s2 = s.map(scaleZoomedOut.invert, scaleZoomedOut);
@@ -498,7 +502,7 @@ export default {
                                 [s2[0], s2[1]]
                             ));
                         }
-                    } else if(varScale.type === AbstractScale.types.DISCRETE) {
+                    } else if(varScale instanceof CategoricalScale) {
                         brushed = () => {
                             let s = d3_event.selection || scaleZoomedOut.range().slice();
                             let eachBand = vm.pWidth / varScale.domain.length;

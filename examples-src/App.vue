@@ -173,7 +173,7 @@
       />
     </PlotContainer>
 
-    <h3>&lt;ScatterPlot/&gt; and AsyncDataContainer</h3>
+    <h3>&lt;ScatterPlot/&gt; and asynchronous data</h3>
     <PlotContainer
       :pWidth="500"
       :pHeight="300"
@@ -569,7 +569,6 @@ import {
     ContinuousLegend,
     // Classes
     DataContainer,
-    AsyncDataContainer,
     HistoryStack,
     CategoricalScale,
     ContinuousScale,
@@ -645,7 +644,7 @@ const vueDataContainer = new DataContainer(
   vueData
 );
 
-const carsAsyncDataContainer = new AsyncDataContainer(
+const carsAsyncDataContainer = new DataContainer(
   'async_cars_data',
   'Cars',
   fetch('https://vega.github.io/vega-datasets/data/cars.json', {mode: 'cors'}).then(function(response) {
