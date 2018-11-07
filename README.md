@@ -59,7 +59,6 @@ yarn run docs
 
 #### Genome Plot Components
 - GenomeScatterPlot :white_check_mark:
-- GenomeBarPlot
 - GenomeStackedBarPlot :white_check_mark:
 - GenomeTrackPlot :white_check_mark:
 - GenomeMultiTrackPlot :white_check_mark:
@@ -78,12 +77,19 @@ yarn run docs
 - SortOptions :white_check_mark:
 
 ### Future Plans for Components
-- Grouped Bar Plot
+- GenomeBarPlot
+- GroupedBarPlot
 - Karyotype
-- Violin Plot
-- Horizontal Bar Plot
-- Horizontal Stacked Bar Plot
-- Line Plot
+- ViolinPlot
+- SinaPlot
+- BeeswarmPlot
+- JitterPlot
+- HorizontalBarPlot
+- HorizontalStackedBarPlot
+- HorizontalBoxPlot
+- HorizontalMultiBoxPlot
+- LinePlot
+
 
 
 
