@@ -98,7 +98,7 @@ export default class AbstractScale extends AbstractScaleDispatcher {
      * @param {*} name The name for the scale.
      * @param {*} domain The domain for the scale.
      */
-    constructor(id, name, domain, colorScaleKey) {
+    constructor(id, name, domain) {
         super();
         this._id = id;
         this._name = name;

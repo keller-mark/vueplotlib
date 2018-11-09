@@ -286,7 +286,15 @@ export default {
             /*
              * The zoomed-in axis
              */
-            const ticksZoomedIn = containerZoomedIn.call(axisFunction(scaleZoomedIn).tickSizeOuter(tickSizeOuter));
+            let tickFormatFunction = undefined;
+            if(varScale instanceof CategoricalScale) {
+                tickFormatFunction = ((d) => varScale.toHuman(d));
+            }
+            const ticksZoomedIn = containerZoomedIn.call(
+                axisFunction(scaleZoomedIn)
+                    .tickSizeOuter(tickSizeOuter)
+                    .tickFormat(tickFormatFunction)
+            );
             const textBboxZoomedIn = ticksZoomedIn.select("text").node().getBBox();
 
             const tickTransformFunction = (d, i, v) => {
@@ -349,7 +357,11 @@ export default {
                         .attr("class", "axis-zoomed-out")
                         .attr("transform", "translate(" + zoomedOutTranslateX + "," + zoomedOutTranslateY + ")");
                 
-                const ticksZoomedOut = containerZoomedOut.call(axisFunction(scaleZoomedOut).tickSizeOuter(tickSizeOuter));
+                const ticksZoomedOut = containerZoomedOut.call(
+                    axisFunction(scaleZoomedOut)
+                        .tickSizeOuter(tickSizeOuter)
+                        .tickFormat(tickFormatFunction)
+                );
                 const textBboxZoomedOut = ticksZoomedOut.select("text").node().getBBox();
 
                 ticksZoomedOut.selectAll("text")	

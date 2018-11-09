@@ -200,10 +200,14 @@ export default {
             }
         },
         highlightX(value) {
-            this.highlightX1 = this.highlightXScale(value);
+            if(this.highlightXScale) {
+                this.highlightX1 = this.highlightXScale(value);
+            }
         },
         highlightY(value) {
-            this.highlightY1 = this.highlightYScale(value);
+            if(this.highlightYScale) {
+                this.highlightY1 = this.highlightYScale(value);
+            }
         },
         highlightDestroy() {
             this.highlightX1 = null;

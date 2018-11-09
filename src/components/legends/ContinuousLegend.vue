@@ -164,11 +164,13 @@ export default {
             d3_select(this.legendSelector).select("svg").remove();
         },
         highlightY(value) {
-            const highlightY1 = this.highlightScale(value) - 0.5;
-            const highlight = d3_select(this.legendSelector).select("svg").select(".highlight");
-            highlight.attr("transform", "translate(0," + highlightY1 + ")");
-            highlight.selectAll("rect")
-                .attr("fill-opacity", 1);
+            if(this.highlightScale) {
+                const highlightY1 = this.highlightScale(value) - 0.5;
+                const highlight = d3_select(this.legendSelector).select("svg").select(".highlight");
+                highlight.attr("transform", "translate(0," + highlightY1 + ")");
+                highlight.selectAll("rect")
+                    .attr("fill-opacity", 1);
+            }
         },
         highlightDestroy() {
             const highlight = d3_select(this.legendSelector).select("svg").select(".highlight");

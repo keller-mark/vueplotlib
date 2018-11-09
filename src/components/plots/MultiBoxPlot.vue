@@ -217,8 +217,10 @@ export default {
             this._xScale.emitHighlightDestroy();
         },
         highlight(value) {
-            this.highlightX1 = this.highlightScale(value);
-            this.highlightX2 = this.highlightScale(value) + this.barWidth;
+            if(this.highlightScale) {
+                this.highlightX1 = this.highlightScale(value);
+                this.highlightX2 = this.highlightScale(value) + this.barWidth;
+            }
         },
         highlightDestroy() {
             this.highlightX1 = null;
@@ -311,11 +313,12 @@ export default {
             const boxWidth = (barWidth / 2);
             const boxMargin = barWidth / 4;
 
-            context.fillStyle = "#B8CDE3";
 
             const diamondSize = vm.pointSize + 2;
 
             xScale.domainFiltered.forEach((boxVar) => {
+                context.fillStyle = xScale.color(boxVar);
+
                 let boxData = data.map((el) => el[boxVar] || 0);
                 let quantile = d3_scaleQuantile()
                     .domain(boxData)

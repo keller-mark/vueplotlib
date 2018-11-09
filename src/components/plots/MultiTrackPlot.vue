@@ -211,12 +211,16 @@ export default {
             this._cScale.emitHighlightDestroy();
         },
         highlightX(value) {
-            this.highlightX1 = this.highlightXScale(value);
-            this.highlightX2 = this.highlightXScale(value) + this.barWidth;
+            if(this.highlightXScale) {
+                this.highlightX1 = this.highlightXScale(value);
+                this.highlightX2 = this.highlightXScale(value) + this.barWidth;
+            }
         },
         highlightY(value) {
-            this.highlightY1 = this.highlightYScale(value);
-            this.highlightY2 = this.highlightYScale(value) + this.barHeight;
+            if(this.highlightYScale) {
+                this.highlightY1 = this.highlightYScale(value);
+                this.highlightY2 = this.highlightYScale(value) + this.barHeight;
+            }
         },
         highlightDestroy() {
             this.highlightX1 = null;

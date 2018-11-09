@@ -184,8 +184,10 @@ export default {
             this._cScale.emitHighlightDestroy();
         },
         highlightX(value) {
-            this.highlightX1 = this.highlightScale(value);
-            this.highlightX2 = this.highlightScale(value) + this.barWidth;
+            if(this.highlightScale) {
+                this.highlightX1 = this.highlightScale(value);
+                this.highlightX2 = this.highlightScale(value) + this.barWidth;
+            }
         },
         highlightDestroy() {
             this.highlightX1 = null;
