@@ -135,6 +135,7 @@ export default {
                         this.sortAscending
                     ]
                 ));
+                this.$emit('sort');
             }
         }
     }
