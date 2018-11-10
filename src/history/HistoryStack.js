@@ -168,7 +168,7 @@ export default class HistoryStack {
             if(typeof p === "object") {
                 if(p.hasOwnProperty(VDP_COMPUTED_PARAM)) {
                     // can assume that this object represents a call to a "getter": getScale, getStack, etc...
-                    console.assert(typeof p.getterFunctionKey === "number");
+                    console.assert(typeof p[GETTER_FUNCTION_KEY] === "number");
                     console.assert(this._getters.hasOwnProperty(p[GETTER_FUNCTION_KEY]));
                     let getterFunction = this._getters[p[GETTER_FUNCTION_KEY]];
                     console.assert(Array.isArray(p[GETTER_PARAMS]));
