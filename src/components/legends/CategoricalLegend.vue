@@ -162,7 +162,7 @@ export default {
             d3_select(this.legendSelector).select("svg").remove();
         },
         highlightY(value) {
-            if(this.highlightScale) {
+            if(this.highlightScale && this.highlightScale.domain().includes(value)) {
                 const highlightY1 = this.highlightScale(value) - 0.5;
                 const highlight = d3_select(this.legendSelector).select("svg").select(".highlight");
                 highlight.attr("transform", "translate(0," + highlightY1 + ")");

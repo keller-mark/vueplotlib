@@ -237,6 +237,8 @@ export default {
         highlightDestroy() {
             this.highlightX1 = null;
             this.highlightX2 = null;
+            this.highlightY1 = null;
+            this.highlightY2 = null;
         },
         drawPlot() {
             const vm = this;

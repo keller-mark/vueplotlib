@@ -29,6 +29,8 @@
 import HistoryEvent from '../history/HistoryEvent.js';
 import { computedParam } from '../history/HistoryStack.js';
 import { EVENT_TYPES, EVENT_SUBTYPES } from '../history/base-events.js';
+
+let uuid = 0;
 /**
  * This component helps make simple sorting controls. 
  * To sort by an individual variable use optionName and optionVariable props. 
@@ -61,7 +63,6 @@ import { EVENT_TYPES, EVENT_SUBTYPES } from '../history/base-events.js';
  *    :getStack="getStack"
  * />
  */
-let uuid = 0;
 export default {
     name: 'SortOptions',
     props: {
