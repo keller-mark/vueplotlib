@@ -1,4 +1,4 @@
-import { descending as d3_descending } from 'd3-array';
+import { descending as d3_descending, ascending as d3_ascending } from 'd3-array';
 import AbstractScale from './AbstractScale.js';
 
 /**
@@ -15,8 +15,12 @@ export default class ContinuousScale extends AbstractScale {
     }
 
     /** @inheritdoc */
-    comparator(a, b) {
-        return d3_descending(
+    comparator(a, b, ascending=true) {
+        let compareFunc = d3_ascending;
+        if(!ascending) {
+            compareFunc = d3_descending;
+        }
+        return compareFunc(
             (a == "nan" ? -1 : +a), 
             (b == "nan" ? -1 : +b)
         );

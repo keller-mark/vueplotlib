@@ -178,7 +178,7 @@ export default class AbstractScale extends AbstractScaleDispatcher {
      * @param {*} b Another domain value
      * @returns {number} Comparison result of -1, 0, or 1.
      */
-    comparator(a, b) {
+    comparator(a, b, ascending) {
         throw new Error('You have to implement the method comparator!');
     }
 

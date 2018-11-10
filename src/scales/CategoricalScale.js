@@ -93,8 +93,12 @@ export default class CategoricalScale extends AbstractScale {
     }
 
     /** @inheritdoc */
-    comparator(a, b) {
-        return d3_descending(
+    comparator(a, b, ascending=true) {
+        let compareFunc = d3_ascending;
+        if(!ascending) {
+            compareFunc = d3_descending;
+        }
+        return compareFunc(
             (a == "nan" ? -1 : this.domain.indexOf(a)), 
             (b == "nan" ? -1 : this.domain.indexOf(b))
         );
@@ -125,7 +129,7 @@ export default class CategoricalScale extends AbstractScale {
      * @param {string} var1D
      * @param {boolean} ascending Whether to sort ascending or descending.
      */
-    sort(dataContainer, var1D, ascending=true) {
+    sort(dataContainer, var1D, comparatorScale, ascending=true) {
         console.assert(dataContainer instanceof DataContainer);
         if(dataContainer.isLoading) {
             return;
@@ -133,13 +137,8 @@ export default class CategoricalScale extends AbstractScale {
         let data = dataContainer.dataCopy;
         console.assert(Array.isArray(data));
 
-        let comparator;
-        let compareFunc = d3_ascending;
-        if(!ascending) {
-            compareFunc = d3_descending;
-        }
 
-        comparator = (domainA, domainB) => {
+        let comparator = (domainA, domainB) => {
             let dataA = data.find((el) => el[this.id] === domainA);
             let dataB = data.find((el) => el[this.id] === domainB);
             
@@ -147,15 +146,15 @@ export default class CategoricalScale extends AbstractScale {
             if(dataA === undefined || dataA[var1D] === "nan") {
                 a = -1;
             } else {
-                a = +dataA[var1D];
+                a = dataA[var1D];
             }
             if(dataB === undefined || dataB[var1D] === "nan") {
                 b = -1;
             } else {
-                b = +dataB[var1D];
+                b = dataB[var1D];
             }
 
-            return compareFunc(a, b)
+            return comparatorScale.comparator(a, b, ascending)
         };
         
         let domainCopy = this.domain.slice();

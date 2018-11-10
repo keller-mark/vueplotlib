@@ -65,6 +65,9 @@ import AbstractScale from './../../scales/AbstractScale.js';
 import DataContainer from './../../data/DataContainer.js';
 
 import mixin from './mixin.js';
+import ContinuousScale from './../../scales/ContinuousScale.js';
+import CategoricalScale from './../../scales/CategoricalScale.js';
+
 
 let uuid = 0;
 /**
@@ -255,13 +258,22 @@ export default {
             }
 
             data.forEach((d) => {
-                const col = genColor();
-                colToNode[col] = { "x": d[vm.x], "c": d[vm.c] };
-                contextHidden.fillStyle = col;
+                if(
+                    AbstractScale.isUnknown(d[vm.c]) ||
+                    (
+                        (cScale instanceof CategoricalScale && cScale.domainFiltered.includes(d[vm.c]))
+                        || 
+                        (cScale instanceof ContinuousScale && cScale.domainFiltered[0] <= d[vm.c] && cScale.domainFiltered[1] >= d[vm.c])
+                    )
+                ) {
+                    const col = genColor();
+                    colToNode[col] = { "x": d[vm.x], "c": d[vm.c] };
+                    contextHidden.fillStyle = col;
 
-                context.fillStyle = cScale.color(d[vm.c]);
-                context.fillRect(x(d[vm.x]) + (barMarginX/2), 0, barWidth - barMarginX, vm.pHeight);
-                contextHidden.fillRect(x(d[vm.x]), 0, barWidth, vm.pHeight);
+                    context.fillStyle = cScale.color(d[vm.c]);
+                    context.fillRect(x(d[vm.x]) + (barMarginX/2), 0, barWidth - barMarginX, vm.pHeight);
+                    contextHidden.fillRect(x(d[vm.x]), 0, barWidth, vm.pHeight);
+                }
             });
             
             /*

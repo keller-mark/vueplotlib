@@ -40,6 +40,7 @@ let uuid = 0;
  * @prop {string} optionScale A categorical scale of variables to sort by. Ignored if using optionVar and optionName props instead.
  * @prop {string} optionVariable A variable to sort by. Ignored if using optionScale instead.
  * @prop {string} optionName The human-readable name of the variable to sort by. Ignored if using optionScale instead.
+ * @prop {string} comparatorScale The key of the scale whose comparator is to be used to do the sorting.
  * @prop {function} getScale The scale getter function.
  * @prop {function} getStack The stack getter function.
  * @prop {function} getData The data getter function.
@@ -79,6 +80,9 @@ export default {
             type: String 
         },
         'optionName': {
+            type: String 
+        },
+        'comparatorScale': {
             type: String 
         },
         'getScale': {
@@ -124,7 +128,7 @@ export default {
         },
         go() {
             if(this.validSelection(this.selectedKey)) {
-                this.getScale(this.variable).sort(this.getData(this.data), this.selectedKey, this.sortAscending);
+                this.getScale(this.variable).sort(this.getData(this.data), this.selectedKey, this.getScale(this.comparatorScale), this.sortAscending);
                 this._stack.push(new HistoryEvent(
                     EVENT_TYPES.SCALE, 
                     EVENT_SUBTYPES.SCALE_DOMAIN_SORT, 
@@ -133,6 +137,7 @@ export default {
                     [
                         computedParam(EVENT_TYPES.DATA, [this.data]),
                         this.selectedKey,
+                        computedParam(EVENT_TYPES.SCALE, [this.comparatorScale]),
                         this.sortAscending
                     ]
                 ));
