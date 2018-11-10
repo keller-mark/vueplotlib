@@ -156,12 +156,14 @@ export default {
             
             // Dispatch highlights
             this._xScale.emitHighlight(x);
+            this._cScale.emitHighlight(c);
         },
         tooltipDestroy: function() {
             this.tooltipHide();
 
             // Destroy all highlights here
             this._xScale.emitHighlightDestroy();
+            this._cScale.emitHighlightDestroy();
         },
         highlight(value) {
             if(this.highlightScale) {
