@@ -184,6 +184,7 @@ export default {
 
         // Subscribe to event publishers
         this._varScale.onUpdate(this.uuid, this.drawAxis);
+        this._hierarchyContainer.onUpdate(this.uuid, this.drawAxis);
 
         this._stack = this.getStack();
         console.assert(this._stack instanceof HistoryStack);
