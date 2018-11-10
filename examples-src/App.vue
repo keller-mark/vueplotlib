@@ -522,14 +522,17 @@
     <h3>&lt;SortOptions/&gt;</h3>
     <SortOptions 
       variable="sample_id" 
-      :by="sampleSortByExposures" 
+      data="exposures_data" 
+      optionScale="signature"
       :getScale="getScale" 
       :getData="getData"
       :getStack="getStack"
     />
     <SortOptions 
       variable="sample_id" 
-      :by="sampleSortByAge" 
+      data="clinical_data"
+      optionVariable="age" 
+      optionName="Age" 
       :getScale="getScale" 
       :getData="getData"
       :getStack="getStack"
@@ -573,7 +576,6 @@ import {
     CategoricalScale,
     ContinuousScale,
     GenomeScale,
-    SortBy,
 } from '../src/index.js';
 
 
@@ -858,15 +860,6 @@ const getStack = function() {
   return stack;
 }
 
-const sampleSortByExposures = new SortBy(
-  "exposures_data", 
-  signatureScale.domain
-);
-
-const sampleSortByAge = new SortBy(
-  'clinical_data', 
-  ['age']
-);
 
 
 export default {
@@ -898,9 +891,7 @@ export default {
       getData: getData,
       getScale: getScale,
       getStack: getStack,
-      showStack: false,
-      sampleSortByExposures: sampleSortByExposures,
-      sampleSortByAge: sampleSortByAge
+      showStack: false
     }
   },
   mounted() {

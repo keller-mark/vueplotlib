@@ -34,7 +34,6 @@ import BinaryScale from './scales/BinaryScale';
 import CategoricalScale from './scales/CategoricalScale';
 import ContinuousScale from './scales/ContinuousScale';
 import GenomeScale from './scales/GenomeScale';
-import SortBy from './sort/SortBy';
 
 // Other
 import { EVENT_TYPES, EVENT_SUBTYPES, EVENT_SUBTYPE_RESETS } from './history/base-events';
@@ -70,7 +69,6 @@ export {
     CategoricalScale,
     ContinuousScale,
     GenomeScale,
-    SortBy,
     // Other
     computedParam,
     EVENT_TYPES, EVENT_SUBTYPES, EVENT_SUBTYPE_RESETS,
