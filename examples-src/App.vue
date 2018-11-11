@@ -580,6 +580,86 @@
       :getStack="getStack"
     />
 
+    <PlotContainer
+      :pWidth="500"
+      :pHeight="300"
+      :pMarginTop="10"
+      :pMarginLeft="120"
+      :pMarginRight="10"
+      :pMarginBottom="180"
+    >
+      <Axis
+        slot="axisLeft"
+        variable="exposure"
+        side="left" 
+        :tickRotation="-35"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+      <StratifiedBoxPlot
+        slot="plot"
+        data="exposures_data"
+        variable="COSMIC 1"
+        s="clinical_data"
+        x="sex"
+        y="exposure"
+        o="sample_id"
+        :getData="getData"
+        :getScale="getScale"
+        :clickHandler="exampleClickHandler"
+        :drawOutliers="true"
+      />
+      <Axis
+        slot="axisBottom"
+        variable="sex"
+        side="bottom" 
+        :tickRotation="-65"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+    </PlotContainer>
+
+    <PlotContainer v-if="togglePlot"
+      :pWidth="500"
+      :pHeight="300"
+      :pMarginTop="10"
+      :pMarginLeft="120"
+      :pMarginRight="10"
+      :pMarginBottom="180"
+    >
+      <Axis
+        slot="axisLeft"
+        variable="exposure"
+        side="left" 
+        :tickRotation="-35"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+      <StratifiedBoxPlot
+        slot="plot"
+        data="exposures_data"
+        variable="COSMIC 1"
+        s="clinical_data"
+        x="sex"
+        y="exposure"
+        o="sample_id"
+        :getData="getData"
+        :getScale="getScale"
+        :clickHandler="exampleClickHandler"
+        :drawOutliers="true"
+      />
+      <Axis
+        slot="axisBottom"
+        variable="sex"
+        side="bottom" 
+        :tickRotation="-65"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+    </PlotContainer>
+
+    <button @click="togglePlot = !togglePlot">Toggle Plot</button>
+
 
     <div class="stack-wrapper" v-show="showStack">
       <h3>&lt;Stack/&gt;</h3>
@@ -943,7 +1023,8 @@ export default {
       getData: getData,
       getScale: getScale,
       getStack: getStack,
-      showStack: false
+      showStack: false,
+      togglePlot: false
     }
   },
   mounted() {
