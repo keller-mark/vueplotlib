@@ -277,6 +277,46 @@
       />
     </PlotContainer>
 
+    <h3>&lt;StratifiedBoxPlot/&gt;</h3>
+    <PlotContainer
+      :pWidth="500"
+      :pHeight="300"
+      :pMarginTop="10"
+      :pMarginLeft="120"
+      :pMarginRight="10"
+      :pMarginBottom="180"
+    >
+      <Axis
+        slot="axisLeft"
+        variable="exposure"
+        side="left" 
+        :tickRotation="-35"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+      <StratifiedBoxPlot
+        slot="plot"
+        data="exposures_data"
+        variable="COSMIC 1"
+        s="clinical_data"
+        x="sex"
+        y="exposure"
+        o="sample_id"
+        :getData="getData"
+        :getScale="getScale"
+        :clickHandler="exampleClickHandler"
+        :drawOutliers="true"
+      />
+      <Axis
+        slot="axisBottom"
+        variable="sex"
+        side="bottom" 
+        :tickRotation="-65"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+    </PlotContainer>
+
     <h3>&lt;TrackPlot/&gt;</h3>
     <PlotContainer
       :pWidth="700"
@@ -566,6 +606,7 @@ import {
     TrackPlot,
     MultiTrackPlot,
     HierarchicalMultiTrackPlot,
+    StratifiedBoxPlot,
     GenomeScatterPlot,
     GenomeTrackPlot,
     GenomeMultiTrackPlot,
@@ -717,6 +758,12 @@ const ageScale = new ContinuousScale(
   'Age',
   [0, 100]
 );
+const sexScale = new CategoricalScale(
+  'sex',
+  'Sex',
+  ["male", "female"],
+  ["Male", "Female"]
+);
 const genomeScale = new GenomeScale("genome", "Genome");
 const SBS_96_CATEGORIES = [
     'A[C>A]A', 'A[C>A]C', 'A[C>A]G', 'A[C>A]T', 
@@ -821,6 +868,8 @@ const getScale = function(scaleKey) {
       return xyXScale;
     case 'age':
       return ageScale;
+    case 'sex':
+      return sexScale;
     case 'genome':
       return genomeScale;
     case 'cat':
@@ -881,6 +930,7 @@ export default {
     TrackPlot,
     MultiTrackPlot,
     HierarchicalMultiTrackPlot,
+    StratifiedBoxPlot,
     GenomeScatterPlot,
     GenomeTrackPlot,
     GenomeMultiTrackPlot,

@@ -14,6 +14,8 @@ import MultiBoxPlot from './components/plots/MultiBoxPlot.vue';
 import TrackPlot from './components/plots/TrackPlot.vue';
 import MultiTrackPlot from './components/plots/MultiTrackPlot.vue';
 import HierarchicalMultiTrackPlot from './components/plots/HierarchicalMultiTrackPlot.vue';
+import StratifiedBoxPlot from './components/plots/StratifiedBoxPlot.vue';
+
 
 // Genome Plots
 import GenomeScatterPlot from './components/plots/GenomeScatterPlot.vue';
@@ -54,6 +56,7 @@ export {
     TrackPlot,
     MultiTrackPlot,
     HierarchicalMultiTrackPlot,
+    StratifiedBoxPlot,
     GenomeScatterPlot,
     GenomeTrackPlot,
     GenomeMultiTrackPlot,
