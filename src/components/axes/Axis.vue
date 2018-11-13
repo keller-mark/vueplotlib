@@ -326,10 +326,12 @@ export default {
             const axisBboxZoomedIn = container.select(".axis-zoomed-in").node().getBBox();
             
             if(varScale instanceof CategoricalScale) {
-                const barWidth = vm.pWidth / varScale.domainFiltered.length;
-                if(barWidth < textBboxZoomedIn.height) {
-                    ticksZoomedIn.selectAll("text")
-                        .remove();
+                if(vm._orientation === ORIENTATIONS.HORIZONTAL) {
+                    const barWidth = vm.pWidth / varScale.domainFiltered.length;
+                    if(barWidth < textBboxZoomedIn.height) {
+                        ticksZoomedIn.selectAll("text")
+                            .remove();
+                    }
                 }
             }
 
