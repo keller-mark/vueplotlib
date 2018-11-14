@@ -77,6 +77,7 @@
         variable="sample_id"
         side="bottom" 
         :tickRotation="-65"
+        :maxCharacters="3"
         :getScale="getScale"
         :getStack="getStack"
       />

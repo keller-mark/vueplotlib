@@ -46,6 +46,7 @@ let uuid = 0;
  * @prop {boolean} disableBrushing Whether to disable brushing functionality and hide the zoomed-out "context" view. Default: false
  * @prop {boolean} log Whether to have log scaled variable. Default: false
  * @prop {boolean} showLabel Whether to show the label. Default: true
+ * @prop {number} maxCharacters The maximum number of characters, where the rest will be trimmed. Optional.
  * 
  * @example
  * <Axis
@@ -110,6 +111,10 @@ export default {
         'log': {
             type: Boolean,
             default: false
+        },
+        'maxCharacters': {
+            type: Number,
+            required: false
         }
     },
     data() {
@@ -295,10 +300,30 @@ export default {
             if(varScale instanceof CategoricalScale) {
                 tickFormatFunction = ((d) => varScale.toHuman(d));
             }
+
+            let tickFormatFunction2 = undefined;
+            if(vm.maxCharacters !== undefined) {
+                if(tickFormatFunction !== undefined) {
+                    tickFormatFunction2 = (d) => {
+                        let humanD = varScale.toHuman(d);
+                        if(humanD.length > vm.maxCharacters) {
+                            return (humanD.substring(0, vm.maxCharacters) + "...");
+                        }
+                        return humanD;
+                    }
+                } else {
+                    tickFormatFunction2 = (d) => {
+                        if(d.length > vm.maxCharacters) {
+                            return (d.substring(0, vm.maxCharacters) + "...");
+                        }
+                        return d;
+                    }
+                }
+            }
             const ticksZoomedIn = containerZoomedIn.call(
                 axisFunction(scaleZoomedIn)
                     .tickSizeOuter(tickSizeOuter)
-                    .tickFormat(tickFormatFunction)
+                    .tickFormat(tickFormatFunction2)
             );
             const textBboxZoomedIn = ticksZoomedIn.select("text").node().getBBox();
 
@@ -321,6 +346,8 @@ export default {
             ticksZoomedIn.selectAll("text")	
                     .style("text-anchor", (vm._side === SIDES.LEFT || vm._side === SIDES.BOTTOM ? "end" : "start"))
                     .attr("transform", tickTransformFunction);
+            
+            
             
             // Get the width/height of the zoomed-in axis, before removing the text
             const axisBboxZoomedIn = container.select(".axis-zoomed-in").node().getBBox();
@@ -367,7 +394,7 @@ export default {
                 const ticksZoomedOut = containerZoomedOut.call(
                     axisFunction(scaleZoomedOut)
                         .tickSizeOuter(tickSizeOuter)
-                        .tickFormat(tickFormatFunction)
+                        .tickFormat(tickFormatFunction2)
                 );
                 const textBboxZoomedOut = ticksZoomedOut.select("text").node().getBBox();
 
