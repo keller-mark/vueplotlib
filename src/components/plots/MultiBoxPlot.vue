@@ -192,6 +192,21 @@ export default {
     mounted() {
         this.drawPlot();
     },
+    beforeDestroy() {
+        // Unsubscribe to events
+        this._yScale.onUpdate(this.uuid, null);
+        this._xScale.onUpdate(this.uuid, null);
+        if(this.hasO) {
+            this._oScale.onUpdate(this.uuid, null);
+        }
+
+        // Unsubscribe to data mutations here
+        this._dataContainer.onUpdate(this.uuid, null);
+
+        // Unsubscribe to highlights here
+        this._xScale.onHighlight(this.uuid, null);
+        this._xScale.onHighlightDestroy(this.uuid, null);
+    },
     methods: {
         tooltip: function(mouseX, mouseY, node) {
             // Set values

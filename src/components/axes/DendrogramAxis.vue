@@ -192,6 +192,12 @@ export default {
     mounted() {
         this.drawAxis();
     },
+    beforeDestroy() {
+        // Unsubscribe to events
+        this._varScale.onUpdate(this.uuid, null);
+        this._hierarchyContainer.onUpdate(this.uuid, null);
+        this.removeAxis();
+    },
     methods: {
         removeAxis() {
             d3_select(this.axisSelector).select("svg").remove();

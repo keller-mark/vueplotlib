@@ -167,6 +167,20 @@ export default {
     mounted() {
         this.drawPlot();
     },
+    beforeDestroy() {
+        // Unsubscribe to events
+        this._gScale.onUpdate(this.uuid, null);
+        if(this.hasC) {
+            this._cScale.onUpdate(this.uuid, null);
+        }
+
+        // Unsubscribe to data mutations here
+        this._dataContainer.onUpdate(this.uuid, null);
+
+        // Unsubscribe to highlights here
+        this._gScale.onHighlight(this.uuid, null);
+        this._gScale.onHighlightDestroy(this.uuid, null);
+    },
     methods: {
         tooltip: function(mouseX, mouseY, chromosome, position, c) {
             // Set values

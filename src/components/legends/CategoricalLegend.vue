@@ -157,6 +157,12 @@ export default {
     mounted() {
         this.drawLegend();
     },
+    beforeDestroy() {
+        // Unsubscribe to events
+        this._varScale.onUpdate(this.uuid, null);
+        this._varScale.onHighlight(this.uuid, null);
+        this.removeLegend();
+    },
     methods: {
         removeLegend() {
             d3_select(this.legendSelector).select("svg").remove();

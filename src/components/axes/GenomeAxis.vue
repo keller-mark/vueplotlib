@@ -213,6 +213,11 @@ export default {
     mounted() {
         this.drawAxis();
     },
+    beforeDestroy() {
+        // Unsubscribe to events
+        this._varScale.onUpdate(this.uuid, null);
+        this.removeAxis();
+    },
     methods: {
         onChromosomeChange(e) {
             if(e.target.value && e.target.value !== "*") {
