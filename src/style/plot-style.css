@@ -11,7 +11,7 @@
     pointer-events: none;
 }
 .vdp-tooltip {
-    position: absolute;
+    position: fixed;
     border: 1px solid rgb(205, 205, 205);
     background-color: rgba(255, 255, 255, 0.95);
     z-index: 1;

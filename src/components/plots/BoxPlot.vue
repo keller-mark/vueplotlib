@@ -54,7 +54,7 @@
 <script>
 import { scaleLinear as d3_scaleLinear, scaleQuantile as d3_scaleQuantile } from 'd3-scale';
 import { select as d3_select } from 'd3-selection';
-import { mouse as d3_mouse } from 'd3';
+import { mouse as d3_mouse, event as d3_event } from 'd3';
 import debounce from 'lodash/debounce';
 import { min as d3_min, max as d3_max, mean as d3_mean } from 'd3-array';
 
@@ -178,8 +178,8 @@ export default {
             this.tooltipInfo.max = node.max;
 
             // Set position
-            this.tooltipPosition.left = mouseX + this.pMarginLeft;
-            this.tooltipPosition.top = mouseY + this.pMarginTop;
+            this.tooltipPosition.left = mouseX;
+            this.tooltipPosition.top = mouseY;
 
             // Dispatch highlights
         },
@@ -367,8 +367,11 @@ export default {
 
                 const node = getDataFromMouse(mouseX, mouseY);
 
+                const mouseViewportX = d3_event.clientX;
+                const mouseViewportY = d3_event.clientY;
+
                 if(node) {
-                    vm.tooltip(mouseX, mouseY, node); 
+                    vm.tooltip(mouseViewportX, mouseViewportY, node); 
                 } else {
                     debouncedTooltipDestroy();
                 }

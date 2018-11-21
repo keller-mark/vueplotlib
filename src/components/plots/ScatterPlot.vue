@@ -50,7 +50,7 @@
 <script>
 import { scaleLinear as d3_scaleLinear } from 'd3-scale';
 import { select as d3_select } from 'd3-selection';
-import { mouse as d3_mouse } from 'd3';
+import { mouse as d3_mouse, event as d3_event } from 'd3';
 import debounce from 'lodash/debounce';
 import { TOOLTIP_DEBOUNCE } from './../../constants.js';
 import { getRetinaRatio, getDelaunay } from './../../helpers.js';
@@ -195,8 +195,8 @@ export default {
             }
 
             // Set position
-            this.tooltipPosition.left = mouseX + this.pMarginLeft;
-            this.tooltipPosition.top = mouseY + this.pMarginTop;
+            this.tooltipPosition.left = mouseX;
+            this.tooltipPosition.top = mouseY;
             
             // Dispatch highlights
             this._xScale.emitHighlight(x);
@@ -320,8 +320,11 @@ export default {
 
                 const node = getDataFromMouse(mouseX, mouseY);
 
+                const mouseViewportX = d3_event.clientX;
+                const mouseViewportY = d3_event.clientY;
+
                 if(node) {
-                    vm.tooltip(mouseX, mouseY, node[vm.x], node[vm.y], node[vm.c]); 
+                    vm.tooltip(mouseViewportX, mouseViewportY, node[vm.x], node[vm.y], node[vm.c]); 
                 } else {
                     debouncedTooltipDestroy();
                 }
