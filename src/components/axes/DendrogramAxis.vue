@@ -172,7 +172,7 @@ export default {
         this._side = SIDES[sideString];
         this._orientation = (this._side === SIDES.TOP || this._side === SIDES.BOTTOM ? ORIENTATIONS.HORIZONTAL : ORIENTATIONS.VERTICAL);
 
-        console.assert(this._side === SIDES.TOP); // TODO: implement for other sides
+        console.assert(this._side === SIDES.TOP || this._side === SIDES.BOTTOM); // TODO: implement for other sides
         
         // Set the scale variable
         this._varScale = this.getScale(this.variable);
@@ -245,26 +245,50 @@ export default {
             const gTree = container.append("g")
                 .attr("transform", "translate(" + vm.computedTranslateX + "," + vm.computedTranslateY + ")");
 
-            gTree.selectAll(".link")
-                .data(root.descendants().slice(1))
-                .enter().append("path")
-                .attr("class", "link")
-                .attr("d", function(d) {
+
+            let pathFunction;
+            if(this._side === SIDES.TOP) {
+                pathFunction = (d) => {
                     return "M" + d.parent.x + "," + d.parent.y
                         + "H" + d.x
                         + "M" + d.x + "," + d.y
                         + "V" + d.parent.y;
-                })
+                }
+            } else if(this._side === SIDES.BOTTOM) {
+                pathFunction = (d) => {
+                    return "M" + d.parent.x + "," + (vm.pMarginBottom - d.parent.y)
+                        + "H" + d.x
+                        + "M" + d.x + "," + (vm.pMarginBottom - d.y)
+                        + "V" + (vm.pMarginBottom - d.parent.y);
+                }
+            }
+
+            gTree.selectAll(".link")
+                .data(root.descendants().slice(1))
+                .enter().append("path")
+                .attr("class", "link")
+                .attr("d", pathFunction)
                 .attr("fill", "none")
                 .attr("stroke", "#555")
                 .attr("stroke-opacity", 0.6)
                 .attr("stroke-width", "1.5px");
             
+            let nodeTransformFunction;
+            if(this._side === SIDES.TOP) {
+                nodeTransformFunction = (d) => { 
+                    return "translate(" + d.x + "," + d.y + ")"; 
+                }
+            } else if(this._side === SIDES.BOTTOM) {
+                nodeTransformFunction = (d) => { 
+                    return "translate(" + d.x + "," + (vm.pMarginBottom - d.y) + ")"; 
+                }
+            }
+
             const nodes = gTree.selectAll(".node")
                 .data(root.descendants())
                 .enter().append("g")
                 .attr("class", function(d) { return "node" + (d.children ? " node--internal" : " node--leaf"); })
-                .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+                .attr("transform", nodeTransformFunction);
 
             /* nodes.append("text")
                 .style("display", (d) => { return d.children ? 'none' : 'normal'; })

@@ -458,7 +458,7 @@
       :pMarginTop="200"
       :pMarginLeft="180"
       :pMarginRight="20"
-      :pMarginBottom="20"
+      :pMarginBottom="200"
     >
       <DendrogramAxis
         slot="axisTop"
@@ -484,6 +484,16 @@
         x="sample_id"
         y="signature"
         c="exposure"
+        :getScale="getScale"
+        :getStack="getStack"
+        :getData="getData"
+        :clickHandler="exampleClickHandler"
+      />
+      <DendrogramAxis
+        slot="axisBottom"
+        variable="sample_id"
+        h="clustering"
+        side="bottom"
         :getScale="getScale"
         :getStack="getStack"
         :getData="getData"

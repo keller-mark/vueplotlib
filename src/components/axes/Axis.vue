@@ -359,6 +359,12 @@ export default {
                         ticksZoomedIn.selectAll("text")
                             .remove();
                     }
+                } else if(vm._orientation === ORIENTATIONS.VERTICAL) {
+                    const barHeight = vm.pHeight / varScale.domainFiltered.length;
+                    if(barHeight < textBboxZoomedIn.height) {
+                        ticksZoomedIn.selectAll("text")
+                            .remove();
+                    }
                 }
             }
 
