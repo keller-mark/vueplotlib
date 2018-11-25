@@ -17,7 +17,7 @@ export default class CategoricalScale extends AbstractScale {
      * @param {array} domain The domain for the scale, or a promise.
      * @param {array} humanDomain The humanDomain for the scale, or a promise. Optional.
      */
-    constructor(id, name, domain, humanDomain) {
+    constructor(id, name, domain, humanDomain, colorOverrides) {
         super(id, name, domain);
 
         this._humanDomain = undefined;
@@ -28,7 +28,13 @@ export default class CategoricalScale extends AbstractScale {
                 this.emitUpdate();
             });
         }
-        this._colorOverrides = {};
+        if(colorOverrides !== undefined) {
+            this._colorOverrides = colorOverrides;
+            this._colorOverridesOriginal = Object.assign({}, colorOverrides); // shallow copy
+        } else {
+            this._colorOverrides = {};
+            this._colorOverridesOriginal = {};
+        }
     }
 
     /**
@@ -208,7 +214,7 @@ export default class CategoricalScale extends AbstractScale {
      * Resets the color override object.
      */
     resetColorOverride() {
-        this.setColorOverrides({});
+        this.setColorOverrides(this._colorOverridesOriginal);
     }
 
     /**
