@@ -2,6 +2,7 @@
   <div>
       <button @click="stack.goBack()" :disabled="!stack.canGoBack()" class="stack-button">Back</button>
       <button @click="stack.goForward()" :disabled="!stack.canGoForward()" class="stack-button">Forward</button>
+      <button @click="exportStack" class="stack-button">Export (to console)</button>
       <div class="stack-elements">
         <div v-for="(el, index) in elementsReversed" :key="index">
             <span v-if="isCurrent(index)" class="pointer">&gt;</span>
@@ -30,6 +31,9 @@ export default {
   methods: {
       isCurrent(index) {
           return (this.stack._pointer == (this.elements.length - 1 - index));
+      },
+      exportStack() {
+          console.log(JSON.stringify(this.stack.export()));
       }
   }
 }

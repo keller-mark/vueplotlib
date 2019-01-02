@@ -203,4 +203,35 @@ export default class HistoryStack {
         }
     }
 
+    /**
+     * Get the complete history stack as an array.
+     * Prunes the stack if necessary.
+     * @returns {array} The current stack as an array.
+     */
+    export() {
+        if(this.canGoForward()) {
+            this.prune();
+        }
+        
+        return this._stack.map(el => el.toJson());
+    }
+
+    /**
+     * Set the history stack array, but do not increment the pointer.
+     * Assumes the history stack is empty.
+     * @param {array} stack The array of events to set as the stack.
+     */
+    import(stack) {
+        console.assert(this._pointer === undefined);
+        console.assert(this._stack.length === 0);
+        for(let event of stack) {
+            console.assert(event.hasOwnProperty("type"))
+            console.assert(event.hasOwnProperty("subtype"))
+            console.assert(event.hasOwnProperty("id"))
+            console.assert(event.hasOwnProperty("action"))
+            console.assert(event.hasOwnProperty("params"))
+            this._stack.push(new HistoryEvent(event.type, event.subtype, event.id, event.action, event.params));
+        }
+    }
+
 }
