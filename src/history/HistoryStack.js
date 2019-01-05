@@ -165,7 +165,7 @@ export default class HistoryStack {
      */
     parseParams(params) {
         return params.map((p) => {
-            if(typeof p === "object") {
+            if(p !== null && p !== undefined && typeof p === "object") {
                 if(p.hasOwnProperty(VDP_COMPUTED_PARAM)) {
                     // can assume that this object represents a call to a "getter": getScale, getStack, etc...
                     console.assert(typeof p[GETTER_FUNCTION_KEY] === "number");
