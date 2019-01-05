@@ -1,0 +1,94 @@
+[{
+	"signature":"COSMIC 29", 
+	"exposure_error": 3
+}, {
+	"signature": "COSMIC 8",
+	"exposure_error": 4
+}, {
+	"signature": "COSMIC 28",
+	"exposure_error": 2.22793038841428
+}, {
+	"signature": "COSMIC 11",
+	"exposure_error": -8.39094788079856
+}, {
+	"signature": "COSMIC 6",
+	"exposure_error": 3.705091128762583e-14
+}, {
+	"signature": "COSMIC 18",
+	"exposure_error": 6.46877731543636
+}, {
+	"signature": "COSMIC 7",
+	"exposure_error": -4.235522413333106
+}, { 
+	"signature": "COSMIC 26",
+	"exposure_error": 2.928862020556622e-15
+}, {
+	"signature": "COSMIC 24",
+	"exposure_error": 0
+}, {
+	"signature": "COSMIC 12",
+	"exposure_error": 0
+}, { 
+	"signature": "COSMIC 5",
+	"exposure_error": 3.143341185529
+}, {
+	"signature": "COSMIC 17",
+	"exposure_error": -8.290488268862686e-15
+}, {
+	"signature": "COSMIC 1",
+	"exposure_error": -9.9396794193381
+}, {
+	"signature": "COSMIC 15",
+	"exposure_error": 5.297920403192016
+}, {
+	"signature": "COSMIC 2",
+	"exposure_error": 9.9569013656405
+}, {
+	"signature": "COSMIC 30",
+	"exposure_error": 3.925101572377507
+}, {
+	"signature": "COSMIC 27",
+	"exposure_error": 0
+}, {
+	"signature": "COSMIC 20",
+	"exposure_error": 0
+}, {
+	"signature": "COSMIC 10",
+	"exposure_error": 0
+}, {
+	"signature": "COSMIC 13",
+	"exposure_error": 9.30634189198297
+}, {
+	"signature": "COSMIC 25",
+	"exposure_error": 0
+}, {
+	"signature": "COSMIC 4",
+	"exposure_error": 0
+}, {
+	"signature": "COSMIC 14",
+	"exposure_error": 3.192693179601807e-14
+}, {
+	"signature": "COSMIC 19",
+	"exposure_error": 7.220618176341708e-14
+}, { 
+	"signature": "COSMIC 16",
+	"exposure_error": -2.50142457519996
+}, {  
+	"signature": "COSMIC 3",
+	"exposure_error": -9.39232582213197
+}, {  
+	"signature": "COSMIC 9",
+	"exposure_error": 2.37481153773561
+}, {  
+	"signature": "5* A",
+	"exposure_error": 4.64217855638944
+}, {  
+	"signature": "COSMIC 22",
+	"exposure_error": 0
+}, {  
+	"signature": "COSMIC 23",
+	"exposure_error": 0
+}, {  
+	"signature": "COSMIC 21",
+	"exposure_error": 0
+}]

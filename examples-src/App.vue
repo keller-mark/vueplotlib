@@ -138,6 +138,42 @@
       />
     </PlotContainer>
 
+    <PlotContainer
+      :pWidth="500"
+      :pHeight="300"
+      :pMarginTop="10"
+      :pMarginLeft="120"
+      :pMarginRight="10"
+      :pMarginBottom="100"
+    >
+      <Axis
+        slot="axisLeft"
+        variable="exposure_error"
+        side="left" 
+        :tickRotation="-35"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+      <BarPlot
+        slot="plot"
+        data="exposures_error_single_data"
+        x="signature" 
+        y="exposure_error"
+        :getData="getData"
+        :getScale="getScale"
+        :clickHandler="exampleClickHandler"
+      />
+      <Axis
+        slot="axisBottom"
+        variable="signature"
+        side="bottom" 
+        :tickRotation="-65"
+        :getScale="getScale"
+        :getStack="getStack"
+        :disableBrushing="true"
+      />
+    </PlotContainer>
+
     <h3>&lt;ScatterPlot/&gt;</h3>
     <PlotContainer
       :pWidth="500"
@@ -716,6 +752,7 @@ import {
 // Data
 import exposuresData from './data/exposures.json';
 import exposuresSingleData from './data/exposures_single.json';
+import exposuresErrorSingleData from './data/error_single.json';
 import rainfallData from './data/rainfall.json';
 import xyData from './data/xy.json';
 import clinicalData from './data/clinical_data.json';
@@ -738,6 +775,11 @@ const exposuresSingleDataContainer = new DataContainer(
   'exposures_single_data', 
   'SBS Exposures for SA542425', 
   exposuresSingleData
+);
+const exposuresErrorSingleDataContainer = new DataContainer(
+  'exposures_error_single_data', 
+  'SBS Exposures Error for SA542425', 
+  exposuresErrorSingleData
 );
 const rainfallDataContainer = new DataContainer(
   'rainfall_data', 
@@ -796,6 +838,8 @@ const getData = function(dataKey) {
       return exposuresDataContainer;
     case 'exposures_single_data':
       return exposuresSingleDataContainer;
+    case 'exposures_error_single_data':
+      return exposuresErrorSingleDataContainer;
     case 'rainfall_data':
       return rainfallDataContainer;
     case 'xy_data':
@@ -828,6 +872,11 @@ const exposureScale = new ContinuousScale(
   'exposure',
   'Exposure',
   [0, 90000]
+);
+const exposureErrorScale = new ContinuousScale(
+  'exposure_error',
+  'Error',
+  [-10, 10]
 );
 const signatureScale = new CategoricalScale(
   'signature',
@@ -985,6 +1034,8 @@ const getScale = function(scaleKey) {
       return vueYScale;
     case 'vue_c':
       return vueColorScale;
+    case 'exposure_error':
+      return exposureErrorScale;
   }
 };
 

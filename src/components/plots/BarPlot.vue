@@ -270,15 +270,18 @@ export default {
             if(barWidth - vm.barMarginX <= BAR_WIDTH_MIN) {
                 barMarginX = 0;
             }
-
+            
+            
+            let yOfZero = y(0)
             data.forEach((d) => {
                 const col = genColor();
                 colToNode[col] = { "x": d[vm.x], "y": d[vm.y] };
                 contextHidden.fillStyle = col;
-
-                let height = vm.pHeight - y(d[vm.y]);
                 context.fillStyle = xScale.color(d[vm.x]);
+
+                let height = vm.pHeight - y(d[vm.y]) - (vm.pHeight - yOfZero);
                 context.fillRect(x(d[vm.x]) + (barMarginX/2), y(d[vm.y]), barWidth - barMarginX, height);
+                
                 contextHidden.fillRect(x(d[vm.x]), 0, barWidth, vm.pHeight);
             });
             
