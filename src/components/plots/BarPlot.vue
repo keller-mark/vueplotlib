@@ -71,6 +71,7 @@ let uuid = 0;
  * @prop {string} x The x-scale variable key.
  * @prop {string} y The y-scale variable key.
  * @prop {number} barMarginX The value for the horizontal margin between bars. Default: 2
+ * @prop {string} barColor A color for all bars. Optional. If provided, overrides using the x scale for colors.
  * @extends mixin
  * 
  * @example
@@ -97,6 +98,9 @@ export default {
             type: String
         },
         'y': {
+            type: String
+        },
+        'barColor': {
             type: String
         },
         'barMarginX': {
@@ -277,7 +281,12 @@ export default {
                 const col = genColor();
                 colToNode[col] = { "x": d[vm.x], "y": d[vm.y] };
                 contextHidden.fillStyle = col;
-                context.fillStyle = xScale.color(d[vm.x]);
+                
+                if(vm.barColor !== undefined) {
+                    context.fillStyle = vm.barColor;
+                } else {
+                    context.fillStyle = xScale.color(d[vm.x]);
+                }
 
                 let height = vm.pHeight - y(d[vm.y]) - (vm.pHeight - yOfZero);
                 context.fillRect(x(d[vm.x]) + (barMarginX/2), y(d[vm.y]), barWidth - barMarginX, height);

@@ -159,6 +159,7 @@
         data="exposures_error_single_data"
         x="signature" 
         y="exposure_error"
+        barColor="gray"
         :getData="getData"
         :getScale="getScale"
         :clickHandler="exampleClickHandler"
