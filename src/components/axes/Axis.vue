@@ -502,6 +502,7 @@ export default {
                     axisContainerSize = axisBboxZoomedOut.width;
                     if(varScale instanceof ContinuousScale) {
                         brushed = () => {
+                            if (!d3_event.sourceEvent) return;
                             let s = d3_event.selection || scaleZoomedOut.range().slice().reverse();
                             let s2 = s.map(scaleZoomedOut.invert, scaleZoomedOut);
                             varScale.zoom(s2[1], s2[0]);
@@ -515,6 +516,7 @@ export default {
                         }
                     } else if(varScale instanceof CategoricalScale) {
                         brushed = () => {
+                            if (!d3_event.sourceEvent) return;
                             let s = d3_event.selection || scaleZoomedOut.range().slice().reverse();
                             let eachBand = vm.pHeight / varScale.domain.length;
                             let startIndex = Math.floor((s[0] / eachBand));
@@ -543,6 +545,7 @@ export default {
                     axisContainerSize = axisBboxZoomedOut.height;
                     if(varScale instanceof ContinuousScale) {
                         brushed = () => {
+                            if (!d3_event.sourceEvent) return;
                             let s = d3_event.selection || scaleZoomedOut.range().slice();
                             let s2 = s.map(scaleZoomedOut.invert, scaleZoomedOut);
                             varScale.zoom(s2[0], s2[1]);
@@ -556,6 +559,7 @@ export default {
                         }
                     } else if(varScale instanceof CategoricalScale) {
                         brushed = () => {
+                            if (!d3_event.sourceEvent) return;
                             let s = d3_event.selection || scaleZoomedOut.range().slice();
                             let eachBand = vm.pWidth / varScale.domain.length;
                             let startIndex = Math.floor((s[0] / eachBand));
@@ -581,9 +585,62 @@ export default {
                         .on("end." + vm.axisElemID, brushed);
                 }
 
-                containerZoomedOut.append("g")
-                    .attr("class", "brush")
-                    .call(brush);
+                if(varScale instanceof ContinuousScale) {
+                    let brushMoveDomain;
+                    if(vm._orientation === ORIENTATIONS.VERTICAL) {
+                        brushMoveDomain = scaleZoomedIn.domain().slice().reverse();
+                    } else if(vm._orientation === ORIENTATIONS.HORIZONTAL) {
+                        brushMoveDomain = scaleZoomedIn.domain().slice();
+                    }
+                    let brushMoveRange = brushMoveDomain.map(scaleZoomedOut);
+                    containerZoomedOut.append("g")
+                        .attr("class", "brush")
+                        .call(brush)
+                        .call(brush.move, brushMoveRange);
+                } else if(varScale instanceof CategoricalScale) {
+                    // Only allow "moving" of the brush if all domainFiltered elements are consecutive/no gaps between
+                    let hasGaps = false;
+                    let domain = varScale.domain;
+                    let domainFiltered = varScale.domainFiltered;
+                    let currDomainIndex = null;
+                    for(let domainFilteredElement of domainFiltered) {
+                        let elementIndex = domain.indexOf(domainFilteredElement);
+                        if(elementIndex === -1) {
+                            hasGaps = true; // stop if encounter any elements of filteredDomain that are not found in domain
+                            break;
+                        }
+                        if(currDomainIndex === null) {
+                            currDomainIndex = elementIndex;
+                        } else if(elementIndex - currDomainIndex > 1) {
+                            hasGaps = true;
+                            break;
+                        }
+                        currDomainIndex = elementIndex;
+                    }
+
+                    if(hasGaps) {
+                        // Do not allow "moving"
+                        containerZoomedOut.append("g")
+                            .attr("class", "brush")
+                            .call(brush);
+                    } else {
+                        // No gaps, allow "moving"
+                        let eachBand;
+                        if(vm._orientation === ORIENTATIONS.HORIZONTAL) {
+                            eachBand = vm.pWidth / varScale.domain.length;
+                        } else if(vm._orientation === ORIENTATIONS.VERTICAL) {
+                            eachBand = vm.pHeight / varScale.domain.length;
+                        }
+                        
+                        let brushMoveRange = [scaleZoomedOut(domainFiltered[0]), scaleZoomedOut(domainFiltered[domainFiltered.length - 1]) + eachBand];
+                        containerZoomedOut.append("g")
+                            .attr("class", "brush")
+                            .call(brush)
+                            .call(brush.move, brushMoveRange);
+                    }
+                }
+                
+
 
             } // end if not disable brushing
             
