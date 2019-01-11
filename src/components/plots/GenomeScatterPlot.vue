@@ -73,7 +73,7 @@ let uuid = 0;
  * @prop {string} c The color-scale variable key.
  * @prop {string} chromosomeVariable The axis chromosome variable key. Default: "chromosome"
  * @prop {string} positionVariable The axis position variable key. Default: "position"
- * @prop {boolean} log Whether to have log scaled y. Default: false
+ * @prop {boolean} logY Whether to have log scaled y. Default: false
  * @extends mixin
  * 
  * @example
@@ -114,7 +114,7 @@ export default {
             type: String,
             default: "position"
         },
-        'log': {
+        'logY': {
             type: Boolean,
             default: false
         }
@@ -186,6 +186,11 @@ export default {
 
         this._gScale.onHighlight(this.uuid, null);
         this._gScale.onHighlightDestroy(this.uuid, null);
+    },
+    watch: {
+        logY() {
+            this.drawPlot();
+        }
     },
     methods: {
         tooltip: function(mouseX, mouseY, chromosome, position, y, c) {
@@ -259,12 +264,12 @@ export default {
 
             vm.highlightGScales = g;
 
-            let continuousScaleFunc = d3_scaleLinear;
-            if(vm.log) {
-                continuousScaleFunc = d3_scaleLog;
+            let yScaleFunc = d3_scaleLinear;
+            if(vm.logY) {
+                yScaleFunc = d3_scaleLog;
             }
             
-            const y = continuousScaleFunc()
+            const y = yScaleFunc()
                 .domain(yScale.domainFiltered)
                 .range([vm.pHeight, 0]);
 

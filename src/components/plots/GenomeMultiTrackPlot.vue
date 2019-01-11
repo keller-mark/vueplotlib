@@ -227,6 +227,23 @@ export default {
         this._gScale.onHighlight(this.uuid, null);
         this._gScale.onHighlightDestroy(this.uuid, null);
     },
+    watch: {
+        eventWidth() {
+            this.drawPlot();
+        },
+        eventColor() {
+            this.drawPlot();
+        },
+        backgroundColor() {
+            this.drawPlot();
+        },
+        lineColor() {
+            this.drawPlot();
+        },
+        barMarginY() {
+            this.drawPlot();
+        }
+    },
     methods: {
         tooltip: function(mouseX, mouseY, chromosome, position, y, c) {
             // Set values

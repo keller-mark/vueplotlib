@@ -48,7 +48,7 @@
 </template>
 
 <script>
-import { scaleLinear as d3_scaleLinear } from 'd3-scale';
+import { scaleLinear as d3_scaleLinear, scaleLog as d3_scaleLog } from 'd3-scale';
 import { select as d3_select } from 'd3-selection';
 import { mouse as d3_mouse, event as d3_event } from 'd3';
 import debounce from 'lodash/debounce';
@@ -68,6 +68,8 @@ let uuid = 0;
  * @prop {boolean} fillPoints Whether or not to fill points. Default: false
  * @prop {string} pointColor Default color for points. Default: "#4682B4"
  * @prop {number} pointSize Default size for points. Default: 3
+ * @prop {boolean} logY Whether or not to log-scale the y axis. Default: false
+ * @prop {boolean} logX Whether or not to log-scale the x axis. Default: false
  * @extends mixin
  * 
  * @example
@@ -108,6 +110,14 @@ export default {
             default: 3
         },
         'fillPoints': {
+            type: Boolean,
+            default: false
+        },
+        'logY': {
+            type: Boolean,
+            default: false
+        },
+        'logX': {
             type: Boolean,
             default: false
         }
@@ -184,6 +194,23 @@ export default {
         this._yScale.onHighlight(this.uuid, null);
         this._yScale.onHighlightDestroy(this.uuid, null);
     },
+    watch: {
+        pointColor() {
+            this.drawPlot();
+        },
+        pointSize() {
+            this.drawPlot();
+        },
+        fillPoints() {
+            this.drawPlot();
+        },
+        logX() {
+            this.drawPlot();
+        },
+        logY() {
+            this.drawPlot();
+        }
+    },
     methods: {
         tooltip: function(mouseX, mouseY, x, y, c) {
             // Set values
@@ -247,14 +274,23 @@ export default {
                 cScale = vm._cScale;
             }
 
+            let xScaleFunc = d3_scaleLinear;
+            if(vm.logX) {
+                xScaleFunc = d3_scaleLog;
+            }
 
-            const x = d3_scaleLinear()
+            const x = xScaleFunc()
                 .domain(xScale.domainFiltered)
                 .range([0, vm.pWidth]);
 
             vm.highlightXScale = x;
             
-            const y = d3_scaleLinear()
+            let yScaleFunc = d3_scaleLinear;
+            if(vm.logY) {
+                yScaleFunc = d3_scaleLog;
+            }
+            
+            const y = yScaleFunc()
                 .domain(yScale.domainFiltered)
                 .range([vm.pHeight, 0]);
 

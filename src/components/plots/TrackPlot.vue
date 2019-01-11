@@ -159,6 +159,11 @@ export default {
         this._xScale.onHighlight(this.uuid, null);
         this._xScale.onHighlightDestroy(this.uuid, null);
     },
+    watch: {
+        barMarginX() {
+            this.drawPlot();
+        }
+    },
     methods: {
         tooltip: function(mouseX, mouseY, x, c) {
             // Set values

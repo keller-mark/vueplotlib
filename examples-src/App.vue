@@ -114,6 +114,7 @@
         slot="axisLeft"
         variable="exposure"
         side="left" 
+        :log="true"
         :tickRotation="-35"
         :getScale="getScale"
         :getStack="getStack"
@@ -123,6 +124,7 @@
         data="exposures_single_data"
         x="signature" 
         y="exposure"
+        :logY="true"
         :getData="getData"
         :getScale="getScale"
         :clickHandler="exampleClickHandler"
@@ -872,7 +874,7 @@ const sampleIdScale = new CategoricalScale(
 const exposureScale = new ContinuousScale(
   'exposure',
   'Exposure',
-  [0, 90000]
+  [1, 90000]
 );
 const exposureErrorScale = new ContinuousScale(
   'exposure_error',

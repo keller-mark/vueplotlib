@@ -167,6 +167,14 @@ export default {
         // Unsubscribe to data mutations here
         this._dataContainer.onUpdate(this.uuid, null);
     },
+    watch: {
+        pointSize() {
+            this.drawPlot();
+        },
+        drawOutliers() {
+            this.drawPlot();
+        }
+    },
     methods: {
         tooltip: function(mouseX, mouseY, node) {
             // Set values

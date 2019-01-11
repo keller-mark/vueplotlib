@@ -54,7 +54,7 @@
 </template>
 
 <script>
-import { scaleBand as d3_scaleBand, scaleLinear as d3_scaleLinear } from 'd3-scale';
+import { scaleBand as d3_scaleBand, scaleLinear as d3_scaleLinear, scaleLog as d3_scaleLog } from 'd3-scale';
 import { select as d3_select } from 'd3-selection';
 import { mouse as d3_mouse, event as d3_event } from 'd3';
 import debounce from 'lodash/debounce';
@@ -72,6 +72,7 @@ let uuid = 0;
  * @prop {string} y The y-scale variable key.
  * @prop {number} barMarginX The value for the horizontal margin between bars. Default: 2
  * @prop {string} barColor A color for all bars. Optional. If provided, overrides using the x scale for colors.
+ * @prop {boolean} logY Whether or not to log-scale the y axis. Default: false
  * @extends mixin
  * 
  * @example
@@ -106,6 +107,10 @@ export default {
         'barMarginX': {
             type: Number, 
             default: BAR_MARGIN_X_DEFAULT
+        },
+        'logY': {
+            type: Boolean,
+            default: false
         }
     },
     data() {
@@ -160,6 +165,17 @@ export default {
         this._xScale.onHighlight(this.uuid, null);
         this._xScale.onHighlightDestroy(this.uuid, null);
     },
+    watch: {
+        barMarginX() {
+            this.drawPlot();
+        },
+        barColor() {
+            this.drawPlot();
+        },
+        logY() {
+            this.drawPlot();
+        }
+    },
     methods: {
         tooltip: function(mouseX, mouseY, x, y) {
             // Set values
@@ -211,14 +227,16 @@ export default {
 
             vm.highlightScale = x;
             
-            const y = d3_scaleLinear()
+            let yScaleFunc = d3_scaleLinear;
+            if(vm.logY) {
+                yScaleFunc = d3_scaleLog;
+            }
+            const y = yScaleFunc()
                 .domain(yScale.domainFiltered)
                 .range([vm.pHeight, 0]);
 
             const barWidth = vm.pWidth / xScale.domainFiltered.length;
             vm.barWidth = barWidth;
-              
-          
             
             /*
              * Scale up the canvas
@@ -276,7 +294,10 @@ export default {
             }
             
             
-            let yOfZero = y(0)
+            let heightMinusYOfZero = 0;
+            if(!vm.logY) {
+                heightMinusYOfZero = vm.pHeight - y(0);
+            }
             data.forEach((d) => {
                 const col = genColor();
                 colToNode[col] = { "x": d[vm.x], "y": d[vm.y] };
@@ -288,7 +309,7 @@ export default {
                     context.fillStyle = xScale.color(d[vm.x]);
                 }
 
-                let height = vm.pHeight - y(d[vm.y]) - (vm.pHeight - yOfZero);
+                let height = vm.pHeight - y(d[vm.y]) - heightMinusYOfZero;
                 context.fillRect(x(d[vm.x]) + (barMarginX/2), y(d[vm.y]), barWidth - barMarginX, height);
                 
                 contextHidden.fillRect(x(d[vm.x]), 0, barWidth, vm.pHeight);

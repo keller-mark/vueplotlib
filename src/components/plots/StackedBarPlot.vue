@@ -58,7 +58,7 @@
 </template>
 
 <script>
-import { scaleBand as d3_scaleBand, scaleLinear as d3_scaleLinear } from 'd3-scale';
+import { scaleBand as d3_scaleBand, scaleLinear as d3_scaleLinear, scaleLog as d3_scaleLog } from 'd3-scale';
 import { select as d3_select } from 'd3-selection';
 import { stack as d3_stack, stackOrderNone as d3_stackOrderNone, stackOffsetNone as d3_stackOffsetNone } from 'd3-shape';
 import { mouse as d3_mouse, event as d3_event } from 'd3';
@@ -77,6 +77,7 @@ let uuid = 0;
  * @prop {string} y The y-scale variable key.
  * @prop {string} c The color-scale variable key.
  * @prop {number} barMarginX The value for the horizontal margin between bars. Default: 2
+ * @prop {boolean} logY Whether or not to log-scale the y axis. Default: false
  * @extends mixin
  * 
  * @example
@@ -112,6 +113,10 @@ export default {
         'barMarginX': {
             type: Number, 
             default: BAR_MARGIN_X_DEFAULT
+        },
+        'logY': {
+            type: Boolean,
+            default: false
         }
     },
     data() {
@@ -165,13 +170,20 @@ export default {
         this._xScale.onUpdate(this.uuid, null);
         this._cScale.onUpdate(this.uuid, null);
         
-
         // Unsubscribe to data mutations here
         this._dataContainer.onUpdate(this.uuid, null);
 
         // Unsubscribe to highlights here
         this._xScale.onHighlight(this.uuid, null);
         this._xScale.onHighlightDestroy(this.uuid, null);
+    },
+    watch: {
+        barMarginX() {
+            this.drawPlot();
+        },
+        logY() {
+            this.drawPlot();
+        }
     },
     methods: {
         tooltip: function(mouseX, mouseY, x, y, c) {
@@ -228,7 +240,12 @@ export default {
 
             vm.highlightScale = x;
             
-            const y = d3_scaleLinear()
+            let yScaleFunc = d3_scaleLinear;
+            if(vm.logY) {
+                yScaleFunc = d3_scaleLog;
+            }
+
+            const y = yScaleFunc()
                 .domain(yScale.domainFiltered)
                 .range([vm.pHeight, 0]);
 

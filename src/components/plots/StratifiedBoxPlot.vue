@@ -229,6 +229,14 @@ export default {
         this._xScale.onHighlight(this.uuid, null);
         this._xScale.onHighlightDestroy(this.uuid, null);
     },
+    watch: {
+        pointSize() {
+            this.drawPlot();
+        },
+        drawOutliers() {
+            this.drawPlot();
+        }
+    },
     methods: {
         tooltip: function(mouseX, mouseY, node) {
             // Set values
