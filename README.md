@@ -19,7 +19,7 @@ yarn add vue-declarative-plots
 ```
 
 ### Example Usage
-Please see the [https://github.com/keller-mark/vue-declarative-plots-examples](vue-declarative-plots-examples) repository for minimal examples of usage.
+Please see the [vue-declarative-plots-examples](https://github.com/keller-mark/vue-declarative-plots-examples) repository for minimal examples of usage.
 
 
 ### Plot Components
