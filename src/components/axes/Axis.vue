@@ -179,10 +179,22 @@ export default {
         }
     },
     watch: {
-        pWidth: function () {
+        pMarginTop() {
             this.drawAxis();
         },
-        pHeight: function () {
+        pMarginLeft() {
+            this.drawAxis();
+        },
+        pMarginRight() {
+            this.drawAxis();
+        },
+        pMarginBottom() {
+            this.drawAxis();
+        },
+        pWidth() {
+            this.drawAxis();
+        },
+        pHeight() {
             this.drawAxis();
         }
     },

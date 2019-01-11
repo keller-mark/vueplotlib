@@ -18,33 +18,8 @@ These components were developed for use in [iMuSE](https://github.com/lrgr/mutat
 yarn add vue-declarative-plots
 ```
 
-
-### Development
-
-Install dependencies:
-```bash
-yarn
-```
-
-Serve for development at [http://localhost:8080](http://localhost:8080):
-```bash
-yarn run serve
-```
-
-Build for production (generates `/dist` and `/examples`):
-```bash
-yarn run build
-```
-
-Run tests with [jest](https://jestjs.io/):
-```bash
-yarn run test
-```
-
-Compile documentation with [documentationjs](https://documentation.js.org/):
-```bash
-yarn run docs
-```
+### Example Usage
+Please see the [https://github.com/keller-mark/vue-declarative-plots-examples](vue-declarative-plots-examples) repository for minimal examples of usage.
 
 
 ### Plot Components
@@ -89,6 +64,36 @@ yarn run docs
 - HorizontalBoxPlot
 - HorizontalMultiBoxPlot
 - LinePlot
+
+
+
+### Development
+
+Install dependencies:
+```bash
+yarn
+```
+
+Serve for development at [http://localhost:8080](http://localhost:8080):
+```bash
+yarn run serve
+```
+
+Build for production (generates `/dist` and `/examples`):
+```bash
+yarn run build
+```
+
+Run tests with [jest](https://jestjs.io/):
+```bash
+yarn run test
+```
+
+Compile documentation with [documentationjs](https://documentation.js.org/):
+```bash
+yarn run docs
+```
+
 
 
 

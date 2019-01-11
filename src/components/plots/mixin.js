@@ -87,10 +87,10 @@ export default {
         }
     },
     watch: {
-        width: function () {
+        pWidth() {
             this.drawPlot();
         },
-        height: function () {
+        pHeight() {
             this.drawPlot();
         }
     },
