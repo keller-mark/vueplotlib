@@ -52,7 +52,7 @@ let uuid = 0;
  * @prop {number} lItemHeight The height of each legend item.
  * @prop {function} getScale Function that takes a scale key string and returns a scale instance.
  * @prop {function} getStack Function that returns a HistoryStack instance.
- * @prop {boolean} disableBrushing Whether to disable brushing functionality and hide the zoomed-out "context" view. Default: false
+ * @prop {function} clickHandler Function that is called when clicking on legend element names. Optional.
  * 
  * @example
  * <CategoricalLegend
@@ -87,6 +87,9 @@ export default {
             type: Function
         },
         'getStack': {
+            type: Function
+        },
+        'clickHandler': {
             type: Function
         }
     },
@@ -296,13 +299,22 @@ export default {
                 .attr("height", scale.bandwidth())
                 .attr("fill", "transparent");
 
-            items.append("text")
+            const itemText = items.append("text")
                 .style("text-anchor", "start")
                 .attr("y", scale.bandwidth() - 5)
                 .attr("x", (textOffset + marginX) + "px")
                 .style("font-size", "13px")
                 .text((d) => varScale.toHuman(d))
                 .attr("fill", (d) => varScale.domainFiltered.includes(d) ? "black" : "silver");
+            
+            if(vm.clickHandler !== undefined) {
+                itemText
+                    .style("text-decoration", "underline")
+                    .style("cursor", "pointer")
+                    .on("click", (d) => {
+                        vm.clickHandler(d);
+                    });
+            }
             
             if(vm._style === STYLES.BAR) {
                 items.append("rect")
