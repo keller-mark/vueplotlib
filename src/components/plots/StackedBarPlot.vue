@@ -78,6 +78,8 @@ let uuid = 0;
  * @prop {string} c The color-scale variable key.
  * @prop {number} barMarginX The value for the horizontal margin between bars. Default: 2
  * @prop {boolean} logY Whether or not to log-scale the y axis. Default: false
+ * @prop {boolean} filterX Set to false to ignore the filtered domain of the x scale. Default: true 
+ * @prop {boolean} filterY Set to false to ignore the filtered domain of the y scale. Default: true
  * @extends mixin
  * 
  * @example
@@ -117,6 +119,14 @@ export default {
         'logY': {
             type: Boolean,
             default: false
+        },
+        'filterX': {
+            type: Boolean,
+            default: true
+        },
+        'filterY': {
+            type: Boolean,
+            default: true
         }
     },
     data() {
@@ -232,10 +242,25 @@ export default {
             const yScale = this._yScale;
             const cScale = this._cScale;
 
-            data = data.filter((el) => xScale.domainFiltered.includes(el[vm.x]));
+            let xScaleDomain;
+            if(vm.filterX) {
+                xScaleDomain = xScale.domainFiltered;
+            } else {
+                xScaleDomain = xScale.domain;
+            }
+
+            let yScaleDomain;
+            if(vm.filterY) {
+                yScaleDomain = yScale.domainFiltered;
+            } else {
+                yScaleDomain = yScale.domain;
+            }
+
+            
+            data = data.filter((el) => xScaleDomain.includes(el[vm.x]));
 
             const x = d3_scaleBand()
-                .domain(xScale.domainFiltered)
+                .domain(xScaleDomain)
                 .range([0, vm.pWidth]);
 
             vm.highlightScale = x;
@@ -245,11 +270,12 @@ export default {
                 yScaleFunc = d3_scaleLog;
             }
 
+
             const y = yScaleFunc()
-                .domain(yScale.domainFiltered)
+                .domain(yScaleDomain)
                 .range([vm.pHeight, 0]);
 
-            const barWidth = vm.pWidth / xScale.domainFiltered.length;
+            const barWidth = vm.pWidth / xScaleDomain.length;
             vm.barWidth = barWidth;
               
             const stack = d3_stack()
