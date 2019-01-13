@@ -177,6 +177,28 @@ export default class CategoricalScale extends AbstractScale {
     }
 
     /**
+     * Sort the domain based on the hierarchy passed.
+     * @param {object} dataContainer DataContainer instance holding the hierarchy data.
+     */
+    sortByHierarchy(dataContainer) {
+        console.assert(dataContainer instanceof DataContainer);
+        if(dataContainer.isLoading) {
+            return;
+        }
+        const hierarchyData = dataContainer.dataCopy;
+        console.assert(typeof hierarchyData === "object");
+        
+        const cleanedHierarchyData = filterHierarchy(hierarchyData, this.domain);
+        
+        const root = d3_hierarchy(cleanedHierarchyData);
+        const leaves = root.leaves().map((el) => el.data.name);
+        // Set domain
+        this.setDomain(leaves);
+        // Set domain filtered
+        this.setDomainFiltered(leaves.slice());
+    }
+
+    /**
      * Filter the domain based on the hierarchy passed.
      * @param {object} dataContainer DataContainer instance holding the hierarchy data.
      * @param {string} newParentKey Key of the node that will be used as the parent of the filtered nodes.
@@ -201,14 +223,13 @@ export default class CategoricalScale extends AbstractScale {
                 }
             }
         }
-        const filteredHierarchyData = filterHierarchy(hierarchyData, this.domain);
-        const parent = getParent(filteredHierarchyData);
-        const root = d3_hierarchy(parent);
-        const leaves = root.leaves().map((el) => el.data.name);
+        const cleanedHierarchyData = filterHierarchy(hierarchyData, this.domain);
         
+        const filteredParent = getParent(cleanedHierarchyData);
+        const filteredRoot = d3_hierarchy(filteredParent);
+        const filteredLeaves = filteredRoot.leaves().map((el) => el.data.name);
         // Set filtered domain
-        this.setDomainFiltered(leaves);
-
+        this.setDomainFiltered(filteredLeaves);
     }
 
     /**

@@ -318,6 +318,14 @@ export default {
                     d3_select(this).attr("fill-opacity", 0);
                 })
                 .on("click", (d) => {
+                    varScale.sortByHierarchy(vm._hierarchyContainer);
+                    stack.push(new HistoryEvent(
+                        EVENT_TYPES.SCALE,
+                        EVENT_SUBTYPES.SCALE_DOMAIN_SORT,
+                        vm.variable,
+                        "sortByHierarchy",
+                        [computedParam(EVENT_TYPES.DATA, [vm.h])]
+                    ));
                     varScale.filterByHierarchy(vm._hierarchyContainer, d.data.name);
                     stack.push(new HistoryEvent(
                         EVENT_TYPES.SCALE,

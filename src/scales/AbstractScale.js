@@ -258,5 +258,4 @@ export default class AbstractScale extends AbstractScaleDispatcher {
         this.setDomainFiltered(this._domain.slice());
     }
 
-    
 }
