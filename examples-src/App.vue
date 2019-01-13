@@ -629,7 +629,7 @@
       :getData="getData"
       :getStack="getStack"
     />
-
+    <h3>&lt;StratifiedBoxPlot/&gt;</h3>
     <PlotContainer
       :pWidth="500"
       :pHeight="300"
@@ -669,6 +669,46 @@
       />
     </PlotContainer>
 
+    <h3>&lt;StratifiedScatterPlot/&gt;</h3>
+    <PlotContainer
+      :pWidth="500"
+      :pHeight="300"
+      :pMarginTop="10"
+      :pMarginLeft="120"
+      :pMarginRight="10"
+      :pMarginBottom="180"
+    >
+      <Axis
+        slot="axisLeft"
+        variable="exposure"
+        side="left" 
+        :tickRotation="-35"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+      <StratifiedScatterPlot
+        slot="plot"
+        data="exposures_data"
+        variable="COSMIC 1"
+        s="clinical_data"
+        x="age"
+        y="exposure"
+        o="sample_id"
+        :fillPoints="true"
+        :getData="getData"
+        :getScale="getScale"
+        :clickHandler="exampleClickHandler"
+      />
+      <Axis
+        slot="axisBottom"
+        variable="age"
+        side="bottom" 
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+    </PlotContainer>
+    <h3>v-if</h3>
+    <button @click="togglePlot = !togglePlot">Toggle Plot</button>
     <PlotContainer v-if="togglePlot"
       :pWidth="500"
       :pHeight="300"
@@ -708,7 +748,7 @@
       />
     </PlotContainer>
 
-    <button @click="togglePlot = !togglePlot">Toggle Plot</button>
+    
 
 
     <div class="stack-wrapper" v-show="showStack">
@@ -737,6 +777,7 @@ import {
     MultiTrackPlot,
     HierarchicalMultiTrackPlot,
     StratifiedBoxPlot,
+    StratifiedScatterPlot,
     GenomeScatterPlot,
     GenomeTrackPlot,
     GenomeMultiTrackPlot,
@@ -1078,6 +1119,7 @@ export default {
     MultiTrackPlot,
     HierarchicalMultiTrackPlot,
     StratifiedBoxPlot,
+    StratifiedScatterPlot,
     GenomeScatterPlot,
     GenomeTrackPlot,
     GenomeMultiTrackPlot,
