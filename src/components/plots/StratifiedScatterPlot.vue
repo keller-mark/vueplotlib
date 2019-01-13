@@ -323,7 +323,7 @@ export default {
             /*
              * More prepare for interactivity
              */
-            const delaunay = getDelaunay(points, false);
+            const delaunay = getDelaunay(points, true);
             
             /*
              * Listen for mouse events
