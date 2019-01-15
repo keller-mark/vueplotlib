@@ -6,6 +6,7 @@ toc:
   - BoxPlot
   - MultiBoxPlot
   - TrackPlot
+  - RectPlot
   - MultiTrackPlot
   - HierarchicalMultiTrackPlot
   - StratifiedBoxPlot
@@ -13,6 +14,7 @@ toc:
   - GenomeTrackPlot
   - GenomeMultiTrackPlot
   - GenomeStackedBarPlot
+  - StratifiedScatterPlot
   - mixin
   - Axis
   - GenomeAxis

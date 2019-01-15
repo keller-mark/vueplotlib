@@ -707,6 +707,30 @@
         :getStack="getStack"
       />
     </PlotContainer>
+
+    <h3>&lt;RectPlot/&gt;</h3>
+    <PlotContainer
+      :pWidth="50"
+      :pHeight="30"
+      :pMarginTop="5"
+      :pMarginLeft="20"
+      :pMarginRight="20"
+      :pMarginBottom="50"
+    >
+      <RectPlot
+        slot="plot"
+        data="clinical_data"
+        z="sample_id"
+        o="SA569315"
+        c="age"
+        :getData="getData"
+        :getScale="getScale"
+        :clickHandler="exampleClickHandler"
+      />
+    </PlotContainer>
+
+
+
     <h3>v-if</h3>
     <button @click="togglePlot = !togglePlot">Toggle Plot</button>
     <PlotContainer v-if="togglePlot"
@@ -774,6 +798,7 @@ import {
     BoxPlot,
     MultiBoxPlot,
     TrackPlot,
+    RectPlot,
     MultiTrackPlot,
     HierarchicalMultiTrackPlot,
     StratifiedBoxPlot,
@@ -1116,6 +1141,7 @@ export default {
     BoxPlot,
     MultiBoxPlot,
     TrackPlot,
+    RectPlot,
     MultiTrackPlot,
     HierarchicalMultiTrackPlot,
     StratifiedBoxPlot,

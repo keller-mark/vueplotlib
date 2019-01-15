@@ -10,6 +10,11 @@
     background-color: black;
     pointer-events: none;
 }
+.vdp-plot-highlight-rect {
+    position: absolute;
+    border: 1px solid black;
+    pointer-events: none;
+}
 .vdp-tooltip {
     position: fixed;
     border: 1px solid rgb(205, 205, 205);
