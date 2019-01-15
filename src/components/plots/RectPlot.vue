@@ -12,7 +12,7 @@
         ></canvas>
         <div v-show="this.highlightXY !== null"
             :style="{
-                'height': (this.pHeight) + 'px', 
+                'height': (this.pHeight - 0.5) + 'px', 
                 'width': (this.pWidth - 0.5) + 'px', 
                 'top': (this.pMarginTop - 0.5) + 'px',
                 'left': (this.pMarginLeft - 0.5) + 'px'
@@ -133,14 +133,14 @@ export default {
     beforeDestroy() {
         // Unsubscribe to events
         this._cScale.onUpdate(this.uuid, null);
-        this._xScale.onUpdate(this.uuid, null);
+        this._zScale.onUpdate(this.uuid, null);
 
         // Unsubscribe to data mutations here
         this._dataContainer.onUpdate(this.uuid, null);
 
         // Unsubscribe to highlights here
-        this._xScale.onHighlight(this.uuid, null);
-        this._xScale.onHighlightDestroy(this.uuid, null);
+        this._zScale.onHighlight(this.uuid, null);
+        this._zScale.onHighlightDestroy(this.uuid, null);
     },
     watch: {
         o() {
