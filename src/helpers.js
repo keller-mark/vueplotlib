@@ -95,3 +95,18 @@ export const getDelaunay = (points, randomness) => {
     }
 
 }
+
+/**
+ * Generate seeded random numbers, e.g. for jitter plot
+ * @param {number} seed The seed.
+ * @returns {function} The random number generator function.
+ */
+export const seededRandom = (seed) => {
+    // Adapted from this StackOverflow answer https://stackoverflow.com/a/19303725
+    // Note: not a high-quality random number generator, just a quick and dirty one
+    let internalSeed = seed;
+    return () => {
+        var x = Math.sin(internalSeed++) * 10000;
+        return x - Math.floor(x);
+    }
+}

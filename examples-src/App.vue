@@ -317,46 +317,6 @@
       />
     </PlotContainer>
 
-    <h3>&lt;StratifiedBoxPlot/&gt;</h3>
-    <PlotContainer
-      :pWidth="500"
-      :pHeight="300"
-      :pMarginTop="10"
-      :pMarginLeft="120"
-      :pMarginRight="10"
-      :pMarginBottom="180"
-    >
-      <Axis
-        slot="axisLeft"
-        variable="exposure"
-        side="left" 
-        :tickRotation="-35"
-        :getScale="getScale"
-        :getStack="getStack"
-      />
-      <StratifiedBoxPlot
-        slot="plot"
-        data="exposures_data"
-        variable="COSMIC 1"
-        s="clinical_data"
-        x="sex"
-        y="exposure"
-        o="sample_id"
-        :getData="getData"
-        :getScale="getScale"
-        :clickHandler="exampleClickHandler"
-        :drawOutliers="true"
-      />
-      <Axis
-        slot="axisBottom"
-        variable="sex"
-        side="bottom" 
-        :tickRotation="-65"
-        :getScale="getScale"
-        :getStack="getStack"
-      />
-    </PlotContainer>
-
     <h3>&lt;TrackPlot/&gt;</h3>
     <PlotContainer
       :pWidth="700"
@@ -669,6 +629,46 @@
       />
     </PlotContainer>
 
+    <h3>&lt;StratifiedSinaPlot/&gt;</h3>
+    <PlotContainer
+      :pWidth="500"
+      :pHeight="300"
+      :pMarginTop="10"
+      :pMarginLeft="120"
+      :pMarginRight="10"
+      :pMarginBottom="180"
+    >
+      <Axis
+        slot="axisLeft"
+        variable="exposure"
+        side="left" 
+        :tickRotation="-35"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+      <StratifiedSinaPlot
+        slot="plot"
+        data="exposures_data"
+        variable="COSMIC 1"
+        s="clinical_data"
+        x="sex"
+        y="exposure"
+        o="sample_id"
+        :getData="getData"
+        :getScale="getScale"
+        :clickHandler="exampleClickHandler"
+        :fillPoints="true"
+      />
+      <Axis
+        slot="axisBottom"
+        variable="sex"
+        side="bottom" 
+        :tickRotation="-65"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+    </PlotContainer>
+
     <h3>&lt;StratifiedScatterPlot/&gt;</h3>
     <PlotContainer
       :pWidth="500"
@@ -803,6 +803,7 @@ import {
     HierarchicalMultiTrackPlot,
     StratifiedBoxPlot,
     StratifiedScatterPlot,
+    StratifiedSinaPlot,
     GenomeScatterPlot,
     GenomeTrackPlot,
     GenomeMultiTrackPlot,
@@ -940,7 +941,7 @@ const sampleIdScale = new CategoricalScale(
 const exposureScale = new ContinuousScale(
   'exposure',
   'Exposure',
-  [1, 90000]
+  [0, 90000]
 );
 const exposureErrorScale = new ContinuousScale(
   'exposure_error',
@@ -1146,6 +1147,7 @@ export default {
     HierarchicalMultiTrackPlot,
     StratifiedBoxPlot,
     StratifiedScatterPlot,
+    StratifiedSinaPlot,
     GenomeScatterPlot,
     GenomeTrackPlot,
     GenomeMultiTrackPlot,
