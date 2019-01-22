@@ -272,7 +272,7 @@ export default {
         drawPlot() {
             const vm = this;
 
-            if(vm._dataContainer.isLoading || vm._stratificationDataContainer.isLoading || vm._xScale.isLoading || vm._yScale.isLoading || vm._oScale.isLoading) {
+            if(vm._dataContainer.isLoading || vm._stratificationDataContainer.isLoading || vm._xScale.isLoading || vm._yScale.isLoading || vm._oScale.isLoading || vm._cScale.isLoading) {
                 return;
             }
             

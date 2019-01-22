@@ -114,7 +114,6 @@
         slot="axisLeft"
         variable="exposure"
         side="left" 
-        :log="true"
         :tickRotation="-35"
         :getScale="getScale"
         :getStack="getStack"
@@ -124,7 +123,6 @@
         data="exposures_single_data"
         x="signature" 
         y="exposure"
-        :logY="true"
         :getData="getData"
         :getScale="getScale"
         :clickHandler="exampleClickHandler"
@@ -772,6 +770,44 @@
       />
     </PlotContainer>
 
+    <h3>&lt;CountBarPlot/&gt;</h3>
+    <PlotContainer
+      :pWidth="500"
+      :pHeight="300"
+      :pMarginTop="10"
+      :pMarginLeft="120"
+      :pMarginRight="10"
+      :pMarginBottom="180"
+    >
+      <Axis
+        slot="axisLeft"
+        variable="num_samples"
+        side="left" 
+        :tickRotation="-35"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+      <CountBarPlot
+        slot="plot"
+        data="exposures_data"
+        x="signature"
+        y="num_samples"
+        o="sample_id"
+        :filterFunction="countBarPlotFilterFunction"
+        :getData="getData"
+        :getScale="getScale"
+        :clickHandler="exampleClickHandler"
+      />
+      <Axis
+        slot="axisBottom"
+        variable="signature"
+        side="bottom" 
+        :tickRotation="-65"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+    </PlotContainer>
+
 
 
     <h3>v-if</h3>
@@ -848,6 +884,7 @@ import {
     StratifiedScatterPlot,
     StratifiedSinaPlot,
     StratifiedKaplanMeierPlot,
+    CountBarPlot,
     GenomeScatterPlot,
     GenomeTrackPlot,
     GenomeMultiTrackPlot,
@@ -991,6 +1028,11 @@ const sampleIdScale = new CategoricalScale(
   'sample_id', 
   'Sample', 
   d3_set(exposuresData.map(el => el.sample_id)).values()
+);
+const numSamplesScale = new ContinuousScale(
+  'num_samples', 
+  'Number of Samples', 
+  [0, d3_set(exposuresData.map(el => el.sample_id)).values().length]
 );
 const exposureScale = new ContinuousScale(
   'exposure',
@@ -1144,6 +1186,8 @@ const getScale = function(scaleKey) {
   switch(scaleKey) {
     case 'sample_id':
       return sampleIdScale;
+    case 'num_samples':
+      return numSamplesScale;
     case 'exposure':
       return exposureScale;
     case 'signature':
@@ -1229,6 +1273,7 @@ export default {
     StratifiedScatterPlot,
     StratifiedSinaPlot,
     StratifiedKaplanMeierPlot,
+    CountBarPlot,
     GenomeScatterPlot,
     GenomeTrackPlot,
     GenomeMultiTrackPlot,
@@ -1251,6 +1296,9 @@ export default {
   methods: {
     exampleClickHandler() {
       alert("You clicked something with data: " + JSON.stringify([...arguments]));
+    },
+    countBarPlotFilterFunction(val) {
+      return (val > 1);
     }
   }
 }

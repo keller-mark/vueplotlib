@@ -19,6 +19,7 @@ import StratifiedBoxPlot from './components/plots/StratifiedBoxPlot.vue';
 import StratifiedScatterPlot from './components/plots/StratifiedScatterPlot.vue';
 import StratifiedSinaPlot from './components/plots/StratifiedSinaPlot.vue';
 import StratifiedKaplanMeierPlot from './components/plots/StratifiedKaplanMeierPlot.vue';
+import CountBarPlot from './components/plots/CountBarPlot.vue';
 
 
 // Genome Plots
@@ -65,6 +66,7 @@ export {
     StratifiedScatterPlot,
     StratifiedSinaPlot,
     StratifiedKaplanMeierPlot,
+    CountBarPlot,
     GenomeScatterPlot,
     GenomeTrackPlot,
     GenomeMultiTrackPlot,

@@ -17,6 +17,7 @@ toc:
   - StratifiedScatterPlot
   - StratifiedSinaPlot
   - StratifiedKaplanMeierPlot
+  - CountBarPlot
   - mixin
   - Axis
   - GenomeAxis
