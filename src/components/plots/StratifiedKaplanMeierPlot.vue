@@ -19,16 +19,6 @@
             }"
             class="vdp-plot-highlight"
         ></div>
-        <div v-show="this.highlightX2 !== null"
-            :style="{
-                'display': (showHighlight ? 'inline-block' : 'none'),
-                'height': (this.pHeight) + 'px', 
-                'width': '1px',
-                'top': (this.pMarginTop) + 'px',
-                'left': (this.pMarginLeft + this.highlightX2 - 0.5) + 'px'
-            }"
-            class="vdp-plot-highlight"
-        ></div>
         <div v-show="this.highlightY1 !== null"
             :style="{
                 'display': (showHighlight ? 'inline-block' : 'none'),
@@ -42,42 +32,16 @@
         <div :id="this.tooltipElemID" class="vdp-tooltip" :style="this.tooltipPositionAttribute">
             <table>
                 <tr>
-                    <th>{{ this._xScale.name }}</th>
-                    <td>{{ this.tooltipInfo.x }}</td>
-                </tr>
-                <tr>
-                    <th>Count</th>
-                    <td>{{ this.tooltipInfo.count }}</td>
-                </tr>
-                <tr>
-                    <th>Min</th>
-                    <td>{{ this.tooltipInfo.min }}</td>
-                </tr>
-                <tr>
-                    <th>Q1</th>
-                    <td>{{ this.tooltipInfo.q1 }}</td>
-                </tr>
-                <tr>
-                    <th>Median</th>
-                    <td>{{ this.tooltipInfo.median }}</td>
-                </tr>
-                <tr>
-                    <th>Mean</th>
-                    <td>{{ this.tooltipInfo.mean }}</td>
-                </tr>
-                <tr>
-                    <th>Q3</th>
-                    <td>{{ this.tooltipInfo.q3 }}</td>
-                </tr>
-                <tr>
-                    <th>Max</th>
-                    <td>{{ this.tooltipInfo.max }}</td>
-                </tr>
-            </table>
-            <table :style="{'border-top': '1px solid #cdcdcd'}">
-                <tr>
                     <th>{{ this._oScale.name }}</th>
                     <td>{{ this.tooltipInfo.o }}</td>
+                </tr>
+                <tr>
+                    <th>{{ this._cScale.name }}</th>
+                    <td>{{ this.tooltipInfo.c }}</td>
+                </tr>
+                <tr>
+                    <th>{{ this._xScale.name }}</th>
+                    <td>{{ this.tooltipInfo.x }}</td>
                 </tr>
                 <tr>
                     <th>{{ this._yScale.name }}</th>
@@ -89,20 +53,15 @@
 </template>
 
 <script>
-import { scaleLinear as d3_scaleLinear, scaleQuantile as d3_scaleQuantile, scaleBand as d3_scaleBand } from 'd3-scale';
+import { scaleLinear as d3_scaleLinear } from 'd3-scale';
 import { select as d3_select } from 'd3-selection';
 import { mouse as d3_mouse, event as d3_event } from 'd3';
 import debounce from 'lodash/debounce';
-import { min as d3_min, max as d3_max, mean as d3_mean, histogram as d3_histogram } from 'd3-array';
-
 import { TOOLTIP_DEBOUNCE } from './../../constants.js';
-import { getRetinaRatio, seededRandom, getDelaunay } from './../../helpers.js';
-
+import { getRetinaRatio, getDelaunay } from './../../helpers.js';
 
 import AbstractScale from './../../scales/AbstractScale.js';
-import CategoricalScale from './../../scales/CategoricalScale.js';
 import ContinuousScale from './../../scales/ContinuousScale.js';
-
 
 import DataContainer from './../../data/DataContainer.js';
 
@@ -110,25 +69,27 @@ import mixin from './mixin.js';
 
 let uuid = 0;
 /**
- * @prop {string} variable The key to access the values in the data array objects.
+ * @prop {string} deathVariable The survival "days to death" variable key. Default: "days_to_death"
+ * @prop {string} followupVariable The survival "days to last followup" variable key. Default: "days_to_last_followup"
  * @prop {string} s The key for the data containing the variable to stratify by.
- * @prop {string} x The key for the scale to stratify by. Must be categorical (this could potentially be relaxed in a later version of vdp).
- * @prop {string} y The y-scale variable key.
- * @prop {string} o The observation-scale variable key. Required in order to match with the stratification data.
- * @prop {number} pointSize The diameter of points. Default: 3
- * @prop {number} seed A random seed. Optional.
- * @prop {boolean} fillPoints Whether to fill points. Default: true
- * @prop {string} strokeColor Color for point outlines. Optional. Will override the x color scale if provided.
+ * @prop {string} variable The key for the variable to stratify by in the s dataset.
+ * @prop {string} c The color-scale (line-scale) variable key. Should contain the categories of the stratified variable. Must be categorical.
+ * @prop {string} x The x-scale variable key. Should represent survival time. Must be continuous.
+ * @prop {string} y The y-scale variable key. Should represent survival percentage. Must be continuous.
+ * @prop {string} o The observation-scale variable key. Required in order to match the survival data with the stratification data.
+ * @prop {number} lineWidth The line width. Default: 2
+ * @prop {number} tickHeight The tick height. Default: 8
  * @extends mixin
  * 
  * @example
- * <StratifiedSinaPlot
- *      data="boxplot_data"
- *      variable="COSMIC 1"
- *      s="stratification_data"
- *      y="exposure"
+ * <StratifiedKaplanMeierPlot
+ *      data="survival_data"
+ *      s="dominant_signature_data"
+ *      variable="dominant_signature"
+ *      c="signatures"
+ *      x="survival_time"
+ *      y="survival_pct"
  *      o="sample_id"
- *      x="smoking_binary"
  *      :pWidth="500"
  *      :pHeight="300"
  *      :pMarginTop="10"
@@ -141,58 +102,56 @@ let uuid = 0;
  * />
  */
 export default {
-    name: 'StratifiedSinaPlot',
+    name: 'StratifiedKaplanMeierPlot',
     mixins: [mixin],
     props: {
-        'variable': {
-            type: String
+        'deathVariable': {
+            type: String,
+            default: "days_to_death"
+        },
+        'followupVariable': {
+            type: String,
+            default: "days_to_last_followup"
         },
         's': { // stratification data
             type: String
         },
-        'x': { // stratification variable scale
+        'variable': { // stratification variable
             type: String
         },
-        'y': {
+        'c': { // stratification variable value scale - for the different lines (and line colors) on the plot
+            type: String
+        },
+        'x': { // survival time scale
+            type: String
+        },
+        'y': { // survival percentage scale
             type: String
         },
         'o': { // observation
             type: String
         },
-        'pointSize': {
+        'lineWidth': {
             type: Number,
-            default: 3
+            default: 2
         },
-        'seed': {
+        'tickHeight': {
             type: Number,
-            default: 1
-        },
-        'fillPoints': {
-            type: Boolean,
-            default: true
-        },
-        'strokeColor': {
-            type: String
+            default: 8
         }
     },
     data() {
         return {
             tooltipInfo: {
                 x: '',
-                count: '',
-                min: '',
-                q1: '',
-                median: '',
-                mean: '',
-                q3: '',
-                max: ''
+                y: '',
+                o: '',
+                c: ''
             },
             highlightX1: null,
-            highlightX2: null,
-            highlightXScale: null,
             highlightY1: null,
-            highlightYScale: null,
-            barWidth: 0
+            highlightXScale: null,
+            highlightYScale: null
         }
     },
     beforeCreate() {
@@ -212,16 +171,20 @@ export default {
         console.assert(this._yScale instanceof ContinuousScale);
 
         this._xScale = this.getScale(this.x);
-        console.assert(this._xScale instanceof CategoricalScale);
+        console.assert(this._xScale instanceof ContinuousScale);
 
         this._oScale = this.getScale(this.o);
         console.assert(this._oScale instanceof AbstractScale);
+
+        this._cScale = this.getScale(this.c);
+        console.assert(this._cScale instanceof AbstractScale);
 
 
         // Subscribe to event publishers here
         this._yScale.onUpdate(this.uuid, this.drawPlot);
         this._xScale.onUpdate(this.uuid, this.drawPlot);
         this._oScale.onUpdate(this.uuid, this.drawPlot);
+        this._cScale.onUpdate(this.uuid, this.drawPlot);
         
 
         // Subscribe to data mutations here
@@ -244,6 +207,7 @@ export default {
         this._yScale.onUpdate(this.uuid, null);
         this._xScale.onUpdate(this.uuid, null);
         this._oScale.onUpdate(this.uuid, null);
+        this._cScale.onUpdate(this.uuid, null);
 
         // Unsubscribe to data mutations here
         this._dataContainer.onUpdate(this.uuid, null);
@@ -257,41 +221,30 @@ export default {
         this._yScale.onHighlightDestroy(this.uuid, null);
     },
     watch: {
-        pointSize() {
+        lineWidth() {
             this.drawPlot();
         },
-        fillPoints() {
-            this.drawPlot();
-        },
-        strokeColor() {
+        tickHeight() {
             this.drawPlot();
         }
     },
     methods: {
-        tooltip: function(mouseX, mouseY, node) {
-
-            this.tooltipInfo.o = this._oScale.toHuman(node.o);
-            this.tooltipInfo.y = this._yScale.toHuman(node.y);
-
-            let xNode = node.xNode;
+        tooltip: function(mouseX, mouseY, o, x, y, c) {
             // Set values
-            this.tooltipInfo.x = this._xScale.toHuman(xNode.x);
-            this.tooltipInfo.count = xNode.count;
-            this.tooltipInfo.min = xNode.min;
-            this.tooltipInfo.q1 = xNode.q1;
-            this.tooltipInfo.median = xNode.median;
-            this.tooltipInfo.mean = xNode.mean;
-            this.tooltipInfo.q3 = xNode.q3;
-            this.tooltipInfo.max = xNode.max;
+            this.tooltipInfo.o = this._oScale.toHuman(o);
+            this.tooltipInfo.x = this._xScale.toHuman(x);
+            this.tooltipInfo.y = this._yScale.toHuman(y);
+            this.tooltipInfo.c = this._cScale.toHuman(c);
 
             // Set position
             this.tooltipPosition.left = mouseX;
             this.tooltipPosition.top = mouseY;
-
+            
             // Dispatch highlights
-            this._xScale.emitHighlight(xNode.x);
-            this._yScale.emitHighlight(node.y);
-            this._oScale.emitHighlight(node.o);
+            this._oScale.emitHighlight(o);
+            this._xScale.emitHighlight(x);
+            this._yScale.emitHighlight(y);
+            this._cScale.emitHighlight(c);
         },
         tooltipDestroy: function() {
             this.tooltipHide();
@@ -300,11 +253,11 @@ export default {
             this._xScale.emitHighlightDestroy();
             this._yScale.emitHighlightDestroy();
             this._oScale.emitHighlightDestroy();
+            this._cScale.emitHighlightDestroy();
         },
         highlightX(value) {
             if(this.highlightXScale) {
                 this.highlightX1 = this.highlightXScale(value);
-                this.highlightX2 = this.highlightXScale(value) + this.barWidth;
             }
         },
         highlightY(value) {
@@ -314,7 +267,6 @@ export default {
         },
         highlightDestroy() {
             this.highlightX1 = null;
-            this.highlightX2 = null;
             this.highlightY1 = null;
         },
         drawPlot() {
@@ -329,12 +281,14 @@ export default {
 
             const xScale = vm._xScale;
             const yScale = vm._yScale;
-
+            const cScale = vm._cScale;
             const oScale = vm._oScale;
+            
             data = data.filter((el) => oScale.domainFiltered.includes(el[vm.o]));
+            stratificationData = stratificationData.filter((el) => oScale.domainFiltered.includes(el[vm.o]));
             
 
-            const x = d3_scaleBand()
+            const x = d3_scaleLinear()
                 .domain(xScale.domainFiltered)
                 .range([0, vm.pWidth]);
 
@@ -343,11 +297,10 @@ export default {
             const y = d3_scaleLinear()
                 .domain(yScale.domainFiltered)
                 .range([vm.pHeight, 0]);
-
+            
             vm.highlightYScale = y;
+              
 
-            const barWidth = vm.pWidth / xScale.domainFiltered.length;
-            vm.barWidth = barWidth;
             
             /*
              * Scale up the canvas
@@ -364,96 +317,108 @@ export default {
                 .attr("height", scaledHeight);
             context.scale(ratio, ratio);
 
-            /*
-             * Get the random number generator.
-             */
-            const random = seededRandom(vm.seed);
-
-            /*
+             /*
              * Prepare for interactivity
              */
             const points = [];
             const pointsData = [];
 
+            
             /*
-             * Draw the boxes
+             * Match the survival data to the stratification data
              */
-
-            const boxWidth = (barWidth / 2);
-            const boxMargin = barWidth / 4;
-
-            if(vm.strokeColor !== undefined) {
-                context.strokeStyle = vm.strokeColor;
-            }
-            xScale.domainFiltered.forEach((boxVar) => {
-                if(vm.strokeColor === undefined) {
-                    context.strokeStyle = xScale.color(boxVar);
-                }
-                context.fillStyle = xScale.color(boxVar);
-
-                let boxData = data.filter((dEl) => {
-                    let sEl = stratificationData.find((sEl) => sEl[vm.o] === dEl[vm.o]);
-                    return (sEl !== undefined && sEl[vm.x] === boxVar);
-                });
-                let boxDataValues = boxData.map((el) => el[vm.variable] || 0);
-                let quantile = d3_scaleQuantile()
-                    .domain(boxDataValues)
-                    .range([0, 1, 2, 3]);
-                
-                let quartiles = quantile.quantiles();
-                
-                let q1 = quartiles[0];
-                let median = quartiles[1];
-                let mean = d3_mean(boxDataValues);
-                let q3 = quartiles[2];
-                
-                let boxX1 = x(boxVar) + boxMargin;
-                let boxX2 = boxX1 + boxWidth;
-
-                // Draw the points
-                let histogram = d3_histogram()
-                    .domain(y.domain())
-                    .value((d) => d[vm.variable] || 0);
-                
-                let bins = histogram(boxData);
-                let maxBinLength = d3_max(bins, (d) => d.length);
-                let innerX = d3_scaleLinear().domain([-maxBinLength, maxBinLength]).range([boxX1, boxX2]);
-                let innerXZero = innerX(0);
-
-                let xNode = {
-                    x: boxVar,
-                    count: boxDataValues.length,
-                    min: d3_min(boxDataValues), 
-                    q1: q1,
-                    median: median,
-                    mean: mean,
-                    q3: q3, 
-                    max: d3_max(boxDataValues)
-                };
-
-                bins.forEach((binData) => {
-                    binData.forEach((d) => {
-                        context.beginPath();
-                        let xVal = innerX(-binData.length)+random()*2*(innerX(binData.length)-innerXZero);
-                        let yVal = y(d[vm.variable]);
-                        context.arc(xVal, yVal, vm.pointSize, 0, 2*Math.PI);
-                        context.stroke();
-                        if(vm.fillPoints) {
-                            context.fill(); 
-                        }
-
-                        points.push([xVal, yVal]); // For Delaunay
-                        pointsData.push({
-                            'xNode': xNode,
-                            'y': d[vm.variable],
-                            'o': d[vm.o]
-                        });
+            let matchedData = [];
+            data.forEach((dEl) => {
+                let sEl = stratificationData.find((sEl) => sEl[vm.o] === dEl[vm.o]);
+                if(sEl !== undefined) {
+                    matchedData.push({
+                        "dEl": dEl,
+                        "sEl": sEl 
                     });
+                }
+            });
+
+            /*
+             * Draw the points
+             */
+            context.lineWidth = vm.lineWidth;
+            cScale.domainFiltered.forEach((cEl) => {
+                const cData = matchedData
+                    .filter(el => el["sEl"][vm.variable] === cEl)
+                    .sort((aEl, bEl) => {
+                        let aVal = (AbstractScale.isUnknown(aEl["dEl"][vm.deathVariable]) ? aEl["dEl"][vm.followupVariable] : aEl["dEl"][vm.deathVariable]);
+                        if(AbstractScale.isUnknown(aVal)) {
+                            return 1;
+                        }
+                        let bVal = (AbstractScale.isUnknown(bEl["dEl"][vm.deathVariable]) ? bEl["dEl"][vm.followupVariable] : bEl["dEl"][vm.deathVariable]);
+                        if(AbstractScale.isUnknown(bVal)) {
+                            return -1;
+                        }
+                        return aVal - bVal;
+                    });
+                const step = 100 / cData.length;
+
+                let currSurvivalPct = 100;
+                
+                context.fillStyle = cScale.color(cEl);
+                context.strokeStyle = cScale.color(cEl);
+
+                context.beginPath();
+                context.moveTo(x(0), y(100));
+
+                cData.forEach((match, i) => {
+                    let sEl = match["sEl"];
+                    let dEl = match["dEl"];
+
+                    // Compute x and y values based on survival
+                    let xVal;
+                    let drop = false;
+                    if(!AbstractScale.isUnknown(dEl[vm.deathVariable])) {
+                        xVal = dEl[vm.deathVariable];
+                    } else {
+                        if(!AbstractScale.isUnknown(dEl[vm.followupVariable])) {
+                            xVal = dEl[vm.followupVariable];
+                            drop = true;
+                        } else {
+                            xVal = xScale.domain[1];
+                        }
+                    }
+
+                    // Draw a horizontal line to the current time, using the previous percent
+                    context.lineTo(x(xVal), y(currSurvivalPct));
+                    context.stroke();
+
+                    // Add a tick line if using data from followup rather than death
+                    if(drop) {
+                        context.moveTo(x(xVal), y(currSurvivalPct) - vm.tickHeight / 2);
+                        context.lineTo(x(xVal), y(currSurvivalPct) + vm.tickHeight / 2);
+                        context.stroke();
+                        // Move back
+                        context.moveTo(x(xVal), y(currSurvivalPct));
+                    }
+
+                    // Draw a vertical line to the current time, using the current percent
+                    if(i < cData.length - 1 && !drop) {
+                        // Decrease percent
+                        currSurvivalPct -= step;
+                        context.lineTo(x(xVal), y(currSurvivalPct));
+                    }
+                    points.push([x(xVal), y(currSurvivalPct)]);
+                    pointsData.push({
+                        "y": currSurvivalPct,
+                        "o": dEl[vm.o],
+                        "x": xVal,
+                        "c": sEl[vm.variable]
+                    });
+                    context.stroke();
                 });
             });
             
-            const delaunay = getDelaunay(points, false);
-
+            /*
+             * More prepare for interactivity
+             */
+            const delaunay = getDelaunay(points, true);
+            
             /*
              * Listen for mouse events
              */
@@ -476,7 +441,7 @@ export default {
                 const mouseViewportY = d3_event.clientY;
 
                 if(node) {
-                    vm.tooltip(mouseViewportX, mouseViewportY, node); 
+                    vm.tooltip(mouseViewportX, mouseViewportY, node["o"], node["x"], node["y"], node["c"]); 
                 } else {
                     debouncedTooltipDestroy();
                 }
@@ -492,11 +457,10 @@ export default {
                     const node = getDataFromMouse(mouseX, mouseY);
 
                     if(node) {
-                        vm.clickHandler(node['o'], node['y'], node['xNode']['x']);
+                        vm.clickHandler(node["o"], node["x"], node["y"], node["c"]); 
                     }
                 });
             }
-            
         }
     }
 }

@@ -658,6 +658,7 @@
         :getScale="getScale"
         :clickHandler="exampleClickHandler"
         :fillPoints="true"
+        strokeColor="gray"
       />
       <Axis
         slot="axisBottom"
@@ -695,6 +696,7 @@
         y="exposure"
         o="sample_id"
         :fillPoints="true"
+        strokeColor="gray"
         :getData="getData"
         :getScale="getScale"
         :clickHandler="exampleClickHandler"
@@ -726,6 +728,47 @@
         :getData="getData"
         :getScale="getScale"
         :clickHandler="exampleClickHandler"
+      />
+    </PlotContainer>
+
+    <h3>&lt;StratifiedKaplanMeierPlot/&gt;</h3>
+    <PlotContainer
+      :pWidth="500"
+      :pHeight="300"
+      :pMarginTop="10"
+      :pMarginLeft="120"
+      :pMarginRight="10"
+      :pMarginBottom="180"
+    >
+      <Axis
+        slot="axisLeft"
+        variable="survival_pct"
+        side="left" 
+        :tickRotation="-35"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+      <StratifiedKaplanMeierPlot
+        slot="plot"
+        data="survival_data"
+        deathVariable="Days to Death"
+        followupVariable="Days to Last Followup"
+        s="survival_data"
+        c="sex"
+        variable="Sex"
+        x="survival_time"
+        y="survival_pct"
+        o="survival_patient"
+        :getData="getData"
+        :getScale="getScale"
+        :clickHandler="exampleClickHandler"
+      />
+      <Axis
+        slot="axisBottom"
+        variable="survival_time"
+        side="bottom" 
+        :getScale="getScale"
+        :getStack="getStack"
       />
     </PlotContainer>
 
@@ -804,6 +847,7 @@ import {
     StratifiedBoxPlot,
     StratifiedScatterPlot,
     StratifiedSinaPlot,
+    StratifiedKaplanMeierPlot,
     GenomeScatterPlot,
     GenomeTrackPlot,
     GenomeMultiTrackPlot,
@@ -831,6 +875,8 @@ import randomGenomeData from './data/random_genome_data.json';
 import randomGenomeMultiData from './data/random_genome_multi_data.json';
 import genomeBinsData from './data/genome_bins.json';
 import vueData from './data/vue.json';
+import survivalData from './data/survival.json';
+
 
 // History
 import Stack from './Stack.vue';
@@ -900,6 +946,12 @@ const carsAsyncDataContainer = new DataContainer(
   })
 );
 
+const survivalDataContainer = new DataContainer(
+  'survival_data',
+  'Survival',
+  survivalData
+);
+
 
 // Initialize data
 const getData = function(dataKey) {
@@ -928,6 +980,8 @@ const getData = function(dataKey) {
       return carsAsyncDataContainer;
     case 'vue_data':
       return vueDataContainer;
+    case 'survival_data':
+      return survivalDataContainer;
   }
 };
 
@@ -973,7 +1027,6 @@ const ageScale = new ContinuousScale(
 const sexScale = new CategoricalScale(
   'sex',
   'Sex',
-  ["male", "female"],
   ["Male", "Female"]
 );
 const genomeScale = new GenomeScale("genome", "Genome");
@@ -1060,10 +1113,31 @@ const vueYScale = new ContinuousScale(
 const vueColorScale = new CategoricalScale(
   'vue_c',
   'Vue Color',
-  ["0", "1", "2"]
+  ["0", "1", "2"],
+  undefined,
+  { "0": "#45B280", "1": "#36495D" }
 );
 
-vueColorScale.setColorOverrides({ "0": "#45B280", "1": "#36495D" });
+
+const survivalPctScale = new ContinuousScale(
+  'survival_pct',
+  'Percent Survival',
+  [0, 100]
+);
+
+const survivalTimeScale = new ContinuousScale(
+  'survival_time',
+  'Days',
+  [0, 4680]
+);
+
+const survivalPatientScale = new CategoricalScale(
+  'survival_patient',
+  'Patient',
+  Array.from((new Set(survivalData.map(d => d["survival_patient"]))).values())
+);
+
+
 
 
 const getScale = function(scaleKey) {
@@ -1106,6 +1180,12 @@ const getScale = function(scaleKey) {
       return vueColorScale;
     case 'exposure_error':
       return exposureErrorScale;
+    case 'survival_pct':
+      return survivalPctScale;
+    case 'survival_time':
+      return survivalTimeScale;
+    case 'survival_patient':
+      return survivalPatientScale;
   }
 };
 
@@ -1148,6 +1228,7 @@ export default {
     StratifiedBoxPlot,
     StratifiedScatterPlot,
     StratifiedSinaPlot,
+    StratifiedKaplanMeierPlot,
     GenomeScatterPlot,
     GenomeTrackPlot,
     GenomeMultiTrackPlot,

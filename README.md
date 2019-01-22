@@ -32,6 +32,12 @@ Please see the [vue-declarative-plots-examples](https://github.com/keller-mark/v
 - MultiBoxPlot :white_check_mark:
 - HierarchicalMultiTrackPlot :white_check_mark:
 
+### Stratified Plot Components
+- StratifiedBoxPlot :white_check_mark:
+- StratifiedScatterPlot :white_check_mark:
+- StratifiedSinaPlot :white_check_mark:
+- StratifiedKaplanMeierPlot :white_check_mark:
+
 #### Genome Plot Components
 - GenomeScatterPlot :white_check_mark:
 - GenomeStackedBarPlot :white_check_mark:
@@ -54,7 +60,6 @@ Please see the [vue-declarative-plots-examples](https://github.com/keller-mark/v
 ### Future Plans for Components
 - GenomeBarPlot
 - GroupedBarPlot
-- Karyotype
 - ViolinPlot
 - SinaPlot
 - BeeswarmPlot
@@ -64,6 +69,8 @@ Please see the [vue-declarative-plots-examples](https://github.com/keller-mark/v
 - HorizontalBoxPlot
 - HorizontalMultiBoxPlot
 - LinePlot
+- KaryotypePlot
+- GenomeGenePlot
 
 
 

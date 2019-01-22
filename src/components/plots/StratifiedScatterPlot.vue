@@ -73,6 +73,7 @@ let uuid = 0;
  * @prop {string} o The observation-scale variable key. Required in order to match with the stratification data.
  * @prop {boolean} fillPoints Whether or not to fill points. Default: false
  * @prop {number} pointSize Default size for points. Default: 3
+ * @prop {string} strokeColor Color for point outlines. Optional. Will override the x color scale if provided.
  * @extends mixin
  * 
  * @example
@@ -120,6 +121,9 @@ export default {
         'fillPoints': {
             type: Boolean,
             default: false
+        },
+        'strokeColor': {
+            type: String
         }
     },
     data() {
@@ -201,6 +205,9 @@ export default {
             this.drawPlot();
         },
         fillPoints() {
+            this.drawPlot();
+        },
+        strokeColor() {
             this.drawPlot();
         }
     },
@@ -298,12 +305,17 @@ export default {
             /*
              * Draw the points
              */
+            if(vm.strokeColor !== undefined) {
+                context.strokeStyle = vm.strokeColor;
+            }
             data.forEach((d) => {
                 let sEl = stratificationData.find((sEl) => sEl[vm.o] === d[vm.o]);
                 if(sEl !== undefined && !AbstractScale.isUnknown(sEl[vm.x])) {
                     
                     context.fillStyle = xScale.color(sEl[vm.x]);
-                    context.strokeStyle = xScale.color(sEl[vm.x]);
+                    if(vm.strokeColor === undefined) {
+                        context.strokeStyle = xScale.color(sEl[vm.x]);
+                    }
                     
                     context.beginPath();
                     context.arc(x(sEl[vm.x]), y(d[vm.variable]), vm.pointSize, 0, 2*Math.PI);
