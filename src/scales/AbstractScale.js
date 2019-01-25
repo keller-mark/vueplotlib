@@ -98,12 +98,18 @@ export default class AbstractScale extends AbstractScaleDispatcher {
      * @param {*} name The name for the scale.
      * @param {*} domain The domain for the scale.
      */
-    constructor(id, name, domain) {
+    constructor(id, name, domain, colorScaleKey) {
         super();
         this._id = id;
         this._name = name;
         
-        this._colorScale = AbstractScale.defaultColorScale;
+        if(colorScaleKey === undefined) {
+            this._colorScaleOriginal = AbstractScale.defaultColorScale;
+            this._colorScale = AbstractScale.defaultColorScale;
+        } else {
+            this._colorScaleOriginal = AbstractScale.colorScales[colorScaleKey];
+            this._colorScale = AbstractScale.colorScales[colorScaleKey];
+        }
 
         this._domain = [];
         this._domainFiltered = [];
@@ -247,7 +253,7 @@ export default class AbstractScale extends AbstractScaleDispatcher {
      * Resets the color scale.
      */
     resetColorScale() {
-        this._colorScale = AbstractScale.defaultColorScale;
+        this._colorScale = this._colorScaleOriginal;
         this.emitUpdate();
     }
 

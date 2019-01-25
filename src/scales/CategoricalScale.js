@@ -18,8 +18,8 @@ export default class CategoricalScale extends AbstractScale {
      * @param {array} humanDomain The humanDomain for the scale, or a promise. Optional.
      * @param {object} colorOverrides The default colorOverrides for the scale. Optional.
      */
-    constructor(id, name, domain, humanDomain, colorOverrides) {
-        super(id, name, domain);
+    constructor(id, name, domain, humanDomain, colorOverrides, colorScaleKey) {
+        super(id, name, domain, colorScaleKey);
 
         this._humanDomain = undefined;
 

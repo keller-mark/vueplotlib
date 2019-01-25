@@ -412,7 +412,7 @@ export default {
 
                 // Draw the points
                 let histogram = d3_histogram()
-                    .domain(y.domain())
+                    .domain(yScale.domainFiltered)
                     .value((d) => d[vm.variable] || 0);
                 
                 let bins = histogram(boxData);
