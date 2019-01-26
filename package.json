@@ -67,5 +67,5 @@
   "license": "MIT",
   "author": "Mark Keller",
   "main": "dist/vue-declarative-plots.umd.js",
-  "repository": "https://github.com/keller-mark/vue-declarative-plots"
+  "repository": "https://github.com/keller-mark/vueplotlib"
 }
