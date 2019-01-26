@@ -4,7 +4,9 @@
 
 # vue-declarative-plots
 
-<img src="./examples-src/screenshot.png" alt="V" width="400"/>
+:warning: vue-declarative-plots is changing its name to **vueplotlib** in [version 2.0](https://github.com/keller-mark/vueplotlib/tree/v2) :warning:
+
+<img src="./examples-src/screenshot.png" alt="V" width="300"/>
 
 This repository will serve as a place for reusable Vue plot components (built with D3).
 These components were developed for use in [iMuSE](https://github.com/lrgr/mutation-signature-explorer).
