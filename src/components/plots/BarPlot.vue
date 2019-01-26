@@ -1,44 +1,6 @@
 <template>
     <div>
-        <canvas 
-            :id="this.plotElemID" 
-            class="vdp-plot" 
-            :style="{
-                'height': (this.pHeight) + 'px', 
-                'width': (this.pWidth) + 'px',
-                'top': (this.pMarginTop) + 'px',
-                'left': (this.pMarginLeft) + 'px'
-            }"
-        ></canvas>
-        <canvas 
-            :id="this.hiddenPlotElemID" 
-            class="vdp-plot-hidden" 
-            :style="{
-                'height': (this.pHeight) + 'px', 
-                'width': (this.pWidth) + 'px',
-                'top': (this.pMarginTop) + 'px',
-                'left': (this.pMarginLeft) + 'px'
-            }"
-        ></canvas>
-        <div v-show="this.highlightX1 !== null"
-            :style="{
-                'height': (this.pHeight) + 'px', 
-                'width': '1px',
-                'top': (this.pMarginTop) + 'px',
-                'left': (this.pMarginLeft + this.highlightX1 - 0.5) + 'px'
-            }"
-            class="vdp-plot-highlight"
-        ></div>
-        <div v-show="this.highlightX2 !== null"
-            :style="{
-                'height': (this.pHeight) + 'px', 
-                'width': '1px',
-                'top': (this.pMarginTop) + 'px',
-                'left': (this.pMarginLeft + this.highlightX2 - 0.5) + 'px'
-            }"
-            class="vdp-plot-highlight"
-        ></div>
-        <div :id="this.tooltipElemID" class="vdp-tooltip" :style="this.tooltipPositionAttribute">
+        <div class="vdp-tooltip" :style="this.tooltipPositionAttribute">
             <table>
                 <tr>
                     <th>{{ this._xScale.name }}</th>
@@ -55,16 +17,19 @@
 
 <script>
 import { scaleBand as d3_scaleBand, scaleLinear as d3_scaleLinear, scaleLog as d3_scaleLog } from 'd3-scale';
-import { select as d3_select } from 'd3-selection';
-import { mouse as d3_mouse, event as d3_event } from 'd3';
-import debounce from 'lodash/debounce';
 import { TOOLTIP_DEBOUNCE, BAR_MARGIN_X_DEFAULT, BAR_WIDTH_MIN } from './../../constants.js';
-import { getRetinaRatio } from './../../helpers.js';
-
 import AbstractScale from './../../scales/AbstractScale.js';
 import DataContainer from './../../data/DataContainer.js';
 
-import mixin from './mixin.js';
+import dimensionsMixin from '../mixins/dimensions.js';
+import canvasMixin from '../mixins/canvas.js';
+import dataMixin from '../mixins/data.js';
+import tooltipMixin from '../mixins/tooltip.js';
+
+import gettersMixin from '../mixins/getters.js';
+
+
+import * as PIXI from 'pixi.js';
 
 let uuid = 0;
 /**
@@ -80,20 +45,17 @@ let uuid = 0;
  *      data="exposures_single_data"
  *      x="signature" 
  *      y="exposure"
- *      :pWidth="500"
- *      :pHeight="300"
- *      :pMarginTop="10"
- *      :pMarginLeft="120"
- *      :pMarginRight="10"
- *      :pMarginBottom="150"
- *      :getData="getData"
- *      :getScale="getScale"
- *      :clickHandler="myClickHandler"
  * />
  */
 export default {
     name: 'BarPlot',
-    mixins: [mixin],
+    mixins: [
+        dimensionsMixin, 
+        canvasMixin,
+        gettersMixin,
+        dataMixin,
+        tooltipMixin
+    ],
     props: {
         'x': {
             type: String
@@ -130,6 +92,9 @@ export default {
         uuid += 1;
     },
     created() {
+        console.log(this.$props);
+        this.stage = new PIXI.Graphics();
+        this.canvas.stage.addChild(this.stage);
         // Set data
         this._dataContainer = this.getData(this.data);
         console.assert(this._dataContainer instanceof DataContainer);
@@ -140,18 +105,19 @@ export default {
         console.assert(this._yScale instanceof AbstractScale);
 
         // Subscribe to event publishers here
-        this._xScale.onUpdate(this.uuid, this.drawPlot);
-        this._yScale.onUpdate(this.uuid, this.drawPlot);
+        this._xScale.onUpdate(this.uuid, this.draw);
+        this._yScale.onUpdate(this.uuid, this.draw);
 
         // Subscribe to data mutations here
-        this._dataContainer.onUpdate(this.uuid, this.drawPlot);
+        this._dataContainer.onUpdate(this.uuid, this.draw);
 
         // Subscribe to highlights here
         this._xScale.onHighlight(this.uuid, this.highlightX);
         this._xScale.onHighlightDestroy(this.uuid, this.highlightDestroy);
     },
     mounted() {
-        this.drawPlot();
+        this.draw();
+
     },
     beforeDestroy() {
         // Unsubscribe to events
@@ -167,13 +133,13 @@ export default {
     },
     watch: {
         barMarginX() {
-            this.drawPlot();
+            this.draw();
         },
         barColor() {
-            this.drawPlot();
+            this.draw();
         },
         logY() {
-            this.drawPlot();
+            this.draw();
         }
     },
     methods: {
@@ -207,7 +173,7 @@ export default {
             this.highlightX1 = null;
             this.highlightX2 = null;
         },
-        drawPlot() {
+        draw() {
             const vm = this;
 
             if(vm._dataContainer.isLoading || vm._xScale.isLoading || vm._yScale.isLoading) {
@@ -223,7 +189,7 @@ export default {
 
             const x = d3_scaleBand()
                 .domain(xScale.domainFiltered)
-                .range([0, vm.pWidth]);
+                .range([0, vm.width]);
 
             vm.highlightScale = x;
             
@@ -233,58 +199,11 @@ export default {
             }
             const y = yScaleFunc()
                 .domain(yScale.domainFiltered)
-                .range([vm.pHeight, 0]);
+                .range([vm.height, 0]);
 
-            const barWidth = vm.pWidth / xScale.domainFiltered.length;
+            const barWidth = vm.width / xScale.domainFiltered.length;
             vm.barWidth = barWidth;
             
-            /*
-             * Scale up the canvas
-             */
-            const canvas = d3_select(this.plotSelector);
-            const context = canvas.node().getContext('2d');
-
-            const canvasHidden = d3_select(this.hiddenPlotSelector);
-            const contextHidden = canvasHidden.node().getContext('2d');
-
-            const ratio = getRetinaRatio(context);
-            const scaledWidth = vm.pWidth * ratio;
-            const scaledHeight = vm.pHeight * ratio;
-
-            canvas
-                .attr("width", scaledWidth)
-                .attr("height", scaledHeight);
-            context.scale(ratio, ratio);
-
-            canvasHidden
-                .attr("width", scaledWidth)
-                .attr("height", scaledHeight);
-            contextHidden.scale(ratio, ratio);
-
-            /*
-             * Set up the color mappings
-             */
-            const colToNode = {};
-
-            /*
-             * Generates the next color in the sequence, 
-             * going from 0,0,0 to 255,255,255.
-             */
-            let nextCol = 1;
-            const genColor = () => {
-                let ret = [];
-                // via http://stackoverflow.com/a/15804183
-                if(nextCol < 16777215){
-                    ret.push(nextCol & 0xff); // R
-                    ret.push((nextCol & 0xff00) >> 8); // G 
-                    ret.push((nextCol & 0xff0000) >> 16); // B
-
-                    nextCol += 20;
-                }
-                let col = "rgb(" + ret.join(',') + ")";
-                return col;
-            }
-
             /*
              * Draw the bars
              */
@@ -296,70 +215,37 @@ export default {
             
             let heightMinusYOfZero = 0;
             if(!vm.logY) {
-                heightMinusYOfZero = vm.pHeight - y(0);
+                heightMinusYOfZero = vm.height - y(0);
             }
-            data.forEach((d) => {
-                const col = genColor();
-                colToNode[col] = { "x": d[vm.x], "y": d[vm.y] };
-                contextHidden.fillStyle = col;
-                
-                if(vm.barColor !== undefined) {
-                    context.fillStyle = vm.barColor;
+
+            let rgbToHex = (rgb) => {
+                if(rgb.charAt(0) === "#") {
+                    return "0x" + rgb.substring(1);
                 } else {
-                    context.fillStyle = xScale.color(d[vm.x]);
+                    var a = rgb.split("(")[1].split(")")[0];
+                    a = a.split(",");
+                    var b = a.map(function(x){             //For each array element
+                        x = parseInt(x).toString(16);      //Convert to a base16 string
+                        return (x.length==1) ? "0"+x : x;  //Add zero if we get only one character
+                    })
+                    b = "0x"+b.join("");
+                    return b;
+                }
+            }
+            
+            data.forEach((d) => {
+                if(vm.barColor !== undefined) {
+                    this.stage.beginFill(parseInt("0x" + vm.barColor.substring(1)));
+                } else {
+                    console.log(xScale.color(d[vm.x]));
+                    this.stage.beginFill(parseInt(rgbToHex(xScale.color(d[vm.x]))));
                 }
 
-                let height = vm.pHeight - y(d[vm.y]) - heightMinusYOfZero;
-                context.fillRect(x(d[vm.x]) + (barMarginX/2), y(d[vm.y]), barWidth - barMarginX, height);
-                
-                contextHidden.fillRect(x(d[vm.x]), 0, barWidth, vm.pHeight);
+                let height = vm.height - y(d[vm.y]) - heightMinusYOfZero;
+                vm.stage.drawRect(x(d[vm.x]) + (barMarginX/2), y(d[vm.y]), barWidth - barMarginX, height);
             });
             
-            /*
-             * Listen for mouse events
-             */
-            const canvasNode = canvas.node();
-
-            const getDataFromMouse = (mouseX, mouseY) => {
-                // Get the corresponding pixel color on the hidden canvas
-                const col = contextHidden.getImageData(mouseX * ratio, mouseY * ratio, scaledWidth, scaledHeight).data;
-                const colString = "rgb(" + col[0] + "," + col[1] + ","+ col[2] + ")";
-                // Look up the node in our map
-                return colToNode[colString];
-            };
-
-            const debouncedTooltipDestroy = debounce(vm.tooltipDestroy, TOOLTIP_DEBOUNCE);
-            canvas.on("mousemove", () => {
-                const mouse = d3_mouse(canvasNode);
-                const mouseX = mouse[0];
-                const mouseY = mouse[1];
-
-                const node = getDataFromMouse(mouseX, mouseY);
-
-                const mouseViewportX = d3_event.clientX;
-                const mouseViewportY = d3_event.clientY;
-
-                if(node) {
-                    vm.tooltip(mouseViewportX, mouseViewportY, node["x"], node["y"]); 
-                } else {
-                    debouncedTooltipDestroy();
-                }
-            })
-            .on("mouseleave", vm.tooltipDestroy);
-
-            if(vm.clickHandler !== undefined) {
-                canvas.on("click", () => {
-                    const mouse = d3_mouse(canvasNode);
-                    const mouseX = mouse[0];
-                    const mouseY = mouse[1];
-
-                    const node = getDataFromMouse(mouseX, mouseY);
-
-                    if(node) {
-                        vm.clickHandler(node["x"], node["y"]);
-                    }
-                });
-            }
+          
             
         }
     }

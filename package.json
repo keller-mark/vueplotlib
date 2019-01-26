@@ -1,6 +1,6 @@
 {
-  "name": "vue-declarative-plots",
-  "version": "1.2.31",
+  "name": "vueplotlib",
+  "version": "2.0.0",
   "private": false,
   "scripts": {
     "serve": "vue-cli-service serve --open ./examples-src/index.js",
@@ -66,6 +66,6 @@
   ],
   "license": "MIT",
   "author": "Mark Keller",
-  "main": "dist/vue-declarative-plots.umd.js",
+  "main": "dist/vueplotlib.umd.js",
   "repository": "https://github.com/keller-mark/vueplotlib"
 }

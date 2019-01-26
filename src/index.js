@@ -1,3 +1,7 @@
+import SubPlots from './components/SubPlots.vue';
+
+
+
 import PlotContainer from './components/PlotContainer.vue';
 import SortOptions from './components/SortOptions.vue';
 // Axes
@@ -48,6 +52,9 @@ import { EVENT_TYPES, EVENT_SUBTYPES, EVENT_SUBTYPE_RESETS } from './history/bas
 
 export {
     // Components
+    SubPlots,
+
+    
     PlotContainer,
     SortOptions,
     Axis,
