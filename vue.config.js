@@ -1,3 +1,3 @@
 module.exports = {
-    baseUrl: (process.env.NODE_ENV === 'production' ? '/vue-declarative-plots/' : '/')
+    baseUrl: (process.env.NODE_ENV === 'production' ? '/vueplotlib/' : '/')
 }

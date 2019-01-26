@@ -1,5 +1,5 @@
-[![Build Status](https://travis-ci.org/keller-mark/vue-declarative-plots.svg?branch=master)](https://travis-ci.org/keller-mark/vue-declarative-plots)
-[![Coverage Status](https://coveralls.io/repos/github/keller-mark/vue-declarative-plots/badge.svg?branch=master)](https://coveralls.io/github/keller-mark/vue-declarative-plots?branch=master)
+[![Build Status](https://travis-ci.org/keller-mark/vueplotlib.svg?branch=master)](https://travis-ci.org/keller-mark/vueplotlib)
+[![Coverage Status](https://coveralls.io/repos/github/keller-mark/vueplotlib/badge.svg?branch=master)](https://coveralls.io/github/keller-mark/vueplotlib?branch=master)
 [![npm version](https://img.shields.io/npm/v/vue-declarative-plots.svg)](https://www.npmjs.com/package/vue-declarative-plots)
 
 # vue-declarative-plots
@@ -9,10 +9,10 @@
 <img src="./examples-src/screenshot.png" alt="V" width="300"/>
 
 This repository will serve as a place for reusable Vue plot components (built with D3).
-These components were developed for use in [iMuSE](https://github.com/lrgr/mutation-signature-explorer).
+These components were developed for use in [iMuSE](https://github.com/lrgr/imuse).
 
-- [Demo](https://keller-mark.github.io/vue-declarative-plots/)
-- [Documentation](https://keller-mark.github.io/vue-declarative-plots/docs/)
+- [Demo](https://keller-mark.github.io/vueplotlib/)
+- [Documentation](https://keller-mark.github.io/vueplotlib/docs/)
 
 
 ### Installation
