@@ -42,7 +42,7 @@ export default {
 <style scoped lang="scss">
 
 .modal-background {
-    z-index: 1;
+    z-index: 199;
     top: 0;
     left: 0;
     position: fixed;
@@ -52,7 +52,7 @@ export default {
     opacity: 0.4;
 }
 .modal {
-    z-index: 5;
+    z-index: 200;
     top: 10vh;
     left: 10%;
     height: 80vh;
