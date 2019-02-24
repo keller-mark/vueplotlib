@@ -1,6 +1,6 @@
 {
   "name": "vue-declarative-plots",
-  "version": "1.2.32",
+  "version": "1.2.33",
   "private": false,
   "scripts": {
     "serve": "vue-cli-service serve --open ./examples-src/index.js",

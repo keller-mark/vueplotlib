@@ -10,11 +10,20 @@
     <PlotContainer
       :pWidth="500"
       :pHeight="300"
-      :pMarginTop="10"
+      :pMarginTop="120"
       :pMarginLeft="120"
-      :pMarginRight="10"
+      :pMarginRight="120"
       :pMarginBottom="100"
+      ref="ScatterPlotContainer"
     >
+      <Axis
+        slot="axisTop"
+        variable="vue_x"
+        side="top" 
+        :tickRotation="0"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
       <Axis
         slot="axisLeft"
         variable="vue_y"
@@ -36,6 +45,14 @@
         :clickHandler="exampleClickHandler"
       />
       <Axis
+        slot="axisRight"
+        variable="vue_y"
+        side="right" 
+        :tickRotation="-35"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+      <Axis
         slot="axisBottom"
         variable="vue_x"
         side="bottom" 
@@ -44,6 +61,8 @@
         :getStack="getStack"
       />
     </PlotContainer>
+
+    <button @click="exampleDownload">Download Plot</button>
 
     <h3>&lt;StackedBarPlot/&gt;</h3>
     <PlotContainer
@@ -850,9 +869,7 @@
         :getStack="getStack"
       />
     </PlotContainer>
-
     
-
 
     <div class="stack-wrapper" v-show="showStack">
       <h3>&lt;Stack/&gt;</h3>
@@ -1299,6 +1316,17 @@ export default {
     },
     countBarPlotFilterFunction(val) {
       return (val > 1);
+    },
+    exampleDownload() {
+      this.$refs.ScatterPlotContainer.download("test")
+        .then((uri) => {
+          const downloadAnchorNode = document.createElement('a');
+          downloadAnchorNode.setAttribute("href", uri);
+          downloadAnchorNode.setAttribute("download", "vueplotlib_download_demo.png");
+          document.body.appendChild(downloadAnchorNode); // required for firefox
+          downloadAnchorNode.click();
+          downloadAnchorNode.remove();
+        });
     }
   }
 }
