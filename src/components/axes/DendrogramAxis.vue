@@ -14,7 +14,7 @@
 import { select as d3_select } from 'd3-selection';
 import { cluster as d3_cluster, hierarchy as d3_hierarchy } from 'd3-hierarchy';
 
-import { saveSvgAsPng } from 'save-svg-as-png';
+import { svgAsPngUri } from 'save-svg-as-png';
 
 import AbstractScale from './../../scales/AbstractScale.js';
 import DataContainer from './../../data/DataContainer.js';
@@ -338,8 +338,12 @@ export default {
             
         },
         downloadAxis() {
-            let node = d3_select(this.axisSelector).select("svg").node();
-            saveSvgAsPng(node, this.axisElemID + ".png");
+            const node = d3_select(this.axisSelector).select("svg").node();
+            return new Promise((resolve, reject) => {
+                svgAsPngUri(node, {}, (uri) => {
+                    resolve(uri);
+                });
+            });
         }
     }
 }

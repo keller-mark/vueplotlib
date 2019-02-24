@@ -40,7 +40,7 @@ import { select as d3_select } from 'd3-selection';
 import { axisTop as d3_axisTop, axisLeft as d3_axisLeft, axisRight as d3_axisRight, axisBottom as d3_axisBottom } from 'd3-axis';
 import { zip as d3_zip } from 'd3-array';
 
-import { saveSvgAsPng } from 'save-svg-as-png';
+import { svgAsPngUri } from 'save-svg-as-png';
 
 import GenomeScale from './../../scales/GenomeScale.js';
 import HistoryEvent from './../../history/HistoryEvent.js';
@@ -132,7 +132,7 @@ export default {
             if(this._side === SIDES.BOTTOM || this._side === SIDES.TOP) {
                 return this.pMarginLeft + this.pWidth + this.pMarginRight;
             } else if(this._side === SIDES.LEFT) {
-                return this.pMarginLeft;
+                return this.pMarginLeft + 1;
             } else if(this._side === SIDES.RIGHT) {
                 return this.pMarginRight;
             }
@@ -141,7 +141,7 @@ export default {
             if(this._side === SIDES.LEFT || this._side === SIDES.RIGHT) {
                 return this.pMarginTop + this.pHeight + this.pMarginBottom;
             } else if(this._side === SIDES.TOP) {
-                return this.pMarginTop;
+                return this.pMarginTop + 1;
             } else if(this._side === SIDES.BOTTOM) {
                 return this.pMarginBottom;
             }
@@ -160,7 +160,7 @@ export default {
         },
         computedTranslateX: function() {
             if(this._side === SIDES.LEFT) {
-                return this.pMarginLeft - 1;
+                return this.pMarginLeft;
             } else if(this._side === SIDES.BOTTOM || this._side === SIDES.TOP) {
                 return this.pMarginLeft;
             }
@@ -172,7 +172,7 @@ export default {
             } else if(this._side === SIDES.RIGHT) {
                 return this.pMarginTop;
             } else if(this._side === SIDES.TOP) {
-                return this.pMarginTop - 1;
+                return this.pMarginTop;
             }
             return 0;
         },
@@ -504,8 +504,12 @@ export default {
             
         },
         downloadAxis() {
-            let node = d3_select(this.axisSelector).select("svg").node();
-            saveSvgAsPng(node, this.axisElemID + ".png");
+            const node = d3_select(this.axisSelector).select("svg").node();
+            return new Promise((resolve, reject) => {
+                svgAsPngUri(node, {}, (uri) => {
+                    resolve(uri);
+                });
+            });
         }
     }
 }

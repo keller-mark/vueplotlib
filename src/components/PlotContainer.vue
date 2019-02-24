@@ -1,4 +1,6 @@
 <script>
+import { getRetinaRatio } from './../helpers.js';
+
 /**
  * Function that takes in array of VNodes and adds props from a provided props object.
  * @private
@@ -22,6 +24,27 @@ const addProp = function(slotArray, newProps) {
     }
     return [];
 }
+
+/**
+ * Given a canvas context, x and y offsets, and an image URI, render the image to the context.
+ * @private
+ * @param {Context} ctx The canvas context.
+ * @param {string} uri The image data URI.
+ * @param {int} x The x offset.
+ * @param {int} y The y offset.
+ */
+const renderToContext = function(ctx, uri, x, y, width, height) {
+    return new Promise((resolve, reject) => {
+        var img = new Image;
+        img.onload = () => {
+            ctx.drawImage(img, x, y, width, height);
+            resolve();
+        };
+        img.src = uri;
+    });
+};
+
+
 /**
  * This component is a container for axis and plot components, 
  * which passes its props to its children and imposes styles.
@@ -109,10 +132,83 @@ export default {
         );
         let classes = ['vdp-plot-container'];
         let styles = {
-            width: (this.pMarginLeft + this.pWidth + this.pMarginRight) + 'px',
-            height: (this.pMarginTop + this.pHeight + this.pMarginBottom) + 'px'
+            width: this.fullWidth + 'px',
+            height: this.fullHeight + 'px'
         };
         return h('div', { class: classes, style: styles }, children);
+    },
+    computed: {
+        fullWidth() {
+            return this.pMarginLeft + this.pWidth + this.pMarginRight;
+        },
+        fullHeight() {
+            return this.pMarginTop + this.pHeight + this.pMarginBottom;
+        }
+    },
+    methods: {
+        renderToContext(ctx, x, y, uri) {
+            var img = new Image;
+            img.onload = () => {
+                ctx.drawImage(img, x, y); // Or at whatever offset you like
+            };
+            img.src = uri;
+        },
+        download() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            const ratio = getRetinaRatio(ctx);
+            const scaledWidth = this.fullWidth * ratio;
+            const scaledHeight = this.fullHeight * ratio;
+
+            canvas.width = scaledWidth;
+            canvas.height = scaledHeight;
+            ctx.scale(ratio, ratio);
+
+            const renderAxisToContext = (axisType) => {
+                if(this.$slots[axisType].length > 0) {
+                    return this.$slots[axisType][0].componentInstance.downloadAxis()
+                        .then((uri) => {
+                            console.log(uri);
+                            const x = this.$slots[axisType][0].componentInstance.computedLeft;
+                            const y = this.$slots[axisType][0].componentInstance.computedTop;
+                            const width = this.$slots[axisType][0].componentInstance.computedWidth;
+                            const height = this.$slots[axisType][0].componentInstance.computedHeight;
+                            return renderToContext(ctx, uri, x, y, width, height);
+                        });
+                }
+                return Promise.resolve();
+            };
+
+            const renderPlotToContext = () => {
+                if(this.$slots.plot.length > 0) {
+                    return this.$slots.plot[0].componentInstance.downloadPlot()
+                        .then((uri) => {
+                            console.log(uri);
+                            const x = this.pMarginLeft;
+                            const y = this.pMarginTop;
+                            const width = this.pWidth;
+                            const height = this.pHeight;
+                            return renderToContext(ctx, uri, x, y, width, height);
+                        });
+                }
+                return Promise.resolve();
+            };
+            
+            const renderPromises = [];
+            renderPromises.push(renderAxisToContext("axisTop"));
+            renderPromises.push(renderAxisToContext("axisLeft"));
+            renderPromises.push(renderPlotToContext());
+            renderPromises.push(renderAxisToContext("axisRight"));
+            renderPromises.push(renderAxisToContext("axisBottom"));
+
+            return new Promise((resolve, reject) => {
+                Promise.all(renderPromises).then(() => {
+                    const uri = canvas.toDataURL("image/png");
+                    resolve(uri);
+                });
+            });
+        }
     }
 }
 </script>
