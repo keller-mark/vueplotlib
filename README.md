@@ -9,7 +9,7 @@
 <img src="./examples-src/screenshot.png" alt="V" width="300"/>
 
 This repository will serve as a place for reusable Vue plot components (built with D3).
-These components were developed for use in [iMuSE](https://github.com/lrgr/imuse).
+These components were developed for use in [ExploSig](https://github.com/lrgr/explosig).
 
 - [Demo](https://keller-mark.github.io/vueplotlib/)
 - [Documentation](https://keller-mark.github.io/vueplotlib/docs/)
