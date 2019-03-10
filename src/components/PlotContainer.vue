@@ -147,6 +147,11 @@ export default {
             default: "plot"
         }
     },
+    data() {
+        return {
+            initialKey: 1
+        }
+    },
     render(h) {
         this.$slots.axisTop = addProp(this.$slots.axisTop, this.$props);
         this.$slots.axisLeft = addProp(this.$slots.axisLeft, this.$props);
@@ -163,7 +168,7 @@ export default {
         );
 
         if(this.showDownloadButton) {
-            children.push(h('svg', { props: this.$props, class: 'vdp-plot-container-dl-btn', attrs: {'width': this.downloadButtonSize, 'height': this.downloadButtonSize, 'viewBox': '0 0 24 24'}, style: {'top': (this.downloadButtonOffsetY + 'px'), 'left': (this.downloadButtonOffsetX + 'px')}, on: { click: this.downloadViaButton } }, [h('path', {attrs: {'d': DOWNLOAD_PATH, 'fill': this.downloadButtonFill }})]));
+            children.push(h('svg', { key: this.initialKey, class: 'vdp-plot-container-dl-btn', attrs: {'width': this.downloadButtonSize, 'height': this.downloadButtonSize, 'viewBox': '0 0 24 24'}, style: {'top': (this.downloadButtonOffsetY + 'px'), 'left': (this.downloadButtonOffsetX + 'px')}, on: { click: this.downloadViaButton } }, [h('path', {attrs: {'d': DOWNLOAD_PATH, 'fill': this.downloadButtonFill }})]));
         }
 
         let classes = ['vdp-plot-container'];
@@ -181,7 +186,30 @@ export default {
             return this.pMarginTop + this.pHeight + this.pMarginBottom;
         }
     },
+    watch: {
+        pWidth() {
+            this.initialKey++;
+        },
+        pHeight() {
+            this.initialKey++;
+        },
+        pMarginTop() {
+            this.initialKey++;
+        },
+        pMarginLeft() {
+            this.initialKey++;
+        },
+        pMarginRight() {
+            this.initialKey++;
+        },
+        pMarginBottom() {
+            this.initialKey++;
+        }
+    },
     methods: {
+        rerender() {
+            this.initialKey++;
+        },
         renderToContext(ctx, x, y, uri) {
             var img = new Image;
             img.onload = () => {
