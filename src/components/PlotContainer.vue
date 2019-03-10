@@ -1,5 +1,7 @@
 <script>
 import { getRetinaRatio } from './../helpers.js';
+import { DOWNLOAD_PATH } from './../icons.js';
+
 
 /**
  * Function that takes in array of VNodes and adds props from a provided props object.
@@ -54,6 +56,11 @@ const renderToContext = function(ctx, uri, x, y, width, height) {
  * @prop {number} pMarginLeft The plot left margin.
  * @prop {number} pMarginRight The plot right margin.
  * @prop {number} pMarginBottom The plot bottom margin.
+ * @prop {boolean} showDownloadButton Show a download button (in top left corner). Optional. Default: false.
+ * @prop {number} downloadButtonOffsetX x-offset of the download button. Optional. Only makes sense to use if showDownloadButton is true.
+ * @prop {number} downloadButtonOffsetY y-offset of the download button. Optional. Only makes sense to use if showDownloadButton is true.
+ * @prop {number} downloadButtonSize size of the download button. Optional. Default: 16. Only makes sense to use if showDownloadButton is true.
+ * @prop {string} downloadButtonFill color of the download button. Optional. Default: "#C0C0C0". Only makes sense to use if showDownloadButton is true.
  * 
  * @example
  * <PlotContainer
@@ -114,6 +121,30 @@ export default {
         },
         'pMarginBottom': {
             type: Number
+        },
+        'showDownloadButton': {
+            type: Boolean,
+            default: false
+        },
+        'downloadButtonOffsetX': {
+            type: Number,
+            default: 0
+        },
+        'downloadButtonOffsetY': {
+            type: Number,
+            default: 0
+        },
+        'downloadButtonSize': {
+            type: Number,
+            default: 16
+        },
+        'downloadButtonFill': {
+            type: String,
+            default: "#C0C0C0"
+        },
+        'downloadName': {
+            type: String,
+            default: "plot"
         }
     },
     render(h) {
@@ -130,6 +161,11 @@ export default {
             this.$slots.axisRight,
             this.$slots.axisBottom
         );
+
+        if(this.showDownloadButton) {
+            children.push(h('svg', { class: 'vdp-plot-container-dl-btn', attrs: {'width': this.downloadButtonSize, 'height': this.downloadButtonSize, 'viewBox': '0 0 24 24'}, style: {'top': (this.downloadButtonOffsetY + 'px'), 'left': (this.downloadButtonOffsetX + 'px')}, on: { click: this.downloadViaButton } }, [h('path', {attrs: {'d': DOWNLOAD_PATH, 'fill': this.downloadButtonFill }})]));
+        }
+
         let classes = ['vdp-plot-container'];
         let styles = {
             width: this.fullWidth + 'px',
@@ -153,6 +189,35 @@ export default {
             };
             img.src = uri;
         },
+        downloadViaButton() {
+            this.downloadWithoutAxisBrushing()
+            .then((uri) => {
+                const downloadAnchorNode = document.createElement('a');
+                downloadAnchorNode.setAttribute("href", uri);
+                downloadAnchorNode.setAttribute("download", this.downloadName + ".png");
+                document.body.appendChild(downloadAnchorNode); // required for firefox
+                downloadAnchorNode.click();
+                downloadAnchorNode.remove();
+            });
+        },
+        downloadWithoutAxisBrushing() {
+            let axisTopDisableBrushing = this.$slots.axisTop.forEach((vnode) => { vnode.componentInstance.preDownload(); });
+            let axisLeftDisableBrushing = this.$slots.axisLeft.forEach((vnode) => { vnode.componentInstance.preDownload(); });
+            let axisRightDisableBrushing = this.$slots.axisRight.forEach((vnode) => { vnode.componentInstance.preDownload(); });
+            let axisBottomDisableBrushing = this.$slots.axisBottom.forEach((vnode) => { vnode.componentInstance.preDownload(); });
+
+            return new Promise((resolve, reject) => {
+                Promise.all([axisTopDisableBrushing, axisLeftDisableBrushing, axisRightDisableBrushing, axisBottomDisableBrushing]).then(() => {
+                    this.download().then((uri) => {
+                        resolve(uri);
+                        this.$slots.axisTop.forEach((vnode) => { vnode.componentInstance.postDownload(); });
+                        this.$slots.axisLeft.forEach((vnode) => { vnode.componentInstance.postDownload(); });
+                        this.$slots.axisRight.forEach((vnode) => { vnode.componentInstance.postDownload(); });
+                        this.$slots.axisBottom.forEach((vnode) => { vnode.componentInstance.postDownload(); });
+                    });
+                });
+            });
+        },
         download() {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
@@ -169,7 +234,6 @@ export default {
                 if(this.$slots[axisType].length > 0) {
                     return this.$slots[axisType][0].componentInstance.downloadAxis()
                         .then((uri) => {
-                            console.log(uri);
                             const x = this.$slots[axisType][0].componentInstance.computedLeft;
                             const y = this.$slots[axisType][0].componentInstance.computedTop;
                             const width = this.$slots[axisType][0].componentInstance.computedWidth;
@@ -184,7 +248,6 @@ export default {
                 if(this.$slots.plot.length > 0) {
                     return this.$slots.plot[0].componentInstance.downloadPlot()
                         .then((uri) => {
-                            console.log(uri);
                             const x = this.pMarginLeft;
                             const y = this.pMarginTop;
                             const width = this.pWidth;
@@ -216,5 +279,10 @@ export default {
 <style>
 .vdp-plot-container {
     position: relative;
+    
+}
+.vdp-plot-container .vdp-plot-container-dl-btn {
+    position: relative;
+    cursor: pointer;
 }
 </style>

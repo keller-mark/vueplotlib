@@ -235,13 +235,21 @@ export default {
         removeAxis() {
             d3_select(this.axisSelector).select("svg").remove();
         },
-        drawAxis() {
+        preDownload() {
+            this.drawAxis(true);
+        },
+        postDownload() {
+            this.drawAxis();
+        },
+        drawAxis(brushingOverride) {
             const vm = this;
             vm.removeAxis();
 
             if(vm._varScale.isLoading) {
                 return;
             }
+
+            const disableBrushing = (brushingOverride === true) || vm.disableBrushing;
             
             const varScale = vm._varScale;
             const stack = vm._stack;
@@ -375,9 +383,19 @@ export default {
                 return "rotate(" + vm.tickRotation + "," + tickRotateX + "," + tickRotateY + ")";
             }
 
+            let tickTextAnchor = "middle";
+            if(vm.tickRotation !== 0) {
+                if(vm._side === SIDES.LEFT || vm._side === SIDES.BOTTOM) {
+                    tickTextAnchor = "end";
+                } else {
+                    tickTextAnchor = "start";
+                }                
+            }
+
             ticksZoomedIn.selectAll("text")	
-                    .style("text-anchor", (vm._side === SIDES.LEFT || vm._side === SIDES.BOTTOM ? "end" : "start"))
+                    .style("text-anchor", tickTextAnchor)
                     .attr("transform", tickTransformFunction);
+
             
             
             
@@ -423,7 +441,7 @@ export default {
                 zoomedOutTranslateX += (axisBboxZoomedIn.width + betweenAxisMargin);
             }
 
-            if(!vm.disableBrushing) {
+            if(!disableBrushing) {
                 
                 const containerZoomedOut = container.append("g")
                         .attr("class", "axis-zoomed-out")
@@ -437,7 +455,7 @@ export default {
                 const textBboxZoomedOut = ticksZoomedOut.select("text").node().getBBox();
 
                 ticksZoomedOut.selectAll("text")	
-                        .style("text-anchor", (vm._side === SIDES.LEFT || vm._side === SIDES.BOTTOM ? "end" : "start"))
+                        .style("text-anchor", tickTextAnchor)
                         .attr("transform", tickTransformFunction);
                 
                 // Get the width/height of the zoomed-out axis, before removing the text
@@ -691,7 +709,7 @@ export default {
 
             const labelTextBbox = labelText.node().getBBox();
 
-            if(vm.disableBrushing) {
+            if(disableBrushing) {
                 axisBboxZoomedOut = { width: 0, height: 0 };
             }
 

@@ -1,10 +1,8 @@
 [![Build Status](https://travis-ci.org/keller-mark/vueplotlib.svg?branch=master)](https://travis-ci.org/keller-mark/vueplotlib)
 [![Coverage Status](https://coveralls.io/repos/github/keller-mark/vueplotlib/badge.svg?branch=master)](https://coveralls.io/github/keller-mark/vueplotlib?branch=master)
-[![npm version](https://img.shields.io/npm/v/vue-declarative-plots.svg)](https://www.npmjs.com/package/vue-declarative-plots)
+[![npm version](https://img.shields.io/npm/v/vueplotlib.svg)](https://www.npmjs.com/package/vueplotlib)
 
-# vue-declarative-plots
-
-:warning: vue-declarative-plots is changing its name to **vueplotlib** in [version 2.0](https://github.com/keller-mark/vueplotlib/tree/v2) :warning:
+# vueplotlib
 
 <img src="./examples-src/screenshot.png" alt="V" width="300"/>
 
@@ -14,14 +12,23 @@ These components were developed for use in [ExploSig](https://github.com/lrgr/ex
 - [Demo](https://keller-mark.github.io/vueplotlib/)
 - [Documentation](https://keller-mark.github.io/vueplotlib/docs/)
 
+### Features
+
+- **Declarative**: declare scales, data, and styling options
+- **Interactive**: hover and click events, axis brushing, downloading (to PNG)
+- **Fast**: canvas plots
+- **Linked**: declarative API enables automatic linking of scales across plots
+- **History**: record interactions for forward/backward navigation, import/export (via JSON)
+- **Composable**: axes and legends are separate from plots, mix and match
+- **Customizable**: extend the scale classes (see GenomeScale, BinaryScale). extend the history capabilities.
 
 ### Installation
 ```bash
-yarn add vue-declarative-plots
+yarn add vueplotlib
 ```
 
 ### Example Usage
-Please see the [vue-declarative-plots-examples](https://github.com/keller-mark/vue-declarative-plots-examples) repository for minimal examples of usage.
+Please see the [vueplotlib-examples](https://github.com/keller-mark/vueplotlib-examples) repository for minimal examples of usage.
 
 
 ### Plot Components

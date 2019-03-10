@@ -8,6 +8,7 @@ toc:
   - TrackPlot
   - RectPlot
   - MultiTrackPlot
+  - MultiDataTrackPlot
   - HierarchicalMultiTrackPlot
   - StratifiedBoxPlot
   - GenomeScatterPlot

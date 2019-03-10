@@ -202,6 +202,12 @@ export default {
         removeAxis() {
             d3_select(this.axisSelector).select("svg").remove();
         },
+        preDownload() {
+            // noop
+        },
+        postDownload() {
+            // noop
+        },
         drawAxis() {
             const vm = this;
             vm.removeAxis();

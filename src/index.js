@@ -14,6 +14,7 @@ import MultiBoxPlot from './components/plots/MultiBoxPlot.vue';
 import TrackPlot from './components/plots/TrackPlot.vue';
 import RectPlot from './components/plots/RectPlot.vue';
 import MultiTrackPlot from './components/plots/MultiTrackPlot.vue';
+import MultiDataTrackPlot from './components/plots/MultiDataTrackPlot.vue';
 import HierarchicalMultiTrackPlot from './components/plots/HierarchicalMultiTrackPlot.vue';
 import StratifiedBoxPlot from './components/plots/StratifiedBoxPlot.vue';
 import StratifiedScatterPlot from './components/plots/StratifiedScatterPlot.vue';
@@ -61,6 +62,7 @@ export {
     TrackPlot,
     RectPlot,
     MultiTrackPlot,
+    MultiDataTrackPlot,
     HierarchicalMultiTrackPlot,
     StratifiedBoxPlot,
     StratifiedScatterPlot,
