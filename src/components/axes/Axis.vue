@@ -389,7 +389,13 @@ export default {
                     tickTextAnchor = "end";
                 } else {
                     tickTextAnchor = "start";
-                }                
+                }
+            } else {
+                if(vm._side === SIDES.LEFT) {
+                    tickTextAnchor = "end";
+                } else if(vm._side === SIDES.RIGHT) {
+                    tickTextAnchor = "start";
+                }
             }
 
             ticksZoomedIn.selectAll("text")	
