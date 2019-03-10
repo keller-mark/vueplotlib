@@ -14,12 +14,11 @@
 
     <PlotContainer
       :pWidth="500"
-      :pHeight="300"
+      :pHeight="dynamicPlotHeight"
       :pMarginTop="120"
       :pMarginLeft="120"
       :pMarginRight="120"
       :pMarginBottom="100"
-      ref="ScatterPlotContainer"
       :showDownloadButton="true"
       :downloadButtonOffsetX="(500+190)"
       :downloadButtonOffsetY="80"
@@ -69,6 +68,8 @@
         :getStack="getStack"
       />
     </PlotContainer>
+
+    <button @click="exampleDynamicPlotHeight">Change Plot Height</button>
 
     <h3>&lt;StackedBarPlot/&gt;</h3>
     <PlotContainer
@@ -1307,6 +1308,7 @@ export default {
   },
   data() {
     return {
+      dynamicPlotHeight: 300,
       getData: getData,
       getScale: getScale,
       getStack: getStack,
@@ -1324,16 +1326,8 @@ export default {
     countBarPlotFilterFunction(val) {
       return (val > 1);
     },
-    exampleDownload() {
-      this.$refs.ScatterPlotContainer.downloadWithoutAxisBrushing("test")
-        .then((uri) => {
-          const downloadAnchorNode = document.createElement('a');
-          downloadAnchorNode.setAttribute("href", uri);
-          downloadAnchorNode.setAttribute("download", "vueplotlib_download_demo.png");
-          document.body.appendChild(downloadAnchorNode); // required for firefox
-          downloadAnchorNode.click();
-          downloadAnchorNode.remove();
-        });
+    exampleDynamicPlotHeight() {
+      this.dynamicPlotHeight += 100;
     }
   }
 }

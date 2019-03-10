@@ -149,8 +149,8 @@ export default {
     },
     data() {
         return {
-            initialKey: 1
-        }
+            initialKey: 1,
+        };
     },
     render(h) {
         this.$slots.axisTop = addProp(this.$slots.axisTop, this.$props);
@@ -158,18 +158,20 @@ export default {
         this.$slots.plot = addProp(this.$slots.plot, this.$props);
         this.$slots.axisRight = addProp(this.$slots.axisRight, this.$props);
         this.$slots.axisBottom = addProp(this.$slots.axisBottom, this.$props);
+
+        const downloadChildren = [];
+        if(this.showDownloadButton) {
+            downloadChildren.push(h('svg', { class: 'vdp-plot-container-dl-btn', attrs: {'width': this.downloadButtonSize, 'height': this.downloadButtonSize, 'viewBox': '0 0 24 24'}, style: {'top': (this.downloadButtonOffsetY + 'px'), 'left': (this.downloadButtonOffsetX + 'px')}, on: { click: ()=>{this.downloadViaButton();} } }, [h('path', {attrs: {'d': DOWNLOAD_PATH, 'fill': this.downloadButtonFill }})]));
+        }
         
-        let children = ([]).concat(
+        const children = ([]).concat(
             this.$slots.axisTop, 
             this.$slots.axisLeft,
             this.$slots.plot,
             this.$slots.axisRight,
-            this.$slots.axisBottom
-        );
-
-        if(this.showDownloadButton) {
-            children.push(h('svg', { key: this.initialKey, class: 'vdp-plot-container-dl-btn', attrs: {'width': this.downloadButtonSize, 'height': this.downloadButtonSize, 'viewBox': '0 0 24 24'}, style: {'top': (this.downloadButtonOffsetY + 'px'), 'left': (this.downloadButtonOffsetX + 'px')}, on: { click: this.downloadViaButton } }, [h('path', {attrs: {'d': DOWNLOAD_PATH, 'fill': this.downloadButtonFill }})]));
-        }
+            this.$slots.axisBottom,
+            h('div', { key: this.initialKey }, downloadChildren)
+        );  
 
         let classes = ['vdp-plot-container'];
         let styles = {
@@ -207,9 +209,6 @@ export default {
         }
     },
     methods: {
-        rerender() {
-            this.initialKey++;
-        },
         renderToContext(ctx, x, y, uri) {
             var img = new Image;
             img.onload = () => {
