@@ -22,7 +22,6 @@ import StratifiedSinaPlot from './components/plots/StratifiedSinaPlot.vue';
 import StratifiedKaplanMeierPlot from './components/plots/StratifiedKaplanMeierPlot.vue';
 import CountBarPlot from './components/plots/CountBarPlot.vue';
 
-
 // Genome Plots
 import GenomeScatterPlot from './components/plots/GenomeScatterPlot.vue';
 import GenomeTrackPlot from './components/plots/GenomeTrackPlot.vue';
@@ -42,10 +41,10 @@ import BinaryScale from './scales/BinaryScale';
 import CategoricalScale from './scales/CategoricalScale';
 import ContinuousScale from './scales/ContinuousScale';
 import GenomeScale from './scales/GenomeScale';
+import Expected from './expected';
 
 // Other
 import { EVENT_TYPES, EVENT_SUBTYPES, EVENT_SUBTYPE_RESETS } from './history/base-events';
-
 
 export {
     // Components
@@ -84,6 +83,7 @@ export {
     CategoricalScale,
     ContinuousScale,
     GenomeScale,
+    Expected,
     // Other
     computedParam,
     EVENT_TYPES, EVENT_SUBTYPES, EVENT_SUBTYPE_RESETS,

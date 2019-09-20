@@ -97,8 +97,10 @@ export default class AbstractScale extends AbstractScaleDispatcher {
      * @param {*} id The ID for the scale.
      * @param {*} name The name for the scale.
      * @param {*} domain The domain for the scale.
+     * @param {*} colorScaleKey The key of the color scale to be used.
+     * @param {Expected} expected An object on which to subscribe to data.
      */
-    constructor(id, name, domain, colorScaleKey) {
+    constructor(id, name, domain, colorScaleKey, expected) {
         super();
         this._id = id;
         this._name = name;
@@ -123,6 +125,16 @@ export default class AbstractScale extends AbstractScaleDispatcher {
             this._isLoading = false;
             this.emitUpdate();
         });
+
+        if(expected) {
+            expected.onData(this.constructor.name, this._id, (expectedData) => {
+                if(expectedData.hasOwnProperty("scales") && expectedData["scales"].hasOwnProperty(this._id)) {
+                    const newDomain = expectedData["scales"][this._id];
+                    this.setDomain(newDomain);
+                    this.setDomainFiltered(newDomain);
+                }
+            });
+        }
     }
     
     /**

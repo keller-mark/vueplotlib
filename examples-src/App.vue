@@ -237,6 +237,9 @@
       />
     </PlotContainer>
 
+    <button @click="exampleModifyData">Modify data: double all coordinates</button>
+    <button @click="exampleModifyScale">Modify scales: triple Y range</button>
+
     <h3>&lt;ScatterPlot/&gt; and asynchronous data</h3>
     <PlotContainer
       :pWidth="500"
@@ -922,6 +925,7 @@ import {
     CategoricalScale,
     ContinuousScale,
     GenomeScale,
+    Expected,
 } from '../src/index.js';
 
 
@@ -943,6 +947,8 @@ import survivalData from './data/survival.json';
 // History
 import Stack from './Stack.vue';
 import { EVENT_TYPES, EVENT_SUBTYPE_RESETS } from '../src/history/base-events.js';
+
+const expectedDataSource = new Expected();
 
 const exposuresDataContainer = new DataContainer(
   'exposures_data', 
@@ -967,7 +973,8 @@ const rainfallDataContainer = new DataContainer(
 const xyDataContainer = new DataContainer(
   'xy_data',
   'Random Data',
-  xyData
+  xyData,
+  expectedDataSource,
 );
 const clinicalDataContainer = new DataContainer(
   'clinical_data',
@@ -1079,7 +1086,9 @@ const signatureScale = new CategoricalScale(
 const xyYScale = new ContinuousScale(
   'y',
   'Random Y',
-  [0, 100]
+  [0, 100],
+  undefined,
+  expectedDataSource
 );
 const xyXScale = new ContinuousScale(
   'x',
@@ -1328,6 +1337,20 @@ export default {
     },
     exampleDynamicPlotHeight() {
       this.dynamicPlotHeight += 100;
+    },
+    exampleModifyData() {
+      expectedDataSource.emitData({
+          "data": {
+              "xy_data": xyData.map(d => ({x: 2*d.x, y: 2*d.y}))
+          }
+      });
+    },
+    exampleModifyScale() {
+      expectedDataSource.emitData({
+          "scales": {
+              "y": [0, 300]
+          }
+      });
     }
   }
 }

@@ -11,8 +11,9 @@ export default class DataContainer {
      * @param {string} id The ID for the data.
      * @param {string} name The name for the data.
      * @param {*} data The data to hold, or a promise that will return the data.
+     * @param {Expected} expected An object on which to subscribe to data.
      */
-    constructor(id, name, data) {
+    constructor(id, name, data, expected) {
         this._id = id;
         this._name = name;
         this._isLoading = true;
@@ -24,6 +25,14 @@ export default class DataContainer {
             this._isLoading = false;
             this.emitUpdate();
         });
+
+        if(expected) {
+            expected.onData(this.constructor.name, this._id, (expectedData) => {
+                if(expectedData.hasOwnProperty("data") && expectedData["data"].hasOwnProperty(this._id)) {
+                    this.setData(expectedData["data"][this._id]);
+                }
+            });
+        }
     }
     
     /**

@@ -10,9 +10,10 @@ export default class BinaryScale extends CategoricalScale {
      * Create a binary scale.
      * @param {string} id The ID for the scale.
      * @param {string} name The name for the scale.
+     * @param {Expected} expected An object on which to subscribe to data.
      */
-    constructor(id, name) {
-        super(id, name, [1, 0], ["Yes", "No"]);
+    constructor(id, name, expected) {
+        super(id, name, [1, 0], ["Yes", "No"], expected);
     }
 
     /** @inheritdoc */
