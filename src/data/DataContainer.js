@@ -20,16 +20,21 @@ export default class DataContainer {
         this._data = null;
         this._dispatch = d3_dispatch(DISPATCH_EVENT_UPDATE);
 
-        Promise.resolve(data).then((d) => {
-            this._data = d;
-            this._isLoading = false;
-            this.emitUpdate();
-        });
+        if(data) {
+            Promise.resolve(data).then((d) => {
+                this._data = d;
+                this._isLoading = false;
+                this.emitUpdate();
+            });
+        }
 
         if(expected) {
             expected.onData(this.constructor.name, this._id, (expectedData) => {
                 if(expectedData.hasOwnProperty("data") && expectedData["data"].hasOwnProperty(this._id)) {
-                    this.setData(expectedData["data"][this._id]);
+                    const d = expectedData["data"][this._id];
+                    this._data = d;
+                    this._isLoading = false;
+                    this.emitUpdate();
                 }
             });
         }

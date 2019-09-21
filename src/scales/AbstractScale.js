@@ -118,20 +118,25 @@ export default class AbstractScale extends AbstractScaleDispatcher {
         this._domainOriginal = [];
         
         this._isLoading = true;
-        Promise.resolve(domain).then((d) => {
-            this._domain = d.slice();
-            this._domainFiltered = d.slice();
-            this._domainOriginal = d.slice();
-            this._isLoading = false;
-            this.emitUpdate();
-        });
+        if(domain) {
+            Promise.resolve(domain).then((d) => {
+                this._domain = d.slice();
+                this._domainFiltered = d.slice();
+                this._domainOriginal = d.slice();
+                this._isLoading = false;
+                this.emitUpdate();
+            });
+        }
 
         if(expected) {
             expected.onData(this.constructor.name, this._id, (expectedData) => {
                 if(expectedData.hasOwnProperty("scales") && expectedData["scales"].hasOwnProperty(this._id)) {
-                    const newDomain = expectedData["scales"][this._id];
-                    this.setDomain(newDomain);
-                    this.setDomainFiltered(newDomain);
+                    const d = expectedData["scales"][this._id];
+                    this._domain = d.slice();
+                    this._domainFiltered = d.slice();
+                    this._domainOriginal = d.slice();
+                    this._isLoading = false;
+                    this.emitUpdate();
                 }
             });
         }
