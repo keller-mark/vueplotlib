@@ -1,4 +1,4 @@
-import { dispatch as d3_dispatch } from "d3-dispatch";
+import { dispatch as d3_dispatch } from "d3-dispatch-nosplit";
 
 const DISPATCH_EVENT_UPDATE = "update";
 const DISPATCH_EVENT_HIGHLIGHT = "highlight";
