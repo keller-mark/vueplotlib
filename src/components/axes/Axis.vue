@@ -365,7 +365,16 @@ export default {
                     .tickSizeOuter(tickSizeOuter)
                     .tickFormat(tickFormatFunction2)
             );
-            const textBboxZoomedIn = ticksZoomedIn.select("text").node().getBBox();
+
+
+            let textBboxZoomedIn;
+            try {
+                textBboxZoomedIn = ticksZoomedIn.select("text").node().getBBox();
+            } catch(e) {
+                // Replace with dummy object on failure
+                // TODO: find better solution
+                textBboxZoomedIn = { height: 0 };
+            }
 
             const tickTransformFunction = (d, i, v) => {
                 let tickBbox = v[i].getBBox();
