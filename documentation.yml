@@ -27,6 +27,7 @@ toc:
   - SortOptions
   - CategoricalLegend
   - ContinuousLegend
+  - Legend
   - name: Data
   - DataContainer
   - name: History

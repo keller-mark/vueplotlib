@@ -126,7 +126,6 @@
       :getStack="getStack"
     />
 
-
     <h3>&lt;BarPlot/&gt;</h3>
     <PlotContainer
       :pWidth="500"
@@ -919,6 +918,7 @@ import {
     GenomeStackedBarPlot,
     CategoricalLegend,
     ContinuousLegend,
+    Legend,
     // Classes
     DataContainer,
     HistoryStack,
@@ -1313,7 +1313,8 @@ export default {
     GenomeMultiTrackPlot,
     GenomeStackedBarPlot,
     CategoricalLegend,
-    ContinuousLegend
+    ContinuousLegend,
+    Legend,
   },
   data() {
     return {

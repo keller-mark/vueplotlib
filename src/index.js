@@ -31,6 +31,7 @@ import GenomeStackedBarPlot from './components/plots/GenomeStackedBarPlot.vue';
 // Legends
 import CategoricalLegend from './components/legends/CategoricalLegend.vue';
 import ContinuousLegend from './components/legends/ContinuousLegend.vue';
+import Legend from './components/legends/Legend.vue';
 
 // Classes
 import DataContainer from './data/DataContainer';
@@ -74,6 +75,7 @@ export {
     GenomeStackedBarPlot,
     CategoricalLegend,
     ContinuousLegend,
+    Legend,
     // Classes
     DataContainer,
     HistoryStack,
