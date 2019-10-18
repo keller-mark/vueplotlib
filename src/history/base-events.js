@@ -2,18 +2,18 @@
  * Enum of the base event types.
  */
 export const EVENT_TYPES = Object.freeze({ 
-    SCALE: 1,
-    DATA: 2
+    SCALE: "SCALE",
+    DATA: "DATA"
 });
 
 /**
  * Enum of the base event subtypes.
  */
 export const EVENT_SUBTYPES = Object.freeze({ 
-    SCALE_DOMAIN_FILTER: 1,
-    SCALE_DOMAIN_SORT: 2,
-    SCALE_COLOR_SCALE: 3,
-    SCALE_COLOR_OVERRIDE: 4 
+    SCALE_DOMAIN_FILTER: "FILTER",
+    SCALE_DOMAIN_SORT: "SORT",
+    SCALE_COLOR_SCALE: "COLOR_SCALE",
+    SCALE_COLOR_OVERRIDE: "COLOR_OVERRIDE" 
 });
 
 /**
