@@ -102,7 +102,7 @@ let uuid = 0;
 /**
  * @prop {string} variable The key to access the values in the data array objects.
  * @prop {string} s The key for the data containing the variable to stratify by.
- * @prop {string} x The key for the scale to stratify by. Must be categorical (this could potentially be relaxed in a later version of vdp).
+ * @prop {string} x The key for the scale to stratify by. Must be categorical.
  * @prop {string} y The y-scale variable key.
  * @prop {string} o The observation-scale variable key. Required in order to match with the stratification data.
  * @prop {number} pointSize The diameter of outlier (and mean) points. Default: 6
