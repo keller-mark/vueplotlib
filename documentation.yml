@@ -10,13 +10,16 @@ toc:
   - MultiTrackPlot
   - MultiDataTrackPlot
   - HierarchicalMultiTrackPlot
-  - StratifiedBoxPlot
   - GenomeScatterPlot
   - GenomeTrackPlot
   - GenomeMultiTrackPlot
   - GenomeStackedBarPlot
-  - StratifiedScatterPlot
+  - StratifiedBoxPlot
+  - DoubleStratifiedBoxPlot
   - StratifiedSinaPlot
+  - DoubleStratifiedSinaPlot
+  - StratifiedScatterPlot
+  - DoubleStratifiedScatterPlot
   - StratifiedKaplanMeierPlot
   - CountBarPlot
   - mixin

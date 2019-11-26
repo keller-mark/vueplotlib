@@ -655,6 +655,48 @@
       />
     </PlotContainer>
 
+    <h3>&lt;DoubleStratifiedBoxPlot/&gt;</h3>
+    <PlotContainer
+      :pWidth="500"
+      :pHeight="300"
+      :pMarginTop="10"
+      :pMarginLeft="120"
+      :pMarginRight="10"
+      :pMarginBottom="180"
+    >
+      <Axis
+        slot="axisLeft"
+        variable="exposure"
+        side="left" 
+        :tickRotation="-35"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+      <DoubleStratifiedBoxPlot
+        slot="plot"
+        data="exposures_data"
+        variable="COSMIC 1"
+        s="clinical_data"
+        x="sex"
+        s2="clinical_data"
+        x2="sex"
+        y="exposure"
+        o="sample_id"
+        :getData="getData"
+        :getScale="getScale"
+        :clickHandler="exampleClickHandler"
+        :drawOutliers="true"
+      />
+      <Axis
+        slot="axisBottom"
+        variable="sex"
+        side="bottom" 
+        :tickRotation="-65"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+    </PlotContainer>
+
     <h3>&lt;StratifiedSinaPlot/&gt;</h3>
     <PlotContainer
       :pWidth="500"
@@ -696,6 +738,49 @@
       />
     </PlotContainer>
 
+    <h3>&lt;DoubleStratifiedSinaPlot/&gt;</h3>
+    <PlotContainer
+      :pWidth="500"
+      :pHeight="300"
+      :pMarginTop="10"
+      :pMarginLeft="120"
+      :pMarginRight="10"
+      :pMarginBottom="180"
+    >
+      <Axis
+        slot="axisLeft"
+        variable="exposure"
+        side="left" 
+        :tickRotation="-35"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+      <DoubleStratifiedSinaPlot
+        slot="plot"
+        data="exposures_data"
+        variable="COSMIC 1"
+        s="clinical_data"
+        x="sex"
+        s2="clinical_data"
+        x2="sex"
+        y="exposure"
+        o="sample_id"
+        :getData="getData"
+        :getScale="getScale"
+        :clickHandler="exampleClickHandler"
+        :fillPoints="true"
+        strokeColor="gray"
+      />
+      <Axis
+        slot="axisBottom"
+        variable="sex"
+        side="bottom" 
+        :tickRotation="-65"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+    </PlotContainer>
+
     <h3>&lt;StratifiedScatterPlot/&gt;</h3>
     <PlotContainer
       :pWidth="500"
@@ -719,6 +804,48 @@
         variable="COSMIC 1"
         s="clinical_data"
         x="age"
+        y="exposure"
+        o="sample_id"
+        :fillPoints="true"
+        strokeColor="gray"
+        :getData="getData"
+        :getScale="getScale"
+        :clickHandler="exampleClickHandler"
+      />
+      <Axis
+        slot="axisBottom"
+        variable="age"
+        side="bottom" 
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+    </PlotContainer>
+
+    <h3>&lt;DoubleStratifiedScatterPlot/&gt;</h3>
+    <PlotContainer
+      :pWidth="500"
+      :pHeight="300"
+      :pMarginTop="10"
+      :pMarginLeft="120"
+      :pMarginRight="10"
+      :pMarginBottom="180"
+    >
+      <Axis
+        slot="axisLeft"
+        variable="exposure"
+        side="left" 
+        :tickRotation="-35"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+      <DoubleStratifiedScatterPlot
+        slot="plot"
+        data="exposures_data"
+        variable="COSMIC 1"
+        s="clinical_data"
+        x="age"
+        s2="clinical_data"
+        x2="sex"
         y="exposure"
         o="sample_id"
         :fillPoints="true"
@@ -908,8 +1035,11 @@ import {
     MultiDataTrackPlot,
     HierarchicalMultiTrackPlot,
     StratifiedBoxPlot,
+    DoubleStratifiedBoxPlot,
     StratifiedScatterPlot,
+    DoubleStratifiedScatterPlot,
     StratifiedSinaPlot,
+    DoubleStratifiedSinaPlot,
     StratifiedKaplanMeierPlot,
     CountBarPlot,
     GenomeScatterPlot,
@@ -974,7 +1104,7 @@ const xyDataContainer = new DataContainer(
   'xy_data',
   'Random Data',
   xyData,
-  expectedDataSource,
+  expectedDataSource
 );
 const clinicalDataContainer = new DataContainer(
   'clinical_data',
@@ -1304,8 +1434,11 @@ export default {
     MultiTrackPlot,
     HierarchicalMultiTrackPlot,
     StratifiedBoxPlot,
+    DoubleStratifiedBoxPlot,
     StratifiedScatterPlot,
+    DoubleStratifiedScatterPlot,
     StratifiedSinaPlot,
+    DoubleStratifiedSinaPlot,
     StratifiedKaplanMeierPlot,
     CountBarPlot,
     GenomeScatterPlot,

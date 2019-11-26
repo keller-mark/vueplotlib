@@ -39,11 +39,34 @@
             }"
             class="vdp-plot-highlight"
         ></div>
+        <div v-show="this.highlightX1Secondary !== null"
+            :style="{
+                'height': (this.pHeight) + 'px', 
+                'width': '1px',
+                'top': (this.pMarginTop) + 'px',
+                'left': (this.pMarginLeft + this.highlightX1Secondary - 0.5) + 'px'
+            }"
+            class="vdp-plot-highlight"
+        ></div>
+        <div v-show="this.highlightX2Secondary !== null"
+            :style="{
+                'display': (showHighlight ? 'inline-block' : 'none'),
+                'height': (this.pHeight) + 'px', 
+                'width': '1px',
+                'top': (this.pMarginTop) + 'px',
+                'left': (this.pMarginLeft + this.highlightX2Secondary - 0.5) + 'px'
+            }"
+            class="vdp-plot-highlight"
+        ></div>
         <div :id="this.tooltipElemID" class="vdp-tooltip" :style="this.tooltipPositionAttribute">
             <table>
                 <tr>
                     <th>{{ this._xScale.name }}</th>
                     <td>{{ this.tooltipInfo.x }}</td>
+                </tr>
+                <tr>
+                    <th>{{ this._x2Scale.name }}</th>
+                    <td>{{ this.tooltipInfo.x2 }}</td>
                 </tr>
                 <tr>
                     <th>Count</th>
@@ -103,6 +126,8 @@ let uuid = 0;
  * @prop {string} variable The key to access the values in the data array objects.
  * @prop {string} s The key for the data containing the variable to stratify by.
  * @prop {string} x The key for the scale to stratify by. Must be categorical.
+ * @prop {string} s2 The key for the data containing the secondary variable to stratify by.
+ * @prop {string} x2 The key for the secondary scale to stratify by. Must be categorical.
  * @prop {string} y The y-scale variable key.
  * @prop {string} o The observation-scale variable key. Required in order to match with the stratification data.
  * @prop {number} pointSize The diameter of outlier (and mean) points. Default: 6
@@ -110,13 +135,15 @@ let uuid = 0;
  * @extends mixin
  * 
  * @example
- * <StratifiedBoxPlot
+ * <DoubleStratifiedBoxPlot
  *      data="boxplot_data"
  *      variable="COSMIC 1"
  *      s="stratification_data"
+ *      x="smoking_binary"
+ *      s2="stratification_data"
+ *      x2="sex"
  *      y="exposure"
  *      o="sample_id"
- *      x="smoking_binary"
  *      :pWidth="500"
  *      :pHeight="300"
  *      :pMarginTop="10"
@@ -129,7 +156,7 @@ let uuid = 0;
  * />
  */
 export default {
-    name: 'StratifiedBoxPlot',
+    name: 'DoubleStratifiedBoxPlot',
     mixins: [mixin],
     props: {
         'variable': {
@@ -139,6 +166,12 @@ export default {
             type: String
         },
         'x': { // stratification variable scale
+            type: String
+        },
+        's2': { // stratification data 2
+            type: String
+        },
+        'x2': { // stratification variable scale 2
             type: String
         },
         'y': {
@@ -160,6 +193,7 @@ export default {
         return {
             tooltipInfo: {
                 x: '',
+                x2: '',
                 count: '',
                 min: '',
                 q1: '',
@@ -171,7 +205,12 @@ export default {
             highlightX1: null,
             highlightX2: null,
             highlightScale: null,
-            barWidth: 0
+            barWidth: 0,
+            highlightX1Secondary: null,
+            highlightX2Secondary: null,
+            highlightScaleSecondary: null,
+            highlightScaleSecondaryAll: null,
+            barWidthSecondary: 0
         }
     },
     beforeCreate() {
@@ -186,12 +225,18 @@ export default {
         this._stratificationDataContainer = this.getData(this.s);
         console.assert(this._stratificationDataContainer instanceof DataContainer);
 
+        this._stratificationDataContainer2 = this.getData(this.s2);
+        console.assert(this._stratificationDataContainer2 instanceof DataContainer);
+
         // Set scale variables
         this._yScale = this.getScale(this.y);
         console.assert(this._yScale instanceof ContinuousScale);
 
         this._xScale = this.getScale(this.x);
         console.assert(this._xScale instanceof CategoricalScale);
+
+        this._x2Scale = this.getScale(this.x2);
+        console.assert(this._x2Scale instanceof CategoricalScale);
 
         this._oScale = this.getScale(this.o);
         console.assert(this._oScale instanceof AbstractScale);
@@ -200,16 +245,21 @@ export default {
         // Subscribe to event publishers here
         this._yScale.onUpdate(this.uuid, this.drawPlot);
         this._xScale.onUpdate(this.uuid, this.drawPlot);
+        this._x2Scale.onUpdate(this.uuid, this.drawPlot);
         this._oScale.onUpdate(this.uuid, this.drawPlot);
         
 
         // Subscribe to data mutations here
         this._dataContainer.onUpdate(this.uuid, this.drawPlot);
         this._stratificationDataContainer.onUpdate(this.uuid, this.drawPlot);
+        this._stratificationDataContainer2.onUpdate(this.uuid, this.drawPlot);
 
         // Subscribe to highlights here
         this._xScale.onHighlight(this.uuid, this.highlight);
         this._xScale.onHighlightDestroy(this.uuid, this.highlightDestroy);
+
+        this._x2Scale.onHighlight(this.uuid, this.highlightSecondary);
+        this._x2Scale.onHighlightDestroy(this.uuid, this.highlightDestroy);
 
     },
     mounted() {
@@ -219,15 +269,20 @@ export default {
         // Unsubscribe to events
         this._yScale.onUpdate(this.uuid, null);
         this._xScale.onUpdate(this.uuid, null);
+        this._x2Scale.onUpdate(this.uuid, null);
         this._oScale.onUpdate(this.uuid, null);
 
         // Unsubscribe to data mutations here
         this._dataContainer.onUpdate(this.uuid, null);
         this._stratificationDataContainer.onUpdate(this.uuid, null);
+        this._stratificationDataContainer2.onUpdate(this.uuid, null);
 
         // Unsubscribe to highlights here
         this._xScale.onHighlight(this.uuid, null);
         this._xScale.onHighlightDestroy(this.uuid, null);
+
+        this._x2Scale.onHighlight(this.uuid, null);
+        this._x2Scale.onHighlightDestroy(this.uuid, null);
     },
     watch: {
         pointSize() {
@@ -241,6 +296,7 @@ export default {
         tooltip: function(mouseX, mouseY, node) {
             // Set values
             this.tooltipInfo.x = this._xScale.toHuman(node.x);
+            this.tooltipInfo.x2 = this._x2Scale.toHuman(node.x2);
             this.tooltipInfo.count = node.count;
             this.tooltipInfo.min = node.min;
             this.tooltipInfo.q1 = node.q1;
@@ -255,12 +311,16 @@ export default {
 
             // Dispatch highlights
             this._xScale.emitHighlight(node.x);
+
+            this.highlightScaleSecondary = this.highlightScaleSecondaryAll[node.xi];
+            this._x2Scale.emitHighlight(node.x2);
         },
         tooltipDestroy: function() {
             this.tooltipHide();
 
             // Destroy all highlights here
             this._xScale.emitHighlightDestroy();
+            this._x2Scale.emitHighlightDestroy();
         },
         highlight(value) {
             if(this.highlightScale) {
@@ -268,21 +328,34 @@ export default {
                 this.highlightX2 = this.highlightScale(value) + this.barWidth;
             }
         },
+        highlightSecondary(value) {
+            if(this.highlightScaleSecondary) {
+                this.highlightX1Secondary = this.highlightScaleSecondary(value);
+                this.highlightX2Secondary = this.highlightScaleSecondary(value) + this.barWidthSecondary;
+            }
+        },
         highlightDestroy() {
             this.highlightX1 = null;
             this.highlightX2 = null;
+            this.highlightX1Secondary = null;
+            this.highlightX2Secondary = null;
         },
         drawPlot() {
             const vm = this;
 
-            if(vm._dataContainer.isLoading || vm._stratificationDataContainer.isLoading || vm._xScale.isLoading || vm._yScale.isLoading || vm._oScale.isLoading) {
+            if(vm._dataContainer.isLoading || 
+                vm._stratificationDataContainer.isLoading || 
+                vm._stratificationDataContainer2.isLoading || 
+                vm._xScale.isLoading || vm._x2Scale.isLoading || vm._yScale.isLoading || vm._oScale.isLoading) {
                 return;
             }
             
             let data = this._dataContainer.dataCopy;
             let stratificationData = this._stratificationDataContainer.dataCopy;
+            let stratificationData2 = this._stratificationDataContainer2.dataCopy;
 
             const xScale = vm._xScale;
+            const x2Scale = vm._x2Scale;
             const yScale = vm._yScale;
 
             const oScale = vm._oScale;
@@ -293,7 +366,15 @@ export default {
                 .domain(xScale.domainFiltered)
                 .range([0, vm.pWidth]);
 
+            const x2AxisWidth = vm.pWidth / xScale.domainFiltered.length;
+            const x2 = xScale.domainFiltered.map((xEl, i) => {
+                return d3_scaleBand()
+                    .domain(x2Scale.domainFiltered)
+                    .range([i*x2AxisWidth, (i+1)*x2AxisWidth]);
+            });
+
             vm.highlightScale = x;
+            vm.highlightScaleSecondaryAll = x2;
             
             const y = d3_scaleLinear()
                 .domain(yScale.domainFiltered)
@@ -301,9 +382,10 @@ export default {
 
             const barWidth = vm.pWidth / xScale.domainFiltered.length;
             vm.barWidth = barWidth;
-              
-            
 
+            const barWidthSecondary = barWidth / x2Scale.domainFiltered.length;
+            vm.barWidthSecondary = barWidthSecondary;
+            
             
             /*
              * Scale up the canvas
@@ -356,97 +438,103 @@ export default {
              * Draw the boxes
              */
 
-            const boxWidth = (barWidth / 2);
-            const boxMargin = barWidth / 4;
+            const boxWidth = (barWidthSecondary / 2);
+            const boxMargin = barWidthSecondary / 4;
 
 
             const diamondSize = vm.pointSize + 2;
 
-            xScale.domainFiltered.forEach((boxVar) => {
-                context.fillStyle = xScale.color(boxVar);
+            xScale.domainFiltered.forEach((boxVar, xi) => {
+                x2Scale.domainFiltered.forEach((boxVarSecondary) => {
+                    const x = x2[xi];
+                    context.fillStyle = x2Scale.color(boxVarSecondary);
 
-                let boxData = data.filter((dEl) => {
-                    let sEl = stratificationData.find((sEl) => sEl[vm.o] === dEl[vm.o]);
-                    return (sEl !== undefined && sEl[vm.x] === boxVar);
-                });
-                boxData = boxData.map((el) => el[vm.variable] || 0);
-                let quantile = d3_scaleQuantile()
-                    .domain(boxData)
-                    .range([0, 1, 2, 3]);
-                
-                let quartiles = quantile.quantiles();
-                
-                let q1 = quartiles[0];
-                let median = quartiles[1];
-                let mean = d3_mean(boxData);
-                let q3 = quartiles[2];
-                
-                let iqr = quartiles[2] - quartiles[0];
-                let lowerFence = q1 - iqr;
-                let upperFence = q3 + iqr;
-
-
-                let boxX1 = x(boxVar) + boxMargin;
-                let boxX2 = boxX1 + boxWidth;
-                let boxX = boxX1 + (boxWidth / 2)
-
-                context.strokeStyle = "black";
-                context.beginPath();
-                // Upper Fence
-                context.moveTo(boxX1,y(upperFence));
-                context.lineTo(boxX2,y(upperFence));
-                // Vertical Line
-                context.moveTo(boxX1 + (boxWidth / 2),y(upperFence));
-                context.lineTo(boxX1 + (boxWidth / 2),y(lowerFence));
-                // Lower Fence
-                context.moveTo(boxX1,y(lowerFence));
-                context.lineTo(boxX2,y(lowerFence));
-
-                context.stroke();
-
-                // Draw the box rect
-                context.strokeRect(boxX1, y(q3), boxWidth, y(q1) - y(q3));
-                context.fillRect(boxX1, y(q3), boxWidth, y(q1) - y(q3));
-
-                // Draw the median line
-                context.beginPath();
-                context.moveTo(boxX1, y(median));
-                context.lineTo(boxX2, y(median));
-                context.stroke();
-
-                // Draw the mean diamond
-                context.beginPath();
-                context.moveTo(boxX - (diamondSize/2), y(mean));
-                context.lineTo(boxX, y(mean) - (diamondSize/2));
-                context.lineTo(boxX + (diamondSize/2), y(mean));
-                context.lineTo(boxX, y(mean) + (diamondSize/2));
-                context.lineTo(boxX - (diamondSize/2), y(mean));
-                context.stroke();
-
-                // Draw the outliers
-                if(vm.drawOutliers) {
-                    let outliers = boxData.filter((el) => (el > upperFence) || (el < lowerFence));
-                    outliers.forEach((outlier) => {
-                        context.beginPath();
-                        context.arc(boxX, y(outlier), (vm.pointSize / 2), 0, 2*Math.PI);
-                        context.stroke();
+                    let boxData = data.filter((dEl) => {
+                        const sEl = stratificationData.find((sEl) => sEl[vm.o] === dEl[vm.o]);
+                        const sEl2 = stratificationData2.find((sEl) => sEl[vm.o] === dEl[vm.o]);
+                        return (sEl !== undefined && sEl2 !== undefined && sEl[vm.x] === boxVar && sEl2[vm.x2] === boxVarSecondary);
                     });
-                }
+                    boxData = boxData.map((el) => el[vm.variable] || 0);
+                    let quantile = d3_scaleQuantile()
+                        .domain(boxData)
+                        .range([0, 1, 2, 3]);
+                    
+                    let quartiles = quantile.quantiles();
+                    
+                    let q1 = quartiles[0];
+                    let median = quartiles[1];
+                    let mean = d3_mean(boxData);
+                    let q3 = quartiles[2];
+                    
+                    let iqr = quartiles[2] - quartiles[0];
+                    let lowerFence = q1 - iqr;
+                    let upperFence = q3 + iqr;
 
-                // Map data to colors
-                const col = genColor();
-                colToNode[col] = {
-                    x: boxVar,
-                    count: boxData.length,
-                    min: d3_min(boxData), 
-                    q1: q1,
-                    median: median,
-                    mean: mean,
-                    q3: q3, 
-                    max: d3_max(boxData)
-                };
-                contextHidden.fillStyle = col;
-                contextHidden.fillRect(x(boxVar), 0, barWidth, vm.pHeight);
+
+                    let boxX1 = x(boxVarSecondary) + boxMargin;
+                    let boxX2 = boxX1 + boxWidth;
+                    let boxX = boxX1 + (boxWidth / 2);
+
+                    context.strokeStyle = "black";
+                    context.beginPath();
+                    // Upper Fence
+                    context.moveTo(boxX1, y(upperFence));
+                    context.lineTo(boxX2, y(upperFence));
+                    // Vertical Line
+                    context.moveTo(boxX1 + (boxWidth / 2), y(upperFence));
+                    context.lineTo(boxX1 + (boxWidth / 2), y(lowerFence));
+                    // Lower Fence
+                    context.moveTo(boxX1, y(lowerFence));
+                    context.lineTo(boxX2, y(lowerFence));
+
+                    context.stroke();
+
+                    // Draw the box rect
+                    context.strokeRect(boxX1, y(q3), boxWidth, y(q1) - y(q3));
+                    context.fillRect(boxX1, y(q3), boxWidth, y(q1) - y(q3));
+
+                    // Draw the median line
+                    context.beginPath();
+                    context.moveTo(boxX1, y(median));
+                    context.lineTo(boxX2, y(median));
+                    context.stroke();
+
+                    // Draw the mean diamond
+                    context.beginPath();
+                    context.moveTo(boxX - (diamondSize/2), y(mean));
+                    context.lineTo(boxX, y(mean) - (diamondSize/2));
+                    context.lineTo(boxX + (diamondSize/2), y(mean));
+                    context.lineTo(boxX, y(mean) + (diamondSize/2));
+                    context.lineTo(boxX - (diamondSize/2), y(mean));
+                    context.stroke();
+
+                    // Draw the outliers
+                    if(vm.drawOutliers) {
+                        let outliers = boxData.filter((el) => (el > upperFence) || (el < lowerFence));
+                        outliers.forEach((outlier) => {
+                            context.beginPath();
+                            context.arc(boxX, y(outlier), (vm.pointSize / 2), 0, 2*Math.PI);
+                            context.stroke();
+                        });
+                    }
+
+                    // Map data to colors
+                    const col = genColor();
+                    colToNode[col] = {
+                        x: boxVar,
+                        xi: xi,
+                        x2: boxVarSecondary,
+                        count: boxData.length,
+                        min: d3_min(boxData), 
+                        q1: q1,
+                        median: median,
+                        mean: mean,
+                        q3: q3, 
+                        max: d3_max(boxData)
+                    };
+                    contextHidden.fillStyle = col;
+                    contextHidden.fillRect(x(boxVarSecondary), 0, barWidth, vm.pHeight);
+                });
             });
             
             /*
@@ -490,7 +578,7 @@ export default {
                     const node = getDataFromMouse(mouseX, mouseY);
 
                     if(node) {
-                        vm.clickHandler(node["x"]); 
+                        vm.clickHandler(node["x"], node["x2"]); 
                     }
                 })
             }
