@@ -17,8 +17,11 @@ import MultiTrackPlot from './components/plots/MultiTrackPlot.vue';
 import MultiDataTrackPlot from './components/plots/MultiDataTrackPlot.vue';
 import HierarchicalMultiTrackPlot from './components/plots/HierarchicalMultiTrackPlot.vue';
 import StratifiedBoxPlot from './components/plots/StratifiedBoxPlot.vue';
+import DoubleStratifiedBoxPlot from './components/plots/DoubleStratifiedBoxPlot.vue';
 import StratifiedScatterPlot from './components/plots/StratifiedScatterPlot.vue';
+import DoubleStratifiedScatterPlot from './components/plots/DoubleStratifiedScatterPlot.vue';
 import StratifiedSinaPlot from './components/plots/StratifiedSinaPlot.vue';
+import DoubleStratifiedSinaPlot from './components/plots/DoubleStratifiedSinaPlot.vue';
 import StratifiedKaplanMeierPlot from './components/plots/StratifiedKaplanMeierPlot.vue';
 import CountBarPlot from './components/plots/CountBarPlot.vue';
 
@@ -65,8 +68,11 @@ export {
     MultiDataTrackPlot,
     HierarchicalMultiTrackPlot,
     StratifiedBoxPlot,
+    DoubleStratifiedBoxPlot,
     StratifiedScatterPlot,
+    DoubleStratifiedScatterPlot,
     StratifiedSinaPlot,
+    DoubleStratifiedSinaPlot,
     StratifiedKaplanMeierPlot,
     CountBarPlot,
     GenomeScatterPlot,

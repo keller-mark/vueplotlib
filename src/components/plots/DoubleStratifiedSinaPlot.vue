@@ -10,16 +10,6 @@
                 'left': (this.pMarginLeft) + 'px'
             }"
         ></canvas>
-        <canvas 
-            :id="this.hiddenPlotElemID"
-            class="vdp-plot-hidden" 
-            :style="{
-                'height': (this.pHeight) + 'px', 
-                'width': (this.pWidth) + 'px',
-                'top': (this.pMarginTop) + 'px',
-                'left': (this.pMarginLeft) + 'px'
-            }"
-        ></canvas>
         <div v-show="this.highlightX1 !== null"
             :style="{
                 'height': (this.pHeight) + 'px', 
@@ -44,7 +34,7 @@
                 'height': (this.pHeight) + 'px', 
                 'width': '1px',
                 'top': (this.pMarginTop) + 'px',
-                'left': (this.pMarginLeft + this.highlightX1Secondary - 0.5) + 'px'
+                'left': (this.pMarginLeft + this.highlightX1Secondary- 0.5) + 'px'
             }"
             class="vdp-plot-highlight"
         ></div>
@@ -55,6 +45,16 @@
                 'width': '1px',
                 'top': (this.pMarginTop) + 'px',
                 'left': (this.pMarginLeft + this.highlightX2Secondary - 0.5) + 'px'
+            }"
+            class="vdp-plot-highlight"
+        ></div>
+        <div v-show="this.highlightY1 !== null"
+            :style="{
+                'display': (showHighlight ? 'inline-block' : 'none'),
+                'height': '1px',
+                'width': (this.pWidth) + 'px', 
+                'top': (this.pMarginTop + this.highlightY1 - 0.5) + 'px',
+                'left': (this.pMarginLeft) + 'px'
             }"
             class="vdp-plot-highlight"
         ></div>
@@ -97,6 +97,16 @@
                     <td>{{ this.tooltipInfo.max }}</td>
                 </tr>
             </table>
+            <table :style="{'border-top': '1px solid #cdcdcd'}">
+                <tr>
+                    <th>{{ this._oScale.name }}</th>
+                    <td>{{ this.tooltipInfo.o }}</td>
+                </tr>
+                <tr>
+                    <th>{{ this._yScale.name }}</th>
+                    <td>{{ this.tooltipInfo.y }}</td>
+                </tr>
+            </table>
         </div>
     </div>
 </template>
@@ -106,10 +116,10 @@ import { scaleLinear as d3_scaleLinear, scaleQuantile as d3_scaleQuantile, scale
 import { select as d3_select } from 'd3-selection';
 import { mouse as d3_mouse, event as d3_event } from 'd3';
 import debounce from 'lodash/debounce';
-import { min as d3_min, max as d3_max, mean as d3_mean } from 'd3-array';
+import { min as d3_min, max as d3_max, mean as d3_mean, histogram as d3_histogram } from 'd3-array';
 
 import { TOOLTIP_DEBOUNCE } from './../../constants.js';
-import { getRetinaRatio } from './../../helpers.js';
+import { getRetinaRatio, seededRandom, getDelaunay } from './../../helpers.js';
 
 
 import AbstractScale from './../../scales/AbstractScale.js';
@@ -130,12 +140,14 @@ let uuid = 0;
  * @prop {string} x2 The key for the secondary scale to stratify by. Must be categorical.
  * @prop {string} y The y-scale variable key.
  * @prop {string} o The observation-scale variable key. Required in order to match with the stratification data.
- * @prop {number} pointSize The diameter of outlier (and mean) points. Default: 6
- * @prop {boolean} drawOutliers Whether or not to draw outlier points on the plot. Default: true
+ * @prop {number} pointSize The diameter of points. Default: 3
+ * @prop {number} seed A random seed. Optional.
+ * @prop {boolean} fillPoints Whether to fill points. Default: true
+ * @prop {string} strokeColor Color for point outlines. Optional. Will override the x color scale if provided.
  * @extends mixin
  * 
  * @example
- * <StratifiedBoxPlot
+ * <StratifiedSinaPlot
  *      data="boxplot_data"
  *      variable="COSMIC 1"
  *      s="stratification_data"
@@ -154,7 +166,7 @@ let uuid = 0;
  * />
  */
 export default {
-    name: 'DoubleStratifiedBoxPlot',
+    name: 'DoubleStratifiedSinaPlot',
     mixins: [mixin],
     props: {
         'variable': {
@@ -180,11 +192,18 @@ export default {
         },
         'pointSize': {
             type: Number,
-            default: 6
+            default: 3
         },
-        'drawOutliers': {
+        'seed': {
+            type: Number,
+            default: 1
+        },
+        'fillPoints': {
             type: Boolean,
             default: true
+        },
+        'strokeColor': {
+            type: String
         }
     },
     data() {
@@ -202,12 +221,14 @@ export default {
             },
             highlightX1: null,
             highlightX2: null,
-            highlightScale: null,
-            barWidth: 0,
+            highlightXScale: null,
             highlightX1Secondary: null,
             highlightX2Secondary: null,
-            highlightScaleSecondary: null,
-            highlightScaleSecondaryAll: null,
+            highlightXScaleSecondary: null,
+            highlightXScaleSecondaryAll: null,
+            highlightY1: null,
+            highlightYScale: null,
+            barWidth: 0,
             barWidthSecondary: 0
         }
     },
@@ -253,11 +274,14 @@ export default {
         this._stratificationDataContainer2.onUpdate(this.uuid, this.drawPlot);
 
         // Subscribe to highlights here
-        this._xScale.onHighlight(this.uuid, this.highlight);
+        this._xScale.onHighlight(this.uuid, this.highlightX);
         this._xScale.onHighlightDestroy(this.uuid, this.highlightDestroy);
 
-        this._x2Scale.onHighlight(this.uuid, this.highlightSecondary);
+        this._x2Scale.onHighlight(this.uuid, this.highlightXSecondary);
         this._x2Scale.onHighlightDestroy(this.uuid, this.highlightDestroy);
+
+        this._yScale.onHighlight(this.uuid, this.highlightY);
+        this._yScale.onHighlightDestroy(this.uuid, this.highlightDestroy);
 
     },
     mounted() {
@@ -281,37 +305,50 @@ export default {
 
         this._x2Scale.onHighlight(this.uuid, null);
         this._x2Scale.onHighlightDestroy(this.uuid, null);
+
+        this._yScale.onHighlight(this.uuid, null);
+        this._yScale.onHighlightDestroy(this.uuid, null);
     },
     watch: {
         pointSize() {
             this.drawPlot();
         },
-        drawOutliers() {
+        fillPoints() {
+            this.drawPlot();
+        },
+        strokeColor() {
             this.drawPlot();
         }
     },
     methods: {
         tooltip: function(mouseX, mouseY, node) {
+
+            this.tooltipInfo.o = this._oScale.toHuman(node.o);
+            this.tooltipInfo.y = this._yScale.toHuman(node.y);
+
+            let xNode = node.xNode;
             // Set values
-            this.tooltipInfo.x = this._xScale.toHuman(node.x);
-            this.tooltipInfo.x2 = this._x2Scale.toHuman(node.x2);
-            this.tooltipInfo.count = node.count;
-            this.tooltipInfo.min = node.min;
-            this.tooltipInfo.q1 = node.q1;
-            this.tooltipInfo.median = node.median;
-            this.tooltipInfo.mean = node.mean;
-            this.tooltipInfo.q3 = node.q3;
-            this.tooltipInfo.max = node.max;
+            this.tooltipInfo.x = this._xScale.toHuman(xNode.x);
+            this.tooltipInfo.x2 = this._xScale.toHuman(xNode.x2);
+            this.tooltipInfo.count = xNode.count;
+            this.tooltipInfo.min = xNode.min;
+            this.tooltipInfo.q1 = xNode.q1;
+            this.tooltipInfo.median = xNode.median;
+            this.tooltipInfo.mean = xNode.mean;
+            this.tooltipInfo.q3 = xNode.q3;
+            this.tooltipInfo.max = xNode.max;
 
             // Set position
             this.tooltipPosition.left = mouseX;
             this.tooltipPosition.top = mouseY;
 
-            // Dispatch highlights
-            this._xScale.emitHighlight(node.x);
+            this.highlightXScaleSecondary = this.highlightXScaleSecondaryAll[xNode.xi];
 
-            this.highlightScaleSecondary = this.highlightScaleSecondaryAll[node.xi];
-            this._x2Scale.emitHighlight(node.x2);
+            // Dispatch highlights
+            this._xScale.emitHighlight(xNode.x);
+            this._x2Scale.emitHighlight(xNode.x2);
+            this._yScale.emitHighlight(node.y);
+            this._oScale.emitHighlight(node.o);
         },
         tooltipDestroy: function() {
             this.tooltipHide();
@@ -319,17 +356,24 @@ export default {
             // Destroy all highlights here
             this._xScale.emitHighlightDestroy();
             this._x2Scale.emitHighlightDestroy();
+            this._yScale.emitHighlightDestroy();
+            this._oScale.emitHighlightDestroy();
         },
-        highlight(value) {
-            if(this.highlightScale) {
-                this.highlightX1 = this.highlightScale(value);
-                this.highlightX2 = this.highlightScale(value) + this.barWidth;
+        highlightX(value) {
+            if(this.highlightXScale) {
+                this.highlightX1 = this.highlightXScale(value);
+                this.highlightX2 = this.highlightXScale(value) + this.barWidth;
             }
         },
-        highlightSecondary(value) {
-            if(this.highlightScaleSecondary) {
-                this.highlightX1Secondary = this.highlightScaleSecondary(value);
-                this.highlightX2Secondary = this.highlightScaleSecondary(value) + this.barWidthSecondary;
+        highlightXSecondary(value) {
+            if(this.highlightXScaleSecondary) {
+                this.highlightX1Secondary = this.highlightXScaleSecondary(value);
+                this.highlightX2Secondary = this.highlightXScaleSecondary(value) + this.barWidthSecondary;
+            }
+        },
+        highlightY(value) {
+            if(this.highlightYScale) {
+                this.highlightY1 = this.highlightYScale(value);
             }
         },
         highlightDestroy() {
@@ -337,14 +381,12 @@ export default {
             this.highlightX2 = null;
             this.highlightX1Secondary = null;
             this.highlightX2Secondary = null;
+            this.highlightY1 = null;
         },
         drawPlot() {
             const vm = this;
 
-            if(vm._dataContainer.isLoading || 
-                vm._stratificationDataContainer.isLoading || 
-                vm._stratificationDataContainer2.isLoading || 
-                vm._xScale.isLoading || vm._x2Scale.isLoading || vm._yScale.isLoading || vm._oScale.isLoading) {
+            if(vm._dataContainer.isLoading || vm._stratificationDataContainer.isLoading || vm._stratificationDataContainer2.isLoading || vm._xScale.isLoading || vm._x2Scale.isLoading || vm._yScale.isLoading || vm._oScale.isLoading) {
                 return;
             }
             
@@ -371,28 +413,26 @@ export default {
                     .range([i*x2AxisWidth, (i+1)*x2AxisWidth]);
             });
 
-            vm.highlightScale = x;
-            vm.highlightScaleSecondaryAll = x2;
+            vm.highlightXScale = x;
+            vm.highlightXScaleSecondaryAll = x2;
             
             const y = d3_scaleLinear()
                 .domain(yScale.domainFiltered)
                 .range([vm.pHeight, 0]);
 
+            vm.highlightYScale = y;
+
             const barWidth = vm.pWidth / xScale.domainFiltered.length;
             vm.barWidth = barWidth;
 
-            const barWidthSecondary = barWidth / x2Scale.domainFiltered.length;
+            const barWidthSecondary = barWidth / xScale.domainFiltered.length;
             vm.barWidthSecondary = barWidthSecondary;
-            
             
             /*
              * Scale up the canvas
              */
             const canvas = d3_select(this.plotSelector);
             const context = canvas.node().getContext('2d');
-
-            const canvasHidden = d3_select(this.hiddenPlotSelector);
-            const contextHidden = canvasHidden.node().getContext('2d');
 
             const ratio = getRetinaRatio(context);
             const scaledWidth = vm.pWidth * ratio;
@@ -403,34 +443,16 @@ export default {
                 .attr("height", scaledHeight);
             context.scale(ratio, ratio);
 
-            canvasHidden
-                .attr("width", scaledWidth)
-                .attr("height", scaledHeight);
-            contextHidden.scale(ratio, ratio);
+            /*
+             * Get the random number generator.
+             */
+            const random = seededRandom(vm.seed);
 
             /*
-             * Set up the color mappings
+             * Prepare for interactivity
              */
-            const colToNode = {};
-
-            /*
-             * Generates the next color in the sequence, 
-             * going from 0,0,0 to 255,255,255.
-             */
-            let nextCol = 1;
-            const genColor = () => {
-                let ret = [];
-                // via http://stackoverflow.com/a/15804183
-                if(nextCol < 16777215){
-                    ret.push(nextCol & 0xff); // R
-                    ret.push((nextCol & 0xff00) >> 8); // G 
-                    ret.push((nextCol & 0xff0000) >> 16); // B
-
-                    nextCol += 20;
-                }
-                let col = "rgb(" + ret.join(',') + ")";
-                return col;
-            }
+            const points = [];
+            const pointsData = [];
 
             /*
              * Draw the boxes
@@ -439,114 +461,94 @@ export default {
             const boxWidth = (barWidthSecondary / 2);
             const boxMargin = barWidthSecondary / 4;
 
-
-            const diamondSize = vm.pointSize + 2;
-
+            if(vm.strokeColor !== undefined) {
+                context.strokeStyle = vm.strokeColor;
+            }
             xScale.domainFiltered.forEach((boxVar, xi) => {
                 x2Scale.domainFiltered.forEach((boxVarSecondary) => {
                     const x = x2[xi];
+
+                    if(vm.strokeColor === undefined) {
+                        context.strokeStyle = x2Scale.color(boxVarSecondary);
+                    }
                     context.fillStyle = x2Scale.color(boxVarSecondary);
 
                     let boxData = data.filter((dEl) => {
-                        const sEl = stratificationData.find((sEl) => sEl[vm.o] === dEl[vm.o]);
-                        const sEl2 = stratificationData2.find((sEl) => sEl[vm.o] === dEl[vm.o]);
-                        return (sEl !== undefined && sEl2 !== undefined && sEl[vm.x] === boxVar && sEl2[vm.x2] === boxVarSecondary);
+                        let sEl = stratificationData.find((sEl) => sEl[vm.o] === dEl[vm.o]);
+                        let sEl2 = stratificationData2.find((sEl) => sEl[vm.o] === dEl[vm.o]);
+                        return (sEl !== undefined && sEl2 !== undefined && sEl[vm.x] === boxVar && sEl[vm.x2] === boxVarSecondary);
                     });
-                    boxData = boxData.map((el) => el[vm.variable] || 0);
+                    let boxDataValues = boxData.map((el) => el[vm.variable] || 0);
                     let quantile = d3_scaleQuantile()
-                        .domain(boxData)
+                        .domain(boxDataValues)
                         .range([0, 1, 2, 3]);
                     
                     let quartiles = quantile.quantiles();
                     
                     let q1 = quartiles[0];
                     let median = quartiles[1];
-                    let mean = d3_mean(boxData);
+                    let mean = d3_mean(boxDataValues);
                     let q3 = quartiles[2];
                     
-                    let iqr = quartiles[2] - quartiles[0];
-                    let lowerFence = q1 - iqr;
-                    let upperFence = q3 + iqr;
-
-
                     let boxX1 = x(boxVarSecondary) + boxMargin;
                     let boxX2 = boxX1 + boxWidth;
-                    let boxX = boxX1 + (boxWidth / 2);
 
-                    context.strokeStyle = "black";
-                    context.beginPath();
-                    // Upper Fence
-                    context.moveTo(boxX1, y(upperFence));
-                    context.lineTo(boxX2, y(upperFence));
-                    // Vertical Line
-                    context.moveTo(boxX1 + (boxWidth / 2), y(upperFence));
-                    context.lineTo(boxX1 + (boxWidth / 2), y(lowerFence));
-                    // Lower Fence
-                    context.moveTo(boxX1, y(lowerFence));
-                    context.lineTo(boxX2, y(lowerFence));
+                    // Draw the points
+                    let histogram = d3_histogram()
+                        .domain(yScale.domainFiltered)
+                        .value((d) => d[vm.variable] || 0);
+                    
+                    let bins = histogram(boxData);
+                    let maxBinLength = d3_max(bins, (d) => d.length);
+                    let innerX = d3_scaleLinear().domain([-maxBinLength, maxBinLength]).range([boxX1, boxX2]);
+                    let innerXZero = innerX(0);
 
-                    context.stroke();
-
-                    // Draw the box rect
-                    context.strokeRect(boxX1, y(q3), boxWidth, y(q1) - y(q3));
-                    context.fillRect(boxX1, y(q3), boxWidth, y(q1) - y(q3));
-
-                    // Draw the median line
-                    context.beginPath();
-                    context.moveTo(boxX1, y(median));
-                    context.lineTo(boxX2, y(median));
-                    context.stroke();
-
-                    // Draw the mean diamond
-                    context.beginPath();
-                    context.moveTo(boxX - (diamondSize/2), y(mean));
-                    context.lineTo(boxX, y(mean) - (diamondSize/2));
-                    context.lineTo(boxX + (diamondSize/2), y(mean));
-                    context.lineTo(boxX, y(mean) + (diamondSize/2));
-                    context.lineTo(boxX - (diamondSize/2), y(mean));
-                    context.stroke();
-
-                    // Draw the outliers
-                    if(vm.drawOutliers) {
-                        let outliers = boxData.filter((el) => (el > upperFence) || (el < lowerFence));
-                        outliers.forEach((outlier) => {
-                            context.beginPath();
-                            context.arc(boxX, y(outlier), (vm.pointSize / 2), 0, 2*Math.PI);
-                            context.stroke();
-                        });
-                    }
-
-                    // Map data to colors
-                    const col = genColor();
-                    colToNode[col] = {
+                    let xNode = {
                         x: boxVar,
                         xi: xi,
                         x2: boxVarSecondary,
-                        count: boxData.length,
-                        min: d3_min(boxData), 
+                        count: boxDataValues.length,
+                        min: d3_min(boxDataValues), 
                         q1: q1,
                         median: median,
                         mean: mean,
                         q3: q3, 
-                        max: d3_max(boxData)
+                        max: d3_max(boxDataValues)
                     };
-                    contextHidden.fillStyle = col;
-                    contextHidden.fillRect(x(boxVarSecondary), 0, barWidth, vm.pHeight);
+
+                    bins.forEach((binData) => {
+                        binData.forEach((d) => {
+                            context.beginPath();
+                            let xVal = innerX(-binData.length)+random()*2*(innerX(binData.length)-innerXZero);
+                            let yVal = y(d[vm.variable]);
+                            context.arc(xVal, yVal, vm.pointSize, 0, 2*Math.PI);
+                            context.stroke();
+                            if(vm.fillPoints) {
+                                context.fill(); 
+                            }
+
+                            points.push([xVal, yVal]); // For Delaunay
+                            pointsData.push({
+                                'xNode': xNode,
+                                'y': d[vm.variable],
+                                'o': d[vm.o]
+                            });
+                        });
+                    });
                 });
             });
             
+            const delaunay = getDelaunay(points, false);
+
             /*
              * Listen for mouse events
              */
             const canvasNode = canvas.node();
 
             const getDataFromMouse = (mouseX, mouseY) => {
-                // Get the corresponding pixel color on the hidden canvas
-                const col = contextHidden.getImageData(mouseX * ratio, mouseY * ratio, scaledWidth, scaledHeight).data;
-                const colString = "rgb(" + col[0] + "," + col[1] + ","+ col[2] + ")";
-                // Look up the node in our map
-                return colToNode[colString];
-            }
+                const i = delaunay.find(mouseX, mouseY);
+                return pointsData[i];
+            };
 
             const debouncedTooltipDestroy = debounce(vm.tooltipDestroy, TOOLTIP_DEBOUNCE);
             canvas.on("mousemove", () => {
@@ -566,7 +568,7 @@ export default {
                 }
             })
             .on("mouseleave", vm.tooltipDestroy);
-            
+
             if(vm.clickHandler !== undefined) {
                 canvas.on("click", () => {
                     const mouse = d3_mouse(canvasNode);
@@ -576,9 +578,9 @@ export default {
                     const node = getDataFromMouse(mouseX, mouseY);
 
                     if(node) {
-                        vm.clickHandler(node["x"], node["x2"]); 
+                        vm.clickHandler(node['o'], node['y'], node['xNode']['x'], node['xNode']['x2']);
                     }
-                })
+                });
             }
             
         }
