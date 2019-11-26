@@ -92,13 +92,15 @@ let uuid = 0;
  * @extends mixin
  * 
  * @example
- * <StratifiedScatterPlot
+ * <DoubleStratifiedScatterPlot
  *      data="exposures_data"
  *      variable="COSMIC 1"
  *      s="clinical_data"
+ *      x="age"
+ *      s2="clinical_data"
+ *      x2="sex"
  *      y="cosmic_1_exposure"
  *      o="sample_id"
- *      x="age"
  *      :pWidth="500"
  *      :pHeight="300"
  *      :pMarginTop="10"

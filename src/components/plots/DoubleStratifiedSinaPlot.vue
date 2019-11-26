@@ -147,13 +147,15 @@ let uuid = 0;
  * @extends mixin
  * 
  * @example
- * <StratifiedSinaPlot
+ * <DoubleStratifiedSinaPlot
  *      data="boxplot_data"
  *      variable="COSMIC 1"
  *      s="stratification_data"
+ *      x="smoking_binary"
+ *      s2="stratification_data"
+ *      x2="sex"
  *      y="exposure"
  *      o="sample_id"
- *      x="smoking_binary"
  *      :pWidth="500"
  *      :pHeight="300"
  *      :pMarginTop="10"
