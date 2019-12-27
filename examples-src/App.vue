@@ -79,6 +79,7 @@
       :pMarginLeft="120"
       :pMarginRight="10"
       :pMarginBottom="150"
+      :showDownloadButton="true"
     >
       <Axis
         slot="axisLeft"
@@ -705,6 +706,7 @@
       :pMarginLeft="120"
       :pMarginRight="10"
       :pMarginBottom="180"
+      :showDownloadButton="true"
     >
       <Axis
         slot="axisLeft"

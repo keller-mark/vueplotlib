@@ -58,6 +58,7 @@
 </template>
 
 <script>
+import Two from 'two.js';
 import { scaleBand as d3_scaleBand, scaleLinear as d3_scaleLinear } from 'd3-scale';
 import { select as d3_select } from 'd3-selection';
 import { stack as d3_stack, stackOrderNone as d3_stackOrderNone, stackOffsetNone as d3_stackOffsetNone } from 'd3-shape';
@@ -221,7 +222,7 @@ export default {
             this.highlightX1 = null;
             this.highlightX2 = null;
         },
-        drawPlot() {
+        drawPlot(d3Node) {
             const vm = this;
 
             if(vm._dataContainer.isLoading || vm._xScale.isLoading || vm._yScale.isLoading || vm._cScale.isLoading) {
@@ -277,20 +278,28 @@ export default {
             /*
              * Scale up the canvas
              */
-            const canvas = d3_select(this.plotSelector);
-            const context = canvas.node().getContext('2d');
+
+            let canvas;
+            if(d3Node) {
+                canvas = d3Node;
+            } else {
+                canvas = d3_select(this.plotSelector);
+            }
+
+            const canvasNode = canvas.node();
+
+            const two = new Two({ 
+                width: vm.pWidth, 
+                height: vm.pHeight, 
+                domElement: canvasNode
+            });
 
             const canvasHidden = d3_select(this.hiddenPlotSelector);
             const contextHidden = canvasHidden.node().getContext('2d');
 
-            const ratio = getRetinaRatio(context);
+            const ratio = getRetinaRatio(contextHidden);
             const scaledWidth = vm.pWidth * ratio;
             const scaledHeight = vm.pHeight * ratio;
-
-            canvas
-                .attr("width", scaledWidth)
-                .attr("height", scaledHeight);
-            context.scale(ratio, ratio);
 
             canvasHidden
                 .attr("width", scaledWidth)
@@ -329,8 +338,9 @@ export default {
                 barMarginX = 0;
             }
 
+            const twoRectArray = [];
+
             series.forEach((layer) => {
-                context.fillStyle = cScale.color(layer["key"]); 
                 layer.forEach((d) => {
                     const col = genColor();
                     colToNode[col] = { "x": d.data[vm.x], "y": d.data[layer["key"]], "c": layer["key"] };
@@ -339,15 +349,31 @@ export default {
                     if(height + y(d[1]) > vm.pHeight) {
                         height = vm.pHeight - y(d[1]);
                     }
-                    context.fillRect(x(d.data[vm.x]) + (barMarginX/2), y(d[1]), barWidth - barMarginX, height);
+
+                    const rect = two.makeRectangle(x(d.data[vm.x]) + (barMarginX/2) + ((barWidth - barMarginX)/2), y(d[1]) + (height/2), barWidth - barMarginX, height);
+                    //console.log(x(d.data[vm.x]) + (barMarginX/2), y(d[1]), barWidth - barMarginX, height);
+                    rect.fill = cScale.color(layer["key"]);
+                    twoRectArray.push(rect);
+
                     contextHidden.fillRect(x(d.data[vm.x]), y(d[1]), barWidth, height);
                 })
             });
+
+            const twoRectGroup = two.makeGroup(twoRectArray);
+            twoRectGroup.linewidth = 0;
+            twoRectGroup.opacity = 1;
+            twoRectGroup.noStroke();
+
+            two.update();
+
+            if(!canvas) {
+                /* Ignore interactivity if no canvas. In this case an SVG was probably passed in */
+                return;
+            }
             
             /*
              * Listen for mouse events
              */
-            const canvasNode = canvas.node();
 
             const getDataFromMouse = (mouseX, mouseY) => {
                 // Get the corresponding pixel color on the hidden canvas
