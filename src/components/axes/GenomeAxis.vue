@@ -343,14 +343,6 @@ export default {
         removeAxis() {
             d3_select(this.axisSelector).select("svg").selectAll("g").remove();
         },
-        preDownload() {
-            // noop
-            // TODO
-        },
-        postDownload() {
-            // noop
-            // TODO
-        },
         drawAxis() {
             const vm = this;
             vm.removeAxis();

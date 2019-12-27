@@ -17,8 +17,6 @@ import { axisTop as d3_axisTop, axisLeft as d3_axisLeft, axisRight as d3_axisRig
 import { brushX as d3_brushX, brushY as d3_brushY } from 'd3-brush';
 import { event as d3_event } from 'd3';
 
-import { svgAsPngUri } from 'save-svg-as-png';
-
 import AbstractScale from './../../scales/AbstractScale.js';
 import HistoryEvent from './../../history/HistoryEvent.js';
 import HistoryStack from './../../history/HistoryStack.js';
@@ -235,13 +233,7 @@ export default {
         removeAxis() {
             d3_select(this.axisSelector).select("svg").remove();
         },
-        preDownload() {
-            this.drawAxis(true);
-        },
-        postDownload() {
-            this.drawAxis();
-        },
-        drawAxis(brushingOverride) {
+        drawAxis(d3Node, brushingOverride) {
             const vm = this;
             vm.removeAxis();
 
@@ -323,11 +315,16 @@ export default {
             /*
              * Create the SVG elements
              */
-
-            const container = d3_select(vm.axisSelector)
-                .append("svg")
-                    .attr("width", vm.computedWidth)
-                    .attr("height", vm.computedHeight);
+            
+            var container;
+            if(d3Node) {
+                container = d3Node;
+            } else {
+                container = d3_select(vm.axisSelector)
+                    .append("svg")
+                        .attr("width", vm.computedWidth)
+                        .attr("height", vm.computedHeight);
+            }
             
             const containerZoomedIn = container.append("g")
                     .attr("class", "axis-zoomed-in")
@@ -377,7 +374,12 @@ export default {
             }
 
             const tickTransformFunction = (d, i, v) => {
-                let tickBbox = v[i].getBBox();
+                let tickBbox;
+                try {
+                    tickBbox = v[i].getBBox();
+                } catch(e) {
+                    tickBbox = { height: 0 };
+                }
                 let tickRotateX = 0;
                 let tickRotateY = 0;
                 if(vm._side === SIDES.TOP) {
@@ -415,7 +417,15 @@ export default {
             
             
             // Get the width/height of the zoomed-in axis, before removing the text
-            const axisBboxZoomedIn = container.select(".axis-zoomed-in").node().getBBox();
+            let axisBboxZoomedIn;
+            try {
+                axisBboxZoomedIn = container.select(".axis-zoomed-in").node().getBBox();
+            } catch(e) {
+                axisBboxZoomedIn = {
+                    height: 0,
+                    width: 0,
+                };
+            }
             
             if(varScale instanceof CategoricalScale) {
                 if(vm._orientation === ORIENTATIONS.HORIZONTAL) {
@@ -467,14 +477,26 @@ export default {
                         .tickSizeOuter(tickSizeOuter)
                         .tickFormat(tickFormatFunction2)
                 );
-                const textBboxZoomedOut = ticksZoomedOut.select("text").node().getBBox();
+                let textBboxZoomedOut;
+                try {
+                    textBboxZoomedOut = ticksZoomedOut.select("text").node().getBBox();
+                } catch(e) {
+                    textBboxZoomedOut = { height: 0 };
+                }
 
                 ticksZoomedOut.selectAll("text")	
                         .style("text-anchor", tickTextAnchor)
                         .attr("transform", tickTransformFunction);
                 
                 // Get the width/height of the zoomed-out axis, before removing the text
-                axisBboxZoomedOut = container.select(".axis-zoomed-out").node().getBBox();
+                try {
+                    axisBboxZoomedOut = container.select(".axis-zoomed-out").node().getBBox();
+                } catch(e) {
+                    axisBboxZoomedOut = {
+                        height: 0,
+                        width: 0,
+                    };
+                }
                 
                 if(varScale instanceof CategoricalScale) {
                     const barWidth = vm.pWidth / varScaleDomain.length;
@@ -722,7 +744,25 @@ export default {
                 .style("font-family", "Avenir")
                 .text(varScale.name);
 
-            const labelTextBbox = labelText.node().getBBox();
+            let labelTextBbox;
+            try {
+                labelTextBbox = labelText.node().getBBox();
+                if(d3Node) {
+                    throw new Error("no bbox, use catch block");
+                }
+            } catch(e) {
+                if(vm._orientation === ORIENTATIONS.HORIZONTAL) {
+                    labelTextBbox = {
+                        height: vm.computedHeight / 2,
+                        width: 0
+                    };
+                } else if(vm._orientation === ORIENTATIONS.VERTICAL) {
+                    labelTextBbox = {
+                        height: vm.computedWidth / 2,
+                        width: 0
+                    };
+                }
+            }
 
             if(disableBrushing) {
                 axisBboxZoomedOut = { width: 0, height: 0 };
@@ -755,15 +795,6 @@ export default {
             if(!vm.showLabel) {
                 labelText.attr("fill-opacity", 0);
             }
-            
-        },
-        downloadAxis() {
-            const node = d3_select(this.axisSelector).select("svg").node();
-            return new Promise((resolve, reject) => {
-                svgAsPngUri(node, {}, (uri) => {
-                    resolve(uri);
-                });
-            });
             
         }
     }
