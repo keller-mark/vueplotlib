@@ -338,36 +338,29 @@ export default {
                 barMarginX = 0;
             }
 
-            const twoRectArray = [];
-
             series.forEach((layer) => {
+                const col = cScale.color(layer["key"]);
                 layer.forEach((d) => {
-                    const col = genColor();
-                    colToNode[col] = { "x": d.data[vm.x], "y": d.data[layer["key"]], "c": layer["key"] };
-                    contextHidden.fillStyle = col;
+                    const hiddenCol = genColor();
+                    colToNode[hiddenCol] = { "x": d.data[vm.x], "y": d.data[layer["key"]], "c": layer["key"] };
+                    contextHidden.fillStyle = hiddenCol;
                     let height = y(d[0]) - y(d[1]);
                     if(height + y(d[1]) > vm.pHeight) {
                         height = vm.pHeight - y(d[1]);
                     }
 
                     const rect = two.makeRectangle(x(d.data[vm.x]) + (barMarginX/2) + ((barWidth - barMarginX)/2), y(d[1]) + (height/2), barWidth - barMarginX, height);
-                    //console.log(x(d.data[vm.x]) + (barMarginX/2), y(d[1]), barWidth - barMarginX, height);
-                    rect.fill = cScale.color(layer["key"]);
-                    twoRectArray.push(rect);
+                    rect.fill = col;
+                    rect.noStroke();
 
                     contextHidden.fillRect(x(d.data[vm.x]), y(d[1]), barWidth, height);
                 })
             });
 
-            const twoRectGroup = two.makeGroup(twoRectArray);
-            twoRectGroup.linewidth = 0;
-            twoRectGroup.opacity = 1;
-            twoRectGroup.noStroke();
-
             two.update();
 
-            if(!canvas) {
-                /* Ignore interactivity if no canvas. In this case an SVG was probably passed in */
+            if(d3Node) {
+                /* Ignore interactivity if SVG was passed in (for download). */
                 return;
             }
             

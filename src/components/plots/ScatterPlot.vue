@@ -319,7 +319,6 @@ export default {
             /*
              * Draw the points
              */
-            const twoCircleArray = [];
             data.forEach((d) => {
                 const circle = two.makeCircle(x(d[vm.x]), y(d[vm.y]), vm.pointSize);
 
@@ -331,21 +330,18 @@ export default {
                     circle.stroke = vm.pointColor;
                 }
 
-                twoCircleArray.push(circle);
+                circle.linewidth = 1;
+
+                if(!vm.fillPoints) {
+                    circle.noFill();
+                }
+
             });
-
-            const twoCircleGroup = two.makeGroup(twoCircleArray);
-            twoCircleGroup.linewidth = 1;
-            twoCircleGroup.opacity = 1;
-
-            if(!vm.fillPoints) {
-                twoCircleGroup.noFill();
-            }
-
+            
             two.update();
 
-            if(!canvas) {
-                /* Ignore interactivity if no canvas. In this case an SVG was probably passed in */
+            if(d3Node) {
+                /* Ignore interactivity if SVG was passed in (for download). */
                 return;
             }
 

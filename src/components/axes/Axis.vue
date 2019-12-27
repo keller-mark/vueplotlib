@@ -316,7 +316,7 @@ export default {
              * Create the SVG elements
              */
             
-            var container;
+            let container;
             if(d3Node) {
                 container = d3Node;
             } else {

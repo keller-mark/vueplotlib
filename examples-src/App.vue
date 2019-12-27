@@ -135,6 +135,7 @@
       :pMarginLeft="120"
       :pMarginRight="10"
       :pMarginBottom="100"
+      :showDownloadButton="true"
     >
       <Axis
         slot="axisLeft"
@@ -171,6 +172,7 @@
       :pMarginLeft="120"
       :pMarginRight="10"
       :pMarginBottom="100"
+      :showDownloadButton="true"
     >
       <Axis
         slot="axisLeft"
@@ -209,6 +211,7 @@
       :pMarginLeft="120"
       :pMarginRight="10"
       :pMarginBottom="100"
+      :showDownloadButton="true"
     >
       <Axis
         slot="axisLeft"
@@ -248,6 +251,7 @@
       :pMarginLeft="120"
       :pMarginRight="10"
       :pMarginBottom="100"
+      :showDownloadButton="true"
     >
       <Axis
         slot="axisLeft"
@@ -284,6 +288,7 @@
       :pMarginLeft="120"
       :pMarginRight="10"
       :pMarginBottom="50"
+      :showDownloadButton="true"
     >
       <Axis
         slot="axisLeft"
@@ -380,6 +385,7 @@
       :pMarginLeft="150"
       :pMarginRight="20"
       :pMarginBottom="80"
+      :showDownloadButton="true"
     > 
       <Axis
         slot="axisLeft"
@@ -419,6 +425,7 @@
       :pMarginLeft="150"
       :pMarginRight="20"
       :pMarginBottom="80"
+      :showDownloadButton="true"
     > 
       <Axis
         slot="axisLeft"
@@ -485,6 +492,7 @@
       :pMarginLeft="180"
       :pMarginRight="20"
       :pMarginBottom="200"
+      :showDownloadButton="true"
     >
       <DendrogramAxis
         slot="axisTop"
@@ -535,6 +543,7 @@
       :pMarginLeft="20"
       :pMarginRight="20"
       :pMarginBottom="80"
+      :showDownloadButton="true"
     > 
       <GenomeTrackPlot
         slot="plot"
@@ -565,6 +574,7 @@
       :pMarginLeft="150"
       :pMarginRight="20"
       :pMarginBottom="80"
+      :showDownloadButton="true"
     > 
       <Axis
         slot="axisLeft"
@@ -664,6 +674,7 @@
       :pMarginLeft="120"
       :pMarginRight="10"
       :pMarginBottom="180"
+      :showDownloadButton="true"
     >
       <Axis
         slot="axisLeft"
@@ -748,6 +759,7 @@
       :pMarginLeft="120"
       :pMarginRight="10"
       :pMarginBottom="180"
+      :showDownloadButton="true"
     >
       <Axis
         slot="axisLeft"
@@ -831,6 +843,7 @@
       :pMarginLeft="120"
       :pMarginRight="10"
       :pMarginBottom="180"
+      :showDownloadButton="true"
     >
       <Axis
         slot="axisLeft"

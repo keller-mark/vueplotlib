@@ -383,8 +383,6 @@ export default {
              * Draw the boxes
              */
 
-            const twoCircleArray = [];
-
             const boxWidth = (barWidth / 2);
             const boxMargin = barWidth / 4;
 
@@ -437,8 +435,12 @@ export default {
                         const circle = two.makeCircle(xVal, yVal, vm.pointSize);
                         circle.stroke = (vm.strokeColor ? vm.strokeColor : xScale.color(boxVar));
                         circle.fill = xScale.color(boxVar);
+                        circle.linewidth = 0.5;
 
-                        twoCircleArray.push(circle);
+                        if(!vm.fillPoints) {
+                            circle.noFill();
+                        }
+
 
                         points.push([xVal, yVal]); // For Delaunay
                         pointsData.push({
@@ -450,18 +452,10 @@ export default {
                 });
             });
 
-            const twoCircleGroup = two.makeGroup(twoCircleArray);
-            twoCircleGroup.linewidth = 1;
-            twoCircleGroup.opacity = 1;
-
-            if(!vm.fillPoints) {
-                twoCircleGroup.noFill();
-            }
-
             two.update();
 
-            if(!canvas) {
-                /* Ignore interactivity if no canvas. In this case an SVG was probably passed in */
+            if(d3Node) {
+                /* Ignore interactivity if SVG was passed in (for download). */
                 return;
             }
             

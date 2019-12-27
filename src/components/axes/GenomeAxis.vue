@@ -9,7 +9,7 @@
             'left': this.computedLeft + 'px'
         }"
     >
-        <svg :width="this.computedWidth" :height="this.computedHeight"></svg>
+        <svg :width="this.computedWidth" :height="this.computedHeight" xmlns="http://www.w3.org/2000/svg"></svg>
         <div class="vdp-genome-input" :style="{ 'left': this.computedTranslateX + 'px' }">
             <label>Chromosome</label>&nbsp;
             <select @change="onChromosomeChange">
@@ -343,7 +343,7 @@ export default {
         removeAxis() {
             d3_select(this.axisSelector).select("svg").selectAll("g").remove();
         },
-        drawAxis() {
+        drawAxis(d3Node) {
             const vm = this;
             vm.removeAxis();
             
@@ -407,9 +407,13 @@ export default {
             /*
              * Create the SVG elements
              */
-
-            const container = d3_select(vm.axisSelector).select("svg");
-            
+            let container;
+            if(d3Node) {
+                container = d3Node;
+            } else {
+                container = d3_select(vm.axisSelector).select("svg");
+            }
+                        
             const containerZoomedIn = container.append("g")
                     .attr("class", "axis-zoomed-in")
                     .attr("transform", "translate(" + vm.computedTranslateX + "," + vm.computedTranslateY + ")");
@@ -423,13 +427,23 @@ export default {
                     .tickFormat((d) => chromosomeRatioMapFiltered[d])
             );
 
-            
-
             ticksZoomedIn.selectAll("text")	
                     .style("text-anchor", "middle");
             
             // Get the width/height of the zoomed-in axis, before removing the text
-            const axisBboxZoomedIn = container.select(".axis-zoomed-in").node().getBBox();
+            
+            let axisBboxZoomedIn;
+            try {
+                axisBboxZoomedIn = container.select(".axis-zoomed-in").node().getBBox();
+                if(d3Node) {
+                    throw new Error("no bbox, use catch block");
+                }
+            } catch(e) {
+                axisBboxZoomedIn = {
+                    width: 0,
+                    height: vm.computedHeight/2,
+                };
+            }
 
             if(vm.isSingleChromosome) {
                 let selectedChromosome = vm._varScale.chromosomesFiltered[0];
@@ -450,12 +464,10 @@ export default {
                     .style("display", "none")
             }
             
-            
 
             /*
              * The zoomed-out axis
              */
-
             const betweenAxisMargin = 8;
 
             let zoomedOutTranslateX = vm.computedTranslateX;
@@ -471,11 +483,19 @@ export default {
                     .attr("transform", "translate(" + zoomedOutTranslateX + "," + zoomedOutTranslateY + ")");
             
             const labelText = containerLabel.append("text")
+                .style("font-family", "Avenir")
                 .style("text-anchor", "middle")
                 .text(varScale.name);
 
-            const labelTextBbox = labelText.node().getBBox();
-
+            let labelTextBbox;
+            try {
+                labelTextBbox = labelText.node().getBBox();
+            } catch(e) {
+                labelTextBbox = {
+                    width: 0,
+                    height: 0,
+                };
+            }
 
 
             let labelX, labelY, labelRotate;
@@ -505,7 +525,7 @@ export default {
         },
         downloadAxis() {
             const node = d3_select(this.axisSelector).select("svg").node();
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve) => {
                 svgAsPngUri(node, {}, (uri) => {
                     resolve(uri);
                 });
