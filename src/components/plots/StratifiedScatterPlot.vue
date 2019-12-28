@@ -50,12 +50,13 @@
 </template>
 
 <script>
+import Two from 'two.js';
 import { scaleLinear as d3_scaleLinear } from 'd3-scale';
 import { select as d3_select } from 'd3-selection';
 import { mouse as d3_mouse, event as d3_event } from 'd3';
 import debounce from 'lodash/debounce';
 import { TOOLTIP_DEBOUNCE } from './../../constants.js';
-import { getRetinaRatio, getDelaunay } from './../../helpers.js';
+import { getDelaunay } from './../../helpers.js';
 
 import AbstractScale from './../../scales/AbstractScale.js';
 import ContinuousScale from './../../scales/ContinuousScale.js';
@@ -249,7 +250,7 @@ export default {
             this.highlightX1 = null;
             this.highlightY1 = null;
         },
-        drawPlot() {
+        drawPlot(d3Node) {
             const vm = this;
 
             if(vm._dataContainer.isLoading || vm._stratificationDataContainer.isLoading || vm._xScale.isLoading || vm._yScale.isLoading || vm._oScale.isLoading) {
@@ -278,23 +279,24 @@ export default {
                 .range([vm.pHeight, 0]);
             
             vm.highlightYScale = y;
-              
-
             
             /*
              * Scale up the canvas
              */
-            const canvas = d3_select(this.plotSelector);
-            const context = canvas.node().getContext('2d');
+            let canvas;
+            if(d3Node) {
+                canvas = d3Node;
+            } else {
+                canvas = d3_select(this.plotSelector);
+            }
 
-            const ratio = getRetinaRatio(context);
-            const scaledWidth = vm.pWidth * ratio;
-            const scaledHeight = vm.pHeight * ratio;
+            const canvasNode = canvas.node();
 
-            canvas
-                .attr("width", scaledWidth)
-                .attr("height", scaledHeight);
-            context.scale(ratio, ratio);
+            const two = new Two({ 
+                width: vm.pWidth, 
+                height: vm.pHeight, 
+                domElement: canvasNode
+            });
 
              /*
              * Prepare for interactivity
@@ -305,32 +307,36 @@ export default {
             /*
              * Draw the points
              */
-            if(vm.strokeColor !== undefined) {
-                context.strokeStyle = vm.strokeColor;
-            }
             data.forEach((d) => {
                 let sEl = stratificationData.find((sEl) => sEl[vm.o] === d[vm.o]);
                 if(sEl !== undefined && !AbstractScale.isUnknown(sEl[vm.x])) {
-                    
-                    context.fillStyle = xScale.color(sEl[vm.x]);
-                    if(vm.strokeColor === undefined) {
-                        context.strokeStyle = xScale.color(sEl[vm.x]);
+                    const circle = two.makeCircle(x(sEl[vm.x]), y(d[vm.variable]), vm.pointSize);
+                    circle.linewidth = 0.5;
+                    if(vm.strokeColor !== undefined) {
+                        circle.stroke = vm.strokeColor;
+                    } else {
+                        circle.stroke = xScale.color(sEl[vm.x]);
                     }
-                    
-                    context.beginPath();
-                    context.arc(x(sEl[vm.x]), y(d[vm.variable]), vm.pointSize, 0, 2*Math.PI);
+                    circle.fill = xScale.color(sEl[vm.x]);
+                    if(!vm.fillPoints) {
+                        circle.noFill();
+                    }
+
                     points.push([x(sEl[vm.x]), y(d[vm.variable])]);
                     pointsData.push({
                         "y": d[vm.variable],
                         "o": d[vm.o],
                         "x": sEl[vm.x]
                     });
-                    context.stroke();
-                    if(vm.fillPoints) {
-                        context.fill();
-                    }
                 }
             });
+
+            two.update();
+
+            if(d3Node) {
+                /* Ignore interactivity if SVG was passed in (for download). */
+                return;
+            }
             
             /*
              * More prepare for interactivity
@@ -340,8 +346,6 @@ export default {
             /*
              * Listen for mouse events
              */
-            const canvasNode = canvas.node();
-
             const getDataFromMouse = (mouseX, mouseY) => {
                 const i = delaunay.find(mouseX, mouseY);
                 return pointsData[i];

@@ -107,12 +107,6 @@ export default {
         },
         drawPlot: function() {
             // stub
-        },
-        downloadPlot: function() {
-            const uri = document.getElementById(this.plotElemID).toDataURL("image/png");
-            return new Promise((resolve, reject) => {
-                resolve(uri);
-            });
         }
     }
 }

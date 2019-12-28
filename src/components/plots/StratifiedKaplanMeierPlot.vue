@@ -53,12 +53,13 @@
 </template>
 
 <script>
+import Two from 'two.js';
 import { scaleLinear as d3_scaleLinear } from 'd3-scale';
 import { select as d3_select } from 'd3-selection';
 import { mouse as d3_mouse, event as d3_event } from 'd3';
 import debounce from 'lodash/debounce';
 import { TOOLTIP_DEBOUNCE } from './../../constants.js';
-import { getRetinaRatio, getDelaunay } from './../../helpers.js';
+import { getDelaunay } from './../../helpers.js';
 
 import AbstractScale from './../../scales/AbstractScale.js';
 import ContinuousScale from './../../scales/ContinuousScale.js';
@@ -269,7 +270,7 @@ export default {
             this.highlightX1 = null;
             this.highlightY1 = null;
         },
-        drawPlot() {
+        drawPlot(d3Node) {
             const vm = this;
 
             if(vm._dataContainer.isLoading || vm._stratificationDataContainer.isLoading || vm._xScale.isLoading || vm._yScale.isLoading || vm._oScale.isLoading || vm._cScale.isLoading) {
@@ -305,17 +306,20 @@ export default {
             /*
              * Scale up the canvas
              */
-            const canvas = d3_select(this.plotSelector);
-            const context = canvas.node().getContext('2d');
+            let canvas;
+            if(d3Node) {
+                canvas = d3Node;
+            } else {
+                canvas = d3_select(this.plotSelector);
+            }
 
-            const ratio = getRetinaRatio(context);
-            const scaledWidth = vm.pWidth * ratio;
-            const scaledHeight = vm.pHeight * ratio;
+            const canvasNode = canvas.node();
 
-            canvas
-                .attr("width", scaledWidth)
-                .attr("height", scaledHeight);
-            context.scale(ratio, ratio);
+            const two = new Two({ 
+                width: vm.pWidth, 
+                height: vm.pHeight, 
+                domElement: canvasNode
+            });
 
              /*
              * Prepare for interactivity
@@ -341,7 +345,6 @@ export default {
             /*
              * Draw the points
              */
-            context.lineWidth = vm.lineWidth;
             cScale.domainFiltered.forEach((cEl) => {
                 const cData = matchedData
                     .filter(el => el["sEl"][vm.variable] === cEl)
@@ -359,12 +362,7 @@ export default {
                 const step = 100 / cData.length;
 
                 let currSurvivalPct = 100;
-                
-                context.fillStyle = cScale.color(cEl);
-                context.strokeStyle = cScale.color(cEl);
-
-                context.beginPath();
-                context.moveTo(x(0), y(100));
+                let prevXVal = 0;
 
                 cData.forEach((match, i) => {
                     let sEl = match["sEl"];
@@ -385,23 +383,27 @@ export default {
                     }
 
                     // Draw a horizontal line to the current time, using the previous percent
-                    context.lineTo(x(xVal), y(currSurvivalPct));
-                    context.stroke();
+                    const horizontalLine = two.makeLine(x(prevXVal) - 1, y(currSurvivalPct), x(xVal) + 1, y(currSurvivalPct));
+                    horizontalLine.linewidth = vm.lineWidth;
+                    horizontalLine.stroke = cScale.color(cEl);
 
                     // Add a tick line if using data from followup rather than death
                     if(drop) {
-                        context.moveTo(x(xVal), y(currSurvivalPct) - vm.tickHeight / 2);
-                        context.lineTo(x(xVal), y(currSurvivalPct) + vm.tickHeight / 2);
-                        context.stroke();
-                        // Move back
-                        context.moveTo(x(xVal), y(currSurvivalPct));
+                        const tickLine = two.makeLine(x(xVal), y(currSurvivalPct) - vm.tickHeight / 2, x(xVal), y(currSurvivalPct) + vm.tickHeight / 2);
+                        tickLine.linewidth = vm.lineWidth;
+                        tickLine.stroke = cScale.color(cEl);
                     }
+
+                    let prevSurvivalPct = currSurvivalPct;
+                    prevXVal = xVal;
 
                     // Draw a vertical line to the current time, using the current percent
                     if(i < cData.length - 1 && !drop) {
                         // Decrease percent
                         currSurvivalPct -= step;
-                        context.lineTo(x(xVal), y(currSurvivalPct));
+                        const verticalLine = two.makeLine(x(xVal), y(prevSurvivalPct), x(xVal), y(currSurvivalPct));
+                        verticalLine.linewidth = vm.lineWidth;
+                        verticalLine.stroke = cScale.color(cEl);
                     }
                     points.push([x(xVal), y(currSurvivalPct)]);
                     pointsData.push({
@@ -410,9 +412,17 @@ export default {
                         "x": xVal,
                         "c": sEl[vm.variable]
                     });
-                    context.stroke();
+
+                    
                 });
             });
+
+            two.update();
+
+            if(d3Node) {
+                /* Ignore interactivity if SVG was passed in (for download). */
+                return;
+            }
             
             /*
              * More prepare for interactivity
@@ -422,8 +432,6 @@ export default {
             /*
              * Listen for mouse events
              */
-            const canvasNode = canvas.node();
-
             const getDataFromMouse = (mouseX, mouseY) => {
                 const i = delaunay.find(mouseX, mouseY);
                 return pointsData[i];

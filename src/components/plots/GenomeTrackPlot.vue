@@ -39,12 +39,13 @@
 </template>
 
 <script>
+import Two from 'two.js';
 import { scaleLinear as d3_scaleLinear } from 'd3-scale';
 import { select as d3_select } from 'd3-selection';
 import { mouse as d3_mouse, event as d3_event } from 'd3';
 import debounce from 'lodash/debounce';
 import { TOOLTIP_DEBOUNCE, GENOME_EVENT_COLOR_DEFAULT } from './../../constants.js';
-import { getRetinaRatio, getDelaunay } from './../../helpers.js';
+import { getDelaunay } from './../../helpers.js';
 
 import AbstractScale from './../../scales/AbstractScale.js';
 import GenomeScale from './../../scales/GenomeScale.js';
@@ -230,7 +231,7 @@ export default {
         highlightDestroy() {
             this.highlightX1 = null;
         },
-        drawPlot() {
+        drawPlot(d3Node) {
             const vm = this;
 
             if(vm._dataContainer.isLoading || (vm.hasC && vm._cScale.isLoading)) {
@@ -272,45 +273,54 @@ export default {
             /*
              * Scale up the canvas
              */
-            const canvas = d3_select(this.plotSelector);
-            const context = canvas.node().getContext('2d');
+            let canvas;
+            if(d3Node) {
+                canvas = d3Node;
+            } else {
+                canvas = d3_select(this.plotSelector);
+            }
 
-          
-            const ratio = getRetinaRatio(context);
-            const scaledWidth = vm.pWidth * ratio;
-            const scaledHeight = vm.pHeight * ratio;
+            const canvasNode = canvas.node();
 
-            canvas
-                .attr("width", scaledWidth)
-                .attr("height", scaledHeight);
-            context.scale(ratio, ratio);
+            const two = new Two({ 
+                width: vm.pWidth, 
+                height: vm.pHeight, 
+                domElement: canvasNode
+            });
 
-   
-           
+
             /*
              * Draw the track
              */
             if(vm.backgroundColor !== undefined) {
-                context.fillStyle = vm.backgroundColor;
-                context.fillRect(0, 0, vm.pWidth, vm.pHeight);
+                const trackRect = two.makeRectangle(0 + vm.pWidth/2, 0 + vm.pHeight/2, vm.pWidth, vm.pHeight);
+                trackRect.fill = vm.backgroundColor;
+                trackRect.noStroke();
             }
 
             if(vm.lineColor !== undefined) {
-                context.fillStyle = vm.lineColor;
-                context.fillRect(0, (vm.pHeight/2)-0.5, vm.pWidth, 1);
+                const trackLineRect = two.makeRectangle(0 + vm.pWidth/2, vm.pHeight/2, vm.pWidth, 1);
+                trackLineRect.fill = vm.lineColor;
+                trackLineRect.noStroke();
             }
 
             data.forEach((d) => {
-
-                if(this.hasC) {
-                    context.fillStyle = cScale.color(d[vm.c]);
-                } else {
-                    context.fillStyle = vm.eventColor;
-                }
-
                 const xVal = g[d[vm.chromosomeVariable]](d[vm.positionVariable]) - (vm.eventWidth/2);
-                context.fillRect(xVal, 0, vm.eventWidth, vm.pHeight);
+                const eventRect = two.makeRectangle(xVal + vm.eventWidth/2, 0 + vm.pHeight/2, vm.eventWidth, vm.pHeight);
+                if(this.hasC) {
+                    eventRect.fill = cScale.color(d[vm.c]);
+                } else {
+                    eventRect.fill = vm.eventColor;
+                }
+                eventRect.noStroke();
             });
+
+            two.update();
+
+            if(d3Node) {
+                /* Ignore interactivity if SVG was passed in (for download). */
+                return;
+            }
 
             /*
              * Prepare for interactivity
@@ -322,8 +332,6 @@ export default {
             /*
              * Listen for mouse events
              */
-            const canvasNode = canvas.node();
-
             const getDataFromMouse = (mouseX, mouseY) => {
                 const i = delaunay.find(mouseX, mouseY);
                 return data[i];

@@ -61,12 +61,13 @@
 </template>
 
 <script>
+import Two from 'two.js';
 import { scaleLinear as d3_scaleLinear, scaleBand as d3_scaleBand } from 'd3-scale';
 import { select as d3_select } from 'd3-selection';
 import { mouse as d3_mouse, event as d3_event } from 'd3';
 import debounce from 'lodash/debounce';
 import { TOOLTIP_DEBOUNCE, BAR_HEIGHT_MIN, BAR_MARGIN_Y_DEFAULT } from './../../constants.js';
-import { getRetinaRatio, getDelaunay } from './../../helpers.js';
+import { getDelaunay } from './../../helpers.js';
 
 import AbstractScale from './../../scales/AbstractScale.js';
 import GenomeScale from './../../scales/GenomeScale.js';
@@ -287,7 +288,7 @@ export default {
             this.highlightY1 = null;
             this.highlightY2 = null;
         },
-        drawPlot() {
+        drawPlot(d3Node) {
             const vm = this;
 
             if(vm._dataContainer.isLoading || vm._yScale.isLoading || (vm.hasC && vm._cScale.isLoading)) {
@@ -339,21 +340,21 @@ export default {
             /*
              * Scale up the canvas
              */
-            const canvas = d3_select(this.plotSelector);
-            const context = canvas.node().getContext('2d');
+            let canvas;
+            if(d3Node) {
+                canvas = d3Node;
+            } else {
+                canvas = d3_select(this.plotSelector);
+            }
 
-          
-            const ratio = getRetinaRatio(context);
-            const scaledWidth = vm.pWidth * ratio;
-            const scaledHeight = vm.pHeight * ratio;
+            const canvasNode = canvas.node();
 
-            canvas
-                .attr("width", scaledWidth)
-                .attr("height", scaledHeight);
-            context.scale(ratio, ratio);
+            const two = new Two({ 
+                width: vm.pWidth, 
+                height: vm.pHeight, 
+                domElement: canvasNode
+            });
 
-   
-           
             /*
              * Draw the track
              */
@@ -364,26 +365,37 @@ export default {
             // Draw track backgrounds
             yScale.domainFiltered.forEach((yVal) => {
                 if(vm.backgroundColor !== undefined) {
-                    context.fillStyle = vm.backgroundColor;
-                    context.fillRect(0, y(yVal) + (barMarginY/2), vm.pWidth, barHeight - barMarginY);
+                    const trackBackgroundRect = two.makeRectangle(0 + vm.pWidth/2, y(yVal) + (barMarginY/2) + (barHeight - barMarginY)/2, vm.pWidth, barHeight - barMarginY);
+                    trackBackgroundRect.fill = vm.backgroundColor;
+                    trackBackgroundRect.noStroke();
                 }
+
                 if(vm.lineColor !== undefined) {
-                    context.fillStyle = vm.lineColor;
-                    context.fillRect(0, y(yVal) + (barHeight/2) - 0.5, vm.pWidth, 1);
+                    const trackBackgroundLine = two.makeRectangle(0 + vm.pWidth/2, y(yVal) + (barHeight/2), vm.pWidth, 1);
+                    trackBackgroundLine.fill = vm.lineColor;
+                    trackBackgroundLine.noStroke();
                 }
             });
             // Draw events
             data.forEach((d) => {
-                if(this.hasC) {
-                    context.fillStyle = cScale.color(d[vm.c]);
-                } else {
-                    context.fillStyle = vm.eventColor;
-                }
-
                 const xVal = g[d[vm.chromosomeVariable]](d[vm.positionVariable]) - (vm.eventWidth/2);
                 const yVal = y(d[vm.y]);
-                context.fillRect(xVal, yVal + (barMarginY/2), vm.eventWidth, barHeight - barMarginY);
+                
+                const eventRect = two.makeRectangle(xVal + vm.eventWidth/2, yVal + (barMarginY/2) + (barHeight - barMarginY)/2, vm.eventWidth, barHeight - barMarginY);
+                eventRect.noStroke();
+                if(this.hasC) {
+                    eventRect.fill = cScale.color(d[vm.c]);
+                } else {
+                    eventRect.fill = vm.eventColor;
+                }
             });
+
+            two.update();
+
+            if(d3Node) {
+                /* Ignore interactivity if SVG was passed in (for download). */
+                return;
+            }
 
             /*
              * Prepare for interactivity
@@ -395,8 +407,6 @@ export default {
             /*
              * Listen for mouse events
              */
-            const canvasNode = canvas.node();
-
             const getDataFromMouse = (mouseX, mouseY) => {
                 const i = delaunay.find(mouseX, mouseY);
                 return data[i];

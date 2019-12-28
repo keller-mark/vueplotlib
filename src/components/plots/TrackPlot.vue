@@ -54,6 +54,7 @@
 </template>
 
 <script>
+import Two from 'two.js';
 import { scaleBand as d3_scaleBand } from 'd3-scale';
 import { select as d3_select } from 'd3-selection';
 import { mouse as d3_mouse, event as d3_event } from 'd3';
@@ -195,7 +196,7 @@ export default {
             this.highlightX1 = null;
             this.highlightX2 = null;
         },
-        drawPlot() {
+        drawPlot(d3Node) {
             const vm = this;
 
             if(vm._dataContainer.isLoading || vm._xScale.isLoading || vm._cScale.isLoading) {
@@ -222,20 +223,27 @@ export default {
             /*
              * Scale up the canvas
              */
-            const canvas = d3_select(this.plotSelector);
-            const context = canvas.node().getContext('2d');
+            let canvas;
+            if(d3Node) {
+                canvas = d3Node;
+            } else {
+                canvas = d3_select(this.plotSelector);
+            }
+
+            const canvasNode = canvas.node();
+
+            const two = new Two({ 
+                width: vm.pWidth, 
+                height: vm.pHeight, 
+                domElement: canvasNode
+            });
 
             const canvasHidden = d3_select(this.hiddenPlotSelector);
             const contextHidden = canvasHidden.node().getContext('2d');
 
-            const ratio = getRetinaRatio(context);
+            const ratio = getRetinaRatio(contextHidden);
             const scaledWidth = vm.pWidth * ratio;
             const scaledHeight = vm.pHeight * ratio;
-
-            canvas
-                .attr("width", scaledWidth)
-                .attr("height", scaledHeight);
-            context.scale(ratio, ratio);
 
             canvasHidden
                 .attr("width", scaledWidth)
@@ -287,17 +295,24 @@ export default {
                     colToNode[col] = { "x": d[vm.x], "c": d[vm.c] };
                     contextHidden.fillStyle = col;
 
-                    context.fillStyle = cScale.color(d[vm.c]);
-                    context.fillRect(x(d[vm.x]) + (barMarginX/2), 0, barWidth - barMarginX, vm.pHeight);
+                    const rect = two.makeRectangle(x(d[vm.x]) + (barMarginX/2) + (barWidth - barMarginX)/2, 0 + vm.pHeight/2, barWidth - barMarginX, vm.pHeight);
+                    rect.fill = cScale.color(d[vm.c]);
+                    rect.noStroke();
+
                     contextHidden.fillRect(x(d[vm.x]), 0, barWidth, vm.pHeight);
                 }
             });
+
+            two.update();
+
+            if(d3Node) {
+                /* Ignore interactivity if SVG was passed in (for download). */
+                return;
+            }
             
             /*
              * Listen for mouse events
              */
-            const canvasNode = canvas.node();
-
             const getDataFromMouse = (mouseX, mouseY) => {
                 // Get the corresponding pixel color on the hidden canvas
                 const col = contextHidden.getImageData(mouseX * ratio, mouseY * ratio, scaledWidth, scaledHeight).data;

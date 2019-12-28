@@ -1,6 +1,6 @@
 {
   "name": "vueplotlib",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "private": false,
   "scripts": {
     "serve": "vue-cli-service serve --open ./examples-src/index.js",
@@ -19,7 +19,8 @@
     "d3-dispatch-nosplit": "^2.0.1",
     "lodash": "^4.17.11",
     "save-svg-as-png": "^1.4.6",
-    "simple-statistics": "^6.1.1"
+    "simple-statistics": "^6.1.1",
+    "two.js": "^0.7.0-beta.3"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.0.0-beta.6",

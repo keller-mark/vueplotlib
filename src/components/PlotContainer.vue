@@ -1,6 +1,6 @@
 <script>
-import { getRetinaRatio } from './../helpers.js';
 import { DOWNLOAD_PATH } from './../icons.js';
+import { create as d3_create } from 'd3';
 
 
 /**
@@ -28,22 +28,30 @@ const addProp = function(slotArray, newProps) {
 }
 
 /**
- * Given a canvas context, x and y offsets, and an image URI, render the image to the context.
+ * Given an SVG DOM node, return the SVG contents as a data URI that can be saved to a file.
  * @private
- * @param {Context} ctx The canvas context.
- * @param {string} uri The image data URI.
- * @param {int} x The x offset.
- * @param {int} y The y offset.
+ * @param {any} svg The SVG node.
+ * @returns {string}
  */
-const renderToContext = function(ctx, uri, x, y, width, height) {
-    return new Promise((resolve, reject) => {
-        var img = new Image;
-        img.onload = () => {
-            ctx.drawImage(img, x, y, width, height);
-            resolve();
-        };
-        img.src = uri;
-    });
+const svgToUri = function(svg) {
+    // Reference: https://stackoverflow.com/a/23218877
+    const serializer = new XMLSerializer();
+    var source = serializer.serializeToString(svg);
+
+    // Add namespace.
+    if(!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)){
+        source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+    }
+    if(!source.match(/^<svg[^>]+"http\:\/\/www\.w3\.org\/1999\/xlink"/)){
+        source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+    }
+
+    // Add xml declaration.
+    source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
+
+    // Convert svg source to URI.
+    //return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
+    return source;
 };
 
 
@@ -209,95 +217,102 @@ export default {
         }
     },
     methods: {
-        renderToContext(ctx, x, y, uri) {
-            var img = new Image;
-            img.onload = () => {
-                ctx.drawImage(img, x, y); // Or at whatever offset you like
-            };
-            img.src = uri;
-        },
         downloadViaButton() {
-            this.downloadWithoutAxisBrushing()
-            .then((uri) => {
-                const downloadAnchorNode = document.createElement('a');
-                downloadAnchorNode.setAttribute("href", uri);
-                downloadAnchorNode.setAttribute("download", this.downloadName + ".png");
-                document.body.appendChild(downloadAnchorNode); // required for firefox
-                downloadAnchorNode.click();
-                downloadAnchorNode.remove();
-            });
-        },
-        downloadWithoutAxisBrushing() {
-            let axisTopDisableBrushing = this.$slots.axisTop.forEach((vnode) => { vnode.componentInstance.preDownload(); });
-            let axisLeftDisableBrushing = this.$slots.axisLeft.forEach((vnode) => { vnode.componentInstance.preDownload(); });
-            let axisRightDisableBrushing = this.$slots.axisRight.forEach((vnode) => { vnode.componentInstance.preDownload(); });
-            let axisBottomDisableBrushing = this.$slots.axisBottom.forEach((vnode) => { vnode.componentInstance.preDownload(); });
-
-            return new Promise((resolve, reject) => {
-                Promise.all([axisTopDisableBrushing, axisLeftDisableBrushing, axisRightDisableBrushing, axisBottomDisableBrushing]).then(() => {
-                    this.download().then((uri) => {
-                        resolve(uri);
-                        this.$slots.axisTop.forEach((vnode) => { vnode.componentInstance.postDownload(); });
-                        this.$slots.axisLeft.forEach((vnode) => { vnode.componentInstance.postDownload(); });
-                        this.$slots.axisRight.forEach((vnode) => { vnode.componentInstance.postDownload(); });
-                        this.$slots.axisBottom.forEach((vnode) => { vnode.componentInstance.postDownload(); });
-                    });
-                });
-            });
+            const blob = this.download();
+            const url = URL.createObjectURL(blob);
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", url);
+            downloadAnchorNode.setAttribute("download", this.downloadName + ".svg");
+            document.body.appendChild(downloadAnchorNode); // required for firefox
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
         },
         download() {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
+            const svg = d3_create("svg")
+                .attr("width", this.fullWidth)
+                .attr("height", this.fullHeight);
             
-            const ratio = getRetinaRatio(ctx);
-            const scaledWidth = this.fullWidth * ratio;
-            const scaledHeight = this.fullHeight * ratio;
-
-            canvas.width = scaledWidth;
-            canvas.height = scaledHeight;
-            ctx.scale(ratio, ratio);
-
+            const defs = svg
+                .append("defs");
+            
             const renderAxisToContext = (axisType) => {
                 if(this.$slots[axisType].length > 0) {
-                    return this.$slots[axisType][0].componentInstance.downloadAxis()
-                        .then((uri) => {
-                            const x = this.$slots[axisType][0].componentInstance.computedLeft;
-                            const y = this.$slots[axisType][0].componentInstance.computedTop;
-                            const width = this.$slots[axisType][0].componentInstance.computedWidth;
-                            const height = this.$slots[axisType][0].componentInstance.computedHeight;
-                            return renderToContext(ctx, uri, x, y, width, height);
-                        });
+                    const x = this.$slots[axisType][0].componentInstance.computedLeft;
+                    const y = this.$slots[axisType][0].componentInstance.computedTop;
+                    const width = this.$slots[axisType][0].componentInstance.computedWidth;
+                    const height = this.$slots[axisType][0].componentInstance.computedHeight;
+
+                    defs
+                        .append("clipPath")
+                            .attr("id", `cp-${axisType}`)
+                        .append("rect")
+                            .attr("width", width)
+                            .attr("height", height);
+
+                    const axisSvg = d3_create("svg")
+                        .attr("width", width)
+                        .attr("height", height);
+
+                    this.$slots[axisType][0].componentInstance.drawAxis(axisSvg, true);
+                    this.$slots[axisType][0].componentInstance.drawAxis();
+
+                    const axisG = svg
+                        .append("g")
+                            .attr("class", `download-g-${axisType}`)
+                            .attr("width", width)
+                            .attr("height", height)
+                            .attr("transform", `translate(${x},${y})`)
+                            .attr("clip-path", `url(#cp-${axisType})`);
+                    
+                    axisG.html(axisSvg.node().innerHTML);
                 }
-                return Promise.resolve();
             };
 
             const renderPlotToContext = () => {
                 if(this.$slots.plot.length > 0) {
-                    return this.$slots.plot[0].componentInstance.downloadPlot()
-                        .then((uri) => {
-                            const x = this.pMarginLeft;
-                            const y = this.pMarginTop;
-                            const width = this.pWidth;
-                            const height = this.pHeight;
-                            return renderToContext(ctx, uri, x, y, width, height);
-                        });
+                    const x = this.pMarginLeft;
+                    const y = this.pMarginTop;
+                    const width = this.pWidth;
+                    const height = this.pHeight;
+
+                    defs
+                        .append("clipPath")
+                            .attr("id", `cp-plot`)
+                        .append("rect")
+                            .attr("width", width)
+                            .attr("height", height);
+
+                    const plotSvg = d3_create("svg")
+                        .attr("width", width)
+                        .attr("height", height);
+                    
+                    this.$slots.plot[0].componentInstance.drawPlot(plotSvg);
+                    this.$slots.plot[0].componentInstance.drawPlot();
+
+                    console.log(plotSvg.node().innerHTML.length)
+
+                    const plotG = svg
+                        .append("g")
+                            .attr("class", `download-g-plot`)
+                            .attr("width", width)
+                            .attr("height", height)
+                            .attr("transform", `translate(${x},${y})`)
+                            .attr("clip-path", `url(#cp-plot)`);
+                    plotG.html(plotSvg.node().innerHTML);
                 }
-                return Promise.resolve();
             };
             
-            const renderPromises = [];
-            renderPromises.push(renderAxisToContext("axisTop"));
-            renderPromises.push(renderAxisToContext("axisLeft"));
-            renderPromises.push(renderPlotToContext());
-            renderPromises.push(renderAxisToContext("axisRight"));
-            renderPromises.push(renderAxisToContext("axisBottom"));
+            renderAxisToContext("axisTop");
+            renderAxisToContext("axisLeft");
+            renderPlotToContext();
+            renderAxisToContext("axisRight");
+            renderAxisToContext("axisBottom");
 
-            return new Promise((resolve, reject) => {
-                Promise.all(renderPromises).then(() => {
-                    const uri = canvas.toDataURL("image/png");
-                    resolve(uri);
-                });
-            });
+            const svgContent = svgToUri(svg.node());
+
+            const blob = new Blob([svgContent], {'type': 'image/svg+xml'});
+
+            return blob;
         }
     }
 }

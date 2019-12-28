@@ -112,6 +112,7 @@
 </template>
 
 <script>
+import Two from 'two.js';
 import { scaleLinear as d3_scaleLinear, scaleQuantile as d3_scaleQuantile, scaleBand as d3_scaleBand } from 'd3-scale';
 import { select as d3_select } from 'd3-selection';
 import { mouse as d3_mouse, event as d3_event } from 'd3';
@@ -119,7 +120,7 @@ import debounce from 'lodash/debounce';
 import { min as d3_min, max as d3_max, mean as d3_mean, histogram as d3_histogram } from 'd3-array';
 
 import { TOOLTIP_DEBOUNCE } from './../../constants.js';
-import { getRetinaRatio, seededRandom, getDelaunay } from './../../helpers.js';
+import { seededRandom, getDelaunay } from './../../helpers.js';
 
 
 import AbstractScale from './../../scales/AbstractScale.js';
@@ -385,7 +386,7 @@ export default {
             this.highlightX2Secondary = null;
             this.highlightY1 = null;
         },
-        drawPlot() {
+        drawPlot(d3Node) {
             const vm = this;
 
             if(vm._dataContainer.isLoading || vm._stratificationDataContainer.isLoading || vm._stratificationDataContainer2.isLoading || vm._xScale.isLoading || vm._x2Scale.isLoading || vm._yScale.isLoading || vm._oScale.isLoading) {
@@ -433,17 +434,20 @@ export default {
             /*
              * Scale up the canvas
              */
-            const canvas = d3_select(this.plotSelector);
-            const context = canvas.node().getContext('2d');
+            let canvas;
+            if(d3Node) {
+                canvas = d3Node;
+            } else {
+                canvas = d3_select(this.plotSelector);
+            }
 
-            const ratio = getRetinaRatio(context);
-            const scaledWidth = vm.pWidth * ratio;
-            const scaledHeight = vm.pHeight * ratio;
+            const canvasNode = canvas.node();
 
-            canvas
-                .attr("width", scaledWidth)
-                .attr("height", scaledHeight);
-            context.scale(ratio, ratio);
+            const two = new Two({ 
+                width: vm.pWidth, 
+                height: vm.pHeight, 
+                domElement: canvasNode
+            });
 
             /*
              * Get the random number generator.
@@ -463,17 +467,9 @@ export default {
             const boxWidth = (barWidthSecondary / 2);
             const boxMargin = barWidthSecondary / 4;
 
-            if(vm.strokeColor !== undefined) {
-                context.strokeStyle = vm.strokeColor;
-            }
             xScale.domainFiltered.forEach((boxVar, xi) => {
                 x2Scale.domainFiltered.forEach((boxVarSecondary) => {
                     const x = x2[xi];
-
-                    if(vm.strokeColor === undefined) {
-                        context.strokeStyle = x2Scale.color(boxVarSecondary);
-                    }
-                    context.fillStyle = x2Scale.color(boxVarSecondary);
 
                     let boxData = data.filter((dEl) => {
                         let sEl = stratificationData.find((sEl) => sEl[vm.o] === dEl[vm.o]);
@@ -520,13 +516,18 @@ export default {
 
                     bins.forEach((binData) => {
                         binData.forEach((d) => {
-                            context.beginPath();
                             let xVal = innerX(-binData.length)+random()*2*(innerX(binData.length)-innerXZero);
                             let yVal = y(d[vm.variable]);
-                            context.arc(xVal, yVal, vm.pointSize, 0, 2*Math.PI);
-                            context.stroke();
-                            if(vm.fillPoints) {
-                                context.fill(); 
+                            const circle = two.makeCircle(xVal, yVal, vm.pointSize);
+                            circle.linewidth = 0.5;
+                            if(vm.strokeColor !== undefined) {
+                                circle.stroke = vm.strokeColor;
+                            } else {
+                                circle.stroke = x2Scale.color(boxVarSecondary);
+                            }
+                            circle.fill = x2Scale.color(boxVarSecondary);
+                            if(!vm.fillPoints) {
+                                circle.noFill(); 
                             }
 
                             points.push([xVal, yVal]); // For Delaunay
@@ -539,14 +540,20 @@ export default {
                     });
                 });
             });
+
+            two.update();
+
+            if(d3Node) {
+                /* Ignore interactivity if SVG was passed in (for download). */
+                return;
+            }
             
+
             const delaunay = getDelaunay(points, false);
 
             /*
              * Listen for mouse events
              */
-            const canvasNode = canvas.node();
-
             const getDataFromMouse = (mouseX, mouseY) => {
                 const i = delaunay.find(mouseX, mouseY);
                 return pointsData[i];

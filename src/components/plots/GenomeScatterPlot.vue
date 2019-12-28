@@ -52,12 +52,13 @@
 </template>
 
 <script>
+import Two from 'two.js';
 import { scaleLinear as d3_scaleLinear, scaleLog as d3_scaleLog } from 'd3-scale';
 import { select as d3_select } from 'd3-selection';
 import { mouse as d3_mouse, event as d3_event } from 'd3';
 import debounce from 'lodash/debounce';
 import { TOOLTIP_DEBOUNCE } from './../../constants.js';
-import { getRetinaRatio, getDelaunay } from './../../helpers.js';
+import { getDelaunay } from './../../helpers.js';
 
 import AbstractScale from './../../scales/AbstractScale.js';
 import GenomeScale from './../../scales/GenomeScale.js';
@@ -228,7 +229,7 @@ export default {
             this.highlightX1 = null;
             this.highlightY1 = null;
         },
-        drawPlot() {
+        drawPlot(d3Node) {
             const vm = this;
 
             if(vm._dataContainer.isLoading || vm._cScale.isLoading || vm._yScale.isLoading) {
@@ -281,19 +282,22 @@ export default {
             /*
              * Scale up the canvas
              */
-            const canvas = d3_select(this.plotSelector);
-            const context = canvas.node().getContext('2d');
+            let canvas;
+            if(d3Node) {
+                canvas = d3Node;
+            } else {
+                canvas = d3_select(this.plotSelector);
+            }
 
-            const ratio = getRetinaRatio(context);
-            const scaledWidth = vm.pWidth * ratio;
-            const scaledHeight = vm.pHeight * ratio;
+            const canvasNode = canvas.node();
 
-            canvas
-                .attr("width", scaledWidth)
-                .attr("height", scaledHeight);
-            context.scale(ratio, ratio);
+            const two = new Two({ 
+                width: vm.pWidth, 
+                height: vm.pHeight, 
+                domElement: canvasNode
+            });
 
-            if(data.length === 0) {
+            if(!d3Node && data.length === 0) {
                 canvas.on("mousemove", () => {});
                 canvas.on("mouseleave", () => {});
                 return;
@@ -304,13 +308,17 @@ export default {
              * Draw the points
              */
             data.forEach((d) => {
-                context.fillStyle = cScale.color(d[vm.c]);
-                context.beginPath();
-                context.arc(g[d[vm.chromosomeVariable]](d[vm.positionVariable]), y(d[vm.y]), 3, 0, 2*Math.PI);
-                context.fill();
+                const circle = two.makeCircle(g[d[vm.chromosomeVariable]](d[vm.positionVariable]), y(d[vm.y]), 3);
+                circle.fill = cScale.color(d[vm.c]);
+                circle.noStroke();
             });
 
+            two.update();
 
+            if(d3Node) {
+                /* Ignore interactivity if SVG was passed in (for download). */
+                return;
+            }
 
             /*
              * Prepare for interactivity
@@ -321,8 +329,6 @@ export default {
             /*
              * Listen for mouse events
              */
-            const canvasNode = canvas.node();
-
             const getDataFromMouse = (mouseX, mouseY) => {
                 const i = delaunay.find(mouseX, mouseY);
                 return data[i];

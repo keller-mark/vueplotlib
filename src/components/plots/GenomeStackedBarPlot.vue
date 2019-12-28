@@ -53,6 +53,7 @@
 </template>
 
 <script>
+import Two from 'two.js';
 import { scaleLinear as d3_scaleLinear } from 'd3-scale';
 import { stack as d3_stack, stackOrderNone as d3_stackOrderNone, stackOffsetNone as d3_stackOffsetNone } from 'd3-shape';
 import { select as d3_select } from 'd3-selection';
@@ -205,7 +206,7 @@ export default {
         highlightDestroy() {
             this.highlightX1 = null;
         },
-        drawPlot() {
+        drawPlot(d3Node) {
             const vm = this;
 
             if(vm._dataContainer.isLoading || vm._cScale.isLoading || vm._yScale.isLoading) {
@@ -260,20 +261,27 @@ export default {
             /*
              * Scale up the canvas
              */
-            const canvas = d3_select(this.plotSelector);
-            const context = canvas.node().getContext('2d');
+            let canvas;
+            if(d3Node) {
+                canvas = d3Node;
+            } else {
+                canvas = d3_select(this.plotSelector);
+            }
+
+            const canvasNode = canvas.node();
+
+            const two = new Two({ 
+                width: vm.pWidth, 
+                height: vm.pHeight, 
+                domElement: canvasNode
+            });
 
             const canvasHidden = d3_select(this.hiddenPlotSelector);
             const contextHidden = canvasHidden.node().getContext('2d');
 
-            const ratio = getRetinaRatio(context);
+            const ratio = getRetinaRatio(contextHidden);
             const scaledWidth = vm.pWidth * ratio;
             const scaledHeight = vm.pHeight * ratio;
-
-            canvas
-                .attr("width", scaledWidth)
-                .attr("height", scaledHeight);
-            context.scale(ratio, ratio);
 
             canvasHidden
                 .attr("width", scaledWidth)
@@ -308,7 +316,6 @@ export default {
              * Draw the bars
              */
             series.forEach((layer) => {
-                context.fillStyle = cScale.color(layer["key"]); 
                 layer.forEach((d, i) => {
                     const col = genColor();
                     colToNode[col] = { 
@@ -338,16 +345,24 @@ export default {
                         // Bar width has not yet been found, set to max of current chromosome scale
                         barWidth = g[d.data[vm.chromosomeVariable]].range()[1] - xVal;
                     }
-                    context.fillRect(xVal, y(d[1]), barWidth, height);
+                    const rect = two.makeRectangle(xVal + barWidth/2, y(d[1]) + height/2, barWidth, height);
+                    rect.fill = cScale.color(layer["key"]);
+                    rect.noStroke();
+
                     contextHidden.fillRect(xVal, y(d[1]), barWidth, height);
                 });
             });
 
+            two.update();
+
+            if(d3Node) {
+                /* Ignore interactivity if SVG was passed in (for download). */
+                return;
+            }
+
             /*
              * Listen for mouse events
              */
-            const canvasNode = canvas.node();
-
             const getDataFromMouse = (mouseX, mouseY) => {
                 // Get the corresponding pixel color on the hidden canvas
                 const col = contextHidden.getImageData(mouseX * ratio, mouseY * ratio, scaledWidth, scaledHeight).data;

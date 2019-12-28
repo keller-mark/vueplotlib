@@ -1,26 +1,46 @@
 <template>
-    <div 
-        :id="this.axisElemID" 
-        class="vdp-axis" 
-        :style="{
-            'height': this.computedHeight + 'px', 
-            'width': this.computedWidth + 'px',
-            'top': this.computedTop + 'px',
-            'left': this.computedLeft + 'px'
-        }"></div>
+    <div>
+        <canvas 
+            :id="this.axisElemID" 
+            class="vdp-axis" 
+            :style="{
+                'height': this.computedHeight + 'px', 
+                'width': this.computedWidth + 'px',
+                'top': this.computedTop + 'px',
+                'left': this.computedLeft + 'px'
+            }"
+        ></canvas>
+        <div v-show="this.highlightX !== null && this.highlightY != null" 
+            :style="{
+                'position': 'absolute',
+                'pointer-events': 'none',
+                'height': '14px', 
+                'width': '14px',
+                'border-radius': '50%',
+                'opacity': 0.6,
+                'background-color': '#555',
+                'top': (this.computedTop + this.highlightY - 7) + 'px',
+                'left': (this.computedLeft + this.highlightX - 7) + 'px'
+            }"
+            class="vdp-axis-highlight"
+        ></div>
+    </div>
 </template>
 
 <script>
+import Two from 'two.js';
 import { select as d3_select } from 'd3-selection';
 import { cluster as d3_cluster, hierarchy as d3_hierarchy } from 'd3-hierarchy';
-
-import { svgAsPngUri } from 'save-svg-as-png';
+import { mouse as d3_mouse } from 'd3';
+import debounce from 'lodash/debounce';
+import { TOOLTIP_DEBOUNCE } from './../../constants.js';
 
 import AbstractScale from './../../scales/AbstractScale.js';
 import DataContainer from './../../data/DataContainer.js';
 import HistoryEvent from './../../history/HistoryEvent.js';
 import HistoryStack, { computedParam } from './../../history/HistoryStack.js';
-import { filterHierarchy } from '../../helpers.js';
+import { filterHierarchy, getDelaunay } from '../../helpers.js';
+
 
 import { EVENT_TYPES, EVENT_SUBTYPES } from './../../history/base-events.js';
 
@@ -100,7 +120,8 @@ export default {
     },
     data() {
         return {
-            
+            highlightX: null,
+            highlightY: null,
         }
     },
     computed: {
@@ -202,13 +223,15 @@ export default {
         removeAxis() {
             d3_select(this.axisSelector).select("svg").remove();
         },
-        preDownload() {
-            // noop
+        tooltip(x, y) {
+            this.highlightX = x;
+            this.highlightY = y;
         },
-        postDownload() {
-            // noop
+        tooltipDestroy() {
+            this.highlightX = null;
+            this.highlightY = null;
         },
-        drawAxis() {
+        drawAxis(d3Node) {
             const vm = this;
             vm.removeAxis();
 
@@ -245,85 +268,115 @@ export default {
             const root = d3_hierarchy(hierarchyData);
             tree(root);
 
+            const descendants = root.descendants();
+
 
             /*
                 Draw the dendrogram
             */
-           const container = d3_select(vm.axisSelector)
-                .append("svg")
-                    .attr("width", vm.computedWidth)
-                    .attr("height", vm.computedHeight);
-            
-            const gTree = container.append("g")
-                .attr("transform", "translate(" + vm.computedTranslateX + "," + vm.computedTranslateY + ")");
+            let canvas;
+            if(d3Node) {
+                canvas = d3Node;
+            } else {
+                canvas = d3_select(this.axisSelector);
+            }
 
+            const canvasNode = canvas.node();
+
+            const two = new Two({ 
+                width: vm.computedWidth, 
+                height: vm.computedHeight, 
+                domElement: canvasNode
+            });
 
             let pathFunction;
             if(this._side === SIDES.TOP) {
                 pathFunction = (d) => {
-                    return "M" + d.parent.x + "," + d.parent.y
-                        + "H" + d.x
-                        + "M" + d.x + "," + d.y
-                        + "V" + d.parent.y;
+                    return two.makePath(
+                        d.parent.x + vm.computedTranslateX, d.parent.y + vm.computedTranslateY, // M
+                        d.x + vm.computedTranslateX, d.parent.y + vm.computedTranslateY, // H d.x
+                        d.x + vm.computedTranslateX, d.y + vm.computedTranslateY, // M
+                        d.x + vm.computedTranslateX, d.parent.y + vm.computedTranslateY // V d.parent.y
+                    );
                 }
             } else if(this._side === SIDES.BOTTOM) {
                 pathFunction = (d) => {
-                    return "M" + d.parent.x + "," + (vm.pMarginBottom - d.parent.y)
-                        + "H" + d.x
-                        + "M" + d.x + "," + (vm.pMarginBottom - d.y)
-                        + "V" + (vm.pMarginBottom - d.parent.y);
+                    return two.makePath(
+                        d.parent.x + vm.computedTranslateX, (vm.pMarginBottom - d.parent.y) + vm.computedTranslateY, // M
+                        d.x + vm.computedTranslateX, (vm.pMarginBottom - d.parent.y) + vm.computedTranslateY, // H d.x
+                        d.x + vm.computedTranslateX, (vm.pMarginBottom - d.y) + vm.computedTranslateY, // M
+                        d.x + vm.computedTranslateX, (vm.pMarginBottom - d.parent.y) + vm.computedTranslateY // V (vm.pMarginBottom - d.parent.y)
+                    );
                 }
             }
 
-            gTree.selectAll(".link")
-                .data(root.descendants().slice(1))
-                .enter().append("path")
-                .attr("class", "link")
-                .attr("d", pathFunction)
-                .attr("fill", "none")
-                .attr("stroke", "#555")
-                .attr("stroke-opacity", 0.6)
-                .attr("stroke-width", "1.5px");
-            
             let nodeTransformFunction;
             if(this._side === SIDES.TOP) {
                 nodeTransformFunction = (d) => { 
-                    return "translate(" + d.x + "," + d.y + ")"; 
+                    return [d.x + vm.computedTranslateX, d.y + vm.computedTranslateY]; 
                 }
             } else if(this._side === SIDES.BOTTOM) {
                 nodeTransformFunction = (d) => { 
-                    return "translate(" + d.x + "," + (vm.pMarginBottom - d.y) + ")"; 
+                    return [d.x + vm.computedTranslateX, (vm.pMarginBottom - d.y) + vm.computedTranslateY];
                 }
             }
 
-            const nodes = gTree.selectAll(".node")
-                .data(root.descendants())
-                .enter().append("g")
-                .attr("class", function(d) { return "node" + (d.children ? " node--internal" : " node--leaf"); })
-                .attr("transform", nodeTransformFunction);
+            const nodePoints = [];
 
-            /* nodes.append("text")
-                .style("display", (d) => { return d.children ? 'none' : 'normal'; })
-                .text((d) => { return d.data.name; })
-                .style("font", "10px sans-serif")
-                .style("text-anchor", "end")
-                .attr("dx", "-.6em")
-                .attr("dy", ".6em")
-                .attr("transform", "rotate(-65)"); */
-    
-            // filtering buttons
-            nodes.append("circle")
-                .attr("r", 7)
-                .attr("fill", "#555")
-                .attr("fill-opacity", 0)
-                .style("cursor", "pointer")
-                .on("mouseover", function() {
-                    d3_select(this).attr("fill-opacity", 0.6);
-                })
-                .on("mouseleave", function() {
-                    d3_select(this).attr("fill-opacity", 0);
-                })
-                .on("click", (d) => {
+            descendants.forEach((d, i) => {
+                if(i > 0) {
+                    const path = pathFunction(d);
+                    path.noFill();
+                    path.stroke = "#555";
+                    path.opacity = 0.6;
+                    path.linewidth = 1.5;
+                }
+                nodePoints.push(nodeTransformFunction(d));
+            });
+            
+
+            two.update();
+
+            if(d3Node) {
+                return;
+            }
+
+            const delaunay = getDelaunay(nodePoints, true);
+
+            /*
+             * Listen for mouse events
+             */
+            const getDataFromMouse = (mouseX, mouseY) => {
+                const i = delaunay.find(mouseX, mouseY);
+                return descendants[i];
+            };
+
+            const debouncedTooltipDestroy = debounce(vm.tooltipDestroy, TOOLTIP_DEBOUNCE);
+            canvas.on("mousemove", () => {
+                const mouse = d3_mouse(canvasNode);
+                const mouseX = mouse[0];
+                const mouseY = mouse[1];
+
+                const node = getDataFromMouse(mouseX, mouseY);
+
+                if(node) {
+                    const nodePoint = nodeTransformFunction(node);
+                    vm.tooltip(nodePoint[0], nodePoint[1]); 
+                } else {
+                    debouncedTooltipDestroy(node);
+                }
+            })
+            .on("mouseleave", vm.tooltipDestroy);
+
+            canvas.on("click", () => {
+                const mouse = d3_mouse(canvasNode);
+                const mouseX = mouse[0];
+                const mouseY = mouse[1];
+
+                const node = getDataFromMouse(mouseX, mouseY);
+
+                if(node) {
+                    /* 
                     varScale.sortByHierarchy(vm._hierarchyContainer);
                     stack.push(new HistoryEvent(
                         EVENT_TYPES.SCALE,
@@ -332,24 +385,18 @@ export default {
                         "sortByHierarchy",
                         [computedParam(EVENT_TYPES.DATA, [vm.h])]
                     ));
-                    varScale.filterByHierarchy(vm._hierarchyContainer, d.data.name);
+                    */
+                    varScale.filterByHierarchy(vm._hierarchyContainer, node.data.name);
                     stack.push(new HistoryEvent(
                         EVENT_TYPES.SCALE,
                         EVENT_SUBTYPES.SCALE_DOMAIN_FILTER,
                         vm.variable,
                         "filterByHierarchy",
-                        [computedParam(EVENT_TYPES.DATA, [vm.h]), d.data.name]
+                        [computedParam(EVENT_TYPES.DATA, [vm.h]), node.data.name]
                     ));
-                });
-            
-        },
-        downloadAxis() {
-            const node = d3_select(this.axisSelector).select("svg").node();
-            return new Promise((resolve, reject) => {
-                svgAsPngUri(node, {}, (uri) => {
-                    resolve(uri);
-                });
+                }
             });
+            
         }
     }
 }
