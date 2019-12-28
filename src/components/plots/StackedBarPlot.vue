@@ -278,7 +278,6 @@ export default {
             /*
              * Scale up the canvas
              */
-
             let canvas;
             if(d3Node) {
                 canvas = d3Node;

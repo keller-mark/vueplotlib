@@ -1,5 +1,4 @@
 <script>
-import { getRetinaRatio } from './../helpers.js';
 import { DOWNLOAD_PATH } from './../icons.js';
 import { create as d3_create } from 'd3';
 
@@ -51,7 +50,8 @@ const svgToUri = function(svg) {
     source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
 
     // Convert svg source to URI.
-    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
+    //return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
+    return source;
 };
 
 
@@ -218,9 +218,10 @@ export default {
     },
     methods: {
         downloadViaButton() {
-            const uri = this.download()
+            const blob = this.download();
+            const url = URL.createObjectURL(blob);
             const downloadAnchorNode = document.createElement('a');
-            downloadAnchorNode.setAttribute("href", uri);
+            downloadAnchorNode.setAttribute("href", url);
             downloadAnchorNode.setAttribute("download", this.downloadName + ".svg");
             document.body.appendChild(downloadAnchorNode); // required for firefox
             downloadAnchorNode.click();
@@ -288,6 +289,8 @@ export default {
                     this.$slots.plot[0].componentInstance.drawPlot(plotSvg);
                     this.$slots.plot[0].componentInstance.drawPlot();
 
+                    console.log(plotSvg.node().innerHTML.length)
+
                     const plotG = svg
                         .append("g")
                             .attr("class", `download-g-plot`)
@@ -305,7 +308,11 @@ export default {
             renderAxisToContext("axisRight");
             renderAxisToContext("axisBottom");
 
-            return svgToUri(svg.node());
+            const svgContent = svgToUri(svg.node());
+
+            const blob = new Blob([svgContent], {'type': 'image/svg+xml'});
+
+            return blob;
         }
     }
 }

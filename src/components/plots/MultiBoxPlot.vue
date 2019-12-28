@@ -75,6 +75,7 @@
 </template>
 
 <script>
+import Two from 'two.js';
 import { scaleBand as d3_scaleBand, scaleLinear as d3_scaleLinear, scaleQuantile as d3_scaleQuantile } from 'd3-scale';
 import { select as d3_select } from 'd3-selection';
 import { mouse as d3_mouse, event as d3_event } from 'd3';
@@ -249,7 +250,7 @@ export default {
             this.highlightX1 = null;
             this.highlightX2 = null;
         },
-        drawPlot() {
+        drawPlot(d3Node) {
             const vm = this;
 
             if(vm._dataContainer.isLoading || vm._xScale.isLoading || vm._yScale.isLoading || (vm.hasO && vm._oScale.isLoading)) {
@@ -280,25 +281,30 @@ export default {
             vm.barWidth = barWidth;
               
             
-
-            
             /*
              * Scale up the canvas
              */
-            const canvas = d3_select(this.plotSelector);
-            const context = canvas.node().getContext('2d');
+            let canvas;
+            if(d3Node) {
+                canvas = d3Node;
+            } else {
+                canvas = d3_select(this.plotSelector);
+            }
+
+            const canvasNode = canvas.node();
+
+            const two = new Two({ 
+                width: vm.pWidth, 
+                height: vm.pHeight, 
+                domElement: canvasNode
+            });
 
             const canvasHidden = d3_select(this.hiddenPlotSelector);
             const contextHidden = canvasHidden.node().getContext('2d');
 
-            const ratio = getRetinaRatio(context);
+            const ratio = getRetinaRatio(contextHidden);
             const scaledWidth = vm.pWidth * ratio;
             const scaledHeight = vm.pHeight * ratio;
-
-            canvas
-                .attr("width", scaledWidth)
-                .attr("height", scaledHeight);
-            context.scale(ratio, ratio);
 
             canvasHidden
                 .attr("width", scaledWidth)
@@ -340,7 +346,6 @@ export default {
             const diamondSize = vm.pointSize + 2;
 
             xScale.domainFiltered.forEach((boxVar) => {
-                context.fillStyle = xScale.color(boxVar);
 
                 let boxData = data.map((el) => el[boxVar] || 0);
                 let quantile = d3_scaleQuantile()
@@ -361,48 +366,39 @@ export default {
 
                 let boxX1 = x(boxVar) + boxMargin;
                 let boxX2 = boxX1 + boxWidth;
-                let boxX = boxX1 + (boxWidth / 2)
+                let boxX = boxX1 + (boxWidth / 2);
 
-                context.strokeStyle = "black";
-                context.beginPath();
-                // Upper Fence
-                context.moveTo(boxX1,y(upperFence));
-                context.lineTo(boxX2,y(upperFence));
-                // Vertical Line
-                context.moveTo(boxX1 + (boxWidth / 2),y(upperFence));
-                context.lineTo(boxX1 + (boxWidth / 2),y(lowerFence));
-                // Lower Fence
-                context.moveTo(boxX1,y(lowerFence));
-                context.lineTo(boxX2,y(lowerFence));
 
-                context.stroke();
+                const verticalLine = two.makeLine(boxX1 + (boxWidth / 2),y(upperFence), boxX1 + (boxWidth / 2),y(lowerFence));
+                verticalLine.stroke = "black";
 
-                // Draw the box rect
-                context.strokeRect(boxX1, y(q3), boxWidth, y(q1) - y(q3));
-                context.fillRect(boxX1, y(q3), boxWidth, y(q1) - y(q3));
+                const boxRect = two.makeRectangle(boxX1 + boxWidth/2, y(q3) + (y(q1) - y(q3))/2, boxWidth, y(q1) - y(q3));
+                boxRect.linewidth = 1;
+                boxRect.fill = xScale.color(boxVar);
+                boxRect.stroke = "black";
 
-                // Draw the median line
-                context.beginPath();
-                context.moveTo(boxX1, y(median));
-                context.lineTo(boxX2, y(median));
-                context.stroke();
+                const upperFenceLine = two.makeLine(boxX1,y(upperFence), boxX2,y(upperFence));
+                upperFenceLine.stroke = "black";
 
-                // Draw the mean diamond
-                context.beginPath();
-                context.moveTo(boxX - (diamondSize/2), y(mean));
-                context.lineTo(boxX, y(mean) - (diamondSize/2));
-                context.lineTo(boxX + (diamondSize/2), y(mean));
-                context.lineTo(boxX, y(mean) + (diamondSize/2));
-                context.lineTo(boxX - (diamondSize/2), y(mean));
-                context.stroke();
+                const lowerFenceLine = two.makeLine(boxX1,y(lowerFence), boxX2,y(lowerFence));
+                lowerFenceLine.stroke = "black";
+
+                const medianLine = two.makeLine(boxX1,y(median), boxX2,y(median));
+                medianLine.stroke = "black";
+
+                const meanDiamond = two.makeRectangle(boxX,y(mean), diamondSize-2, diamondSize-2);
+                meanDiamond.stroke = "black";
+                meanDiamond.noFill();
+                meanDiamond.rotation = Math.PI/4;
 
                 // Draw the outliers
                 if(vm.drawOutliers) {
                     let outliers = boxData.filter((el) => (el > upperFence) || (el < lowerFence));
                     outliers.forEach((outlier) => {
-                        context.beginPath();
-                        context.arc(boxX, y(outlier), (vm.pointSize / 2), 0, 2*Math.PI);
-                        context.stroke();
+                        const circle = two.makeCircle(boxX, y(outlier), (vm.pointSize / 2));
+                        circle.linewidth = 1;
+                        circle.stroke = "black";
+                        circle.noFill();
                     });
                 }
 
@@ -420,12 +416,17 @@ export default {
                 contextHidden.fillStyle = col;
                 contextHidden.fillRect(x(boxVar), 0, barWidth, vm.pHeight);
             });
+
+            two.update();
+
+            if(d3Node) {
+                /* Ignore interactivity if SVG was passed in (for download). */
+                return;
+            }
             
             /*
              * Listen for mouse events
              */
-            const canvasNode = canvas.node();
-
             const getDataFromMouse = (mouseX, mouseY) => {
                 // Get the corresponding pixel color on the hidden canvas
                 const col = contextHidden.getImageData(mouseX * ratio, mouseY * ratio, scaledWidth, scaledHeight).data;

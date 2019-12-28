@@ -35,18 +35,14 @@
 </template>
 
 <script>
-import { scaleBand as d3_scaleBand } from 'd3-scale';
+import Two from 'two.js';
 import { select as d3_select } from 'd3-selection';
-import { mouse as d3_mouse, event as d3_event } from 'd3';
-import debounce from 'lodash/debounce';
-import { TOOLTIP_DEBOUNCE, BAR_MARGIN_X_DEFAULT, BAR_WIDTH_MIN } from './../../constants.js';
-import { getRetinaRatio } from './../../helpers.js';
+import { event as d3_event } from 'd3';
 
 import AbstractScale from './../../scales/AbstractScale.js';
 import DataContainer from './../../data/DataContainer.js';
 
 import mixin from './mixin.js';
-import ContinuousScale from './../../scales/ContinuousScale.js';
 import CategoricalScale from './../../scales/CategoricalScale.js';
 
 
@@ -176,7 +172,7 @@ export default {
         highlightDestroy() {
             this.highlightXY = null;
         },
-        drawPlot() {
+        drawPlot(d3Node) {
             const vm = this;
 
             if(vm._dataContainer.isLoading || vm._zScale.isLoading || vm._cScale.isLoading) {
@@ -185,7 +181,6 @@ export default {
             
             const data = vm._dataContainer.dataCopy;
             
-            const zScale = vm._zScale;
             const cScale = vm._cScale;
 
             const point = data.find((el) => el[vm.z] === vm.o); // the single data point
@@ -197,23 +192,34 @@ export default {
             /*
              * Scale up the canvas
              */
-            const canvas = d3_select(this.plotSelector);
-            const context = canvas.node().getContext('2d');
+            let canvas;
+            if(d3Node) {
+                canvas = d3Node;
+            } else {
+                canvas = d3_select(this.plotSelector);
+            }
 
-            const ratio = getRetinaRatio(context);
-            const scaledWidth = vm.pWidth * ratio;
-            const scaledHeight = vm.pHeight * ratio;
+            const canvasNode = canvas.node();
 
-            canvas
-                .attr("width", scaledWidth)
-                .attr("height", scaledHeight);
-            context.scale(ratio, ratio);
+            const two = new Two({ 
+                width: vm.pWidth, 
+                height: vm.pHeight, 
+                domElement: canvasNode
+            });
 
             /*
              * Draw the rect
              */
-            context.fillStyle = cScale.color(point[vm.c]);
-            context.fillRect(0, 0, vm.pWidth, vm.pHeight);
+            const rect = two.makeRectangle(0 + vm.pWidth/2, 0 + vm.pHeight/2, vm.pWidth, vm.pHeight);
+            rect.fill = cScale.color(point[vm.c]);
+            rect.noStroke();
+
+            two.update();
+
+            if(d3Node) {
+                /* Ignore interactivity if SVG was passed in (for download). */
+                return;
+            }
 
             /*
              * Listen for mouse events

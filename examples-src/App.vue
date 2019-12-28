@@ -319,6 +319,7 @@
       :pMarginLeft="120"
       :pMarginRight="10"
       :pMarginBottom="180"
+      :showDownloadButton="true"
     >
       <Axis
         slot="axisLeft"
@@ -354,9 +355,10 @@
       :pWidth="700"
       :pHeight="40"
       :pMarginTop="10"
-      :pMarginLeft="10"
+      :pMarginLeft="40"
       :pMarginRight="10"
       :pMarginBottom="180"
+      :showDownloadButton="true"
     >
       <TrackPlot
         slot="plot"
@@ -463,6 +465,7 @@
       :pMarginLeft="180"
       :pMarginRight="20"
       :pMarginBottom="20"
+      :showDownloadButton="true"
     >
       <Axis
         slot="axisLeft"
@@ -803,6 +806,7 @@
       :pMarginLeft="120"
       :pMarginRight="10"
       :pMarginBottom="180"
+      :showDownloadButton="true"
     >
       <Axis
         slot="axisLeft"
@@ -883,9 +887,10 @@
       :pWidth="50"
       :pHeight="30"
       :pMarginTop="5"
-      :pMarginLeft="20"
-      :pMarginRight="20"
+      :pMarginLeft="40"
+      :pMarginRight="40"
       :pMarginBottom="50"
+      :showDownloadButton="true"
     >
       <RectPlot
         slot="plot"
@@ -907,6 +912,7 @@
       :pMarginLeft="120"
       :pMarginRight="10"
       :pMarginBottom="180"
+      :showDownloadButton="true"
     >
       <Axis
         slot="axisLeft"
