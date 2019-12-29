@@ -48,7 +48,7 @@
 </template>
 
 <script>
-import Two from 'two.js';
+import Two from '../../two.js';
 import { scaleLinear as d3_scaleLinear, scaleLog as d3_scaleLog } from 'd3-scale';
 import { select as d3_select } from 'd3-selection';
 import { mouse as d3_mouse, event as d3_event } from 'd3';

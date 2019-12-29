@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import Two from 'two.js';
+import Two from '../../two.js';
 import { select as d3_select } from 'd3-selection';
 import { event as d3_event } from 'd3';
 

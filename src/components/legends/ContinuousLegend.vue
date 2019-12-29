@@ -40,8 +40,6 @@ import { scaleLinear as d3_scaleLinear } from 'd3-scale';
 import { select as d3_select } from 'd3-selection';
 import { mouse as d3_mouse } from 'd3';
 
-import { saveSvgAsPng } from 'save-svg-as-png';
-
 import ContinuousScale from './../../scales/ContinuousScale.js';
 import HistoryEvent from './../../history/HistoryEvent.js';
 import HistoryStack from './../../history/HistoryStack.js';
@@ -313,10 +311,6 @@ export default {
             });
             
             
-        },
-        downloadLegend() {
-            let node = d3_select(this.legendSelector).select("svg").node();
-            saveSvgAsPng(node, this.legendElemID + ".png");
         }
     }
 }

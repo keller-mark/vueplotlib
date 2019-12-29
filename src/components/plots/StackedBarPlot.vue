@@ -58,7 +58,7 @@
 </template>
 
 <script>
-import Two from 'two.js';
+import Two from '../../two.js';
 import { scaleBand as d3_scaleBand, scaleLinear as d3_scaleLinear } from 'd3-scale';
 import { select as d3_select } from 'd3-selection';
 import { stack as d3_stack, stackOrderNone as d3_stackOrderNone, stackOffsetNone as d3_stackOffsetNone } from 'd3-shape';

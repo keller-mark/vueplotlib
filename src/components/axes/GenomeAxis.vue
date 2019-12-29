@@ -40,8 +40,6 @@ import { select as d3_select } from 'd3-selection';
 import { axisTop as d3_axisTop, axisLeft as d3_axisLeft, axisRight as d3_axisRight, axisBottom as d3_axisBottom } from 'd3-axis';
 import { zip as d3_zip } from 'd3-array';
 
-import { svgAsPngUri } from 'save-svg-as-png';
-
 import GenomeScale from './../../scales/GenomeScale.js';
 import HistoryEvent from './../../history/HistoryEvent.js';
 import HistoryStack from './../../history/HistoryStack.js';
@@ -522,14 +520,6 @@ export default {
                 .attr("y", labelY)
                 .attr("transform", "rotate(" + labelRotate + ")");
             
-        },
-        downloadAxis() {
-            const node = d3_select(this.axisSelector).select("svg").node();
-            return new Promise((resolve) => {
-                svgAsPngUri(node, {}, (uri) => {
-                    resolve(uri);
-                });
-            });
         }
     }
 }

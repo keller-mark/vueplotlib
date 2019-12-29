@@ -28,9 +28,7 @@
 <script>
 import { scaleBand as d3_scaleBand } from 'd3-scale';
 import { select as d3_select } from 'd3-selection';
-import { event as d3_event } from 'd3';
 
-import { saveSvgAsPng } from 'save-svg-as-png';
 
 import CategoricalScale from './../../scales/CategoricalScale.js';
 import HistoryEvent from './../../history/HistoryEvent.js';
@@ -411,15 +409,6 @@ export default {
                 .attr("transform", "scale(0.7 0.7)")
                 .attr("fill", "silver");
             
-
-
-            
-            
-            
-        },
-        downloadLegend() {
-            let node = d3_select(this.legendSelector).select("svg").node();
-            saveSvgAsPng(node, this.legendElemID + ".png");
         }
     }
 }

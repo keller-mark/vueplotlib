@@ -289,8 +289,6 @@ export default {
                     this.$slots.plot[0].componentInstance.drawPlot(plotSvg);
                     this.$slots.plot[0].componentInstance.drawPlot();
 
-                    console.log(plotSvg.node().innerHTML.length)
-
                     const plotG = svg
                         .append("g")
                             .attr("class", `download-g-plot`)

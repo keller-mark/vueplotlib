@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import Two from 'two.js';
+import Two from '../../two.js';
 import { select as d3_select } from 'd3-selection';
 import { cluster as d3_cluster, hierarchy as d3_hierarchy } from 'd3-hierarchy';
 import { mouse as d3_mouse } from 'd3';
@@ -326,7 +326,6 @@ export default {
             descendants.forEach((d, i) => {
                 if(i > 0) {
                     const path = pathFunction(d);
-                    path.noFill();
                     path.stroke = "#555";
                     path.opacity = 0.6;
                     path.linewidth = 1.5;
