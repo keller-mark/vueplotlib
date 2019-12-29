@@ -1,6 +1,6 @@
 {
   "name": "vueplotlib",
-  "version": "1.10.0",
+  "version": "1.10.1",
   "private": false,
   "scripts": {
     "serve": "vue-cli-service serve --open ./examples-src/index.js",
@@ -19,8 +19,7 @@
     "d3-dispatch-nosplit": "^2.0.1",
     "d3-drag": "^1.2.5",
     "lodash": "^4.17.11",
-    "simple-statistics": "^6.1.1",
-    "uuid": "^3.3.3"
+    "simple-statistics": "^6.1.1"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.0.0-beta.6",
