@@ -345,16 +345,6 @@ export default {
         download() {
             const pHeight = this.pHeight + this.offsetY;
 
-            try {
-                this.$slots.axisTop[0].componentInstance.pHeight = pHeight;
-                this.$slots.axisLeft[0].componentInstance.pHeight = pHeight;
-                this.$slots.plot[0].componentInstance.pHeight = pHeight;
-                this.$slots.axisRight[0].componentInstance.pHeight = pHeight;
-                this.$slots.axisBottom[0].componentInstance.pHeight = pHeight;
-            } catch(e) {
-                console.log(e);
-            }
-
             const svg = d3_create("svg")
                 .attr("width", this.fullWidth)
                 .attr("height", this.fullHeight);
@@ -364,6 +354,13 @@ export default {
             
             const renderAxisToContext = (axisType) => {
                 if(this.$slots[axisType].length > 0) {
+                    try {
+                        this.$slots[axisType][0].componentInstance.pHeight = pHeight;
+                        this.$slots.plot[0].componentInstance.pHeight = pHeight;
+                    } catch(e) {
+                        console.log(e);
+                    }
+
                     const x = this.$slots[axisType][0].componentInstance.computedLeft;
                     let y = this.$slots[axisType][0].componentInstance.computedTop;
                     const width = this.$slots[axisType][0].componentInstance.computedWidth;
@@ -404,6 +401,12 @@ export default {
 
             const renderPlotToContext = () => {
                 if(this.$slots.plot.length > 0) {
+                    try {
+                        this.$slots.plot[0].componentInstance.pHeight = pHeight;
+                    } catch(e) {
+                        console.log(e);
+                    }
+
                     const x = this.pMarginLeft;
                     const y = this.pMarginTop;
                     const width = this.pWidth;

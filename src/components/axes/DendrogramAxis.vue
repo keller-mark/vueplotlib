@@ -283,6 +283,10 @@ export default {
 
             const canvasNode = canvas.node();
 
+            if(!canvasNode) {
+                return;
+            }
+
             const two = new Two({ 
                 width: vm.computedWidth, 
                 height: vm.computedHeight, 

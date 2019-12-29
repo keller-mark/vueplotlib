@@ -20,8 +20,8 @@
       :pMarginRight="120"
       :pMarginBottom="100"
       :showDownloadButton="true"
-      :downloadButtonOffsetX="(500+190)"
-      :downloadButtonOffsetY="80"
+      :downloadButtonOffsetX="0"
+      :downloadButtonOffsetY="0"
       :showResizeButton="true"
     >
       <Axis
@@ -81,6 +81,7 @@
       :pMarginRight="10"
       :pMarginBottom="150"
       :showDownloadButton="true"
+      :showResizeButton="true"
     >
       <Axis
         slot="axisLeft"
