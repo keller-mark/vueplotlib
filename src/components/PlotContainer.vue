@@ -1,6 +1,8 @@
 <script>
 import { DOWNLOAD_PATH } from './../icons.js';
-import { create as d3_create } from 'd3';
+import { create as d3_create, event as d3_event } from 'd3';
+import { select as d3_select } from 'd3-selection';
+import { drag as d3_drag } from 'd3-drag';
 
 
 /**
@@ -153,32 +155,119 @@ export default {
         'downloadName': {
             type: String,
             default: "plot"
-        }
+        },
+        'showResizeButton': {
+            type: Boolean,
+            default: false
+        },
+        'resizeButtonSize': {
+            type: Number,
+            default: 16
+        },
+        'resizeButtonColor': {
+            type: String,
+            default: "gray"
+        },
     },
     data() {
         return {
             initialKey: 1,
+            initialY: 0,
+            offsetY: 0,
         };
     },
+    mounted() {
+        this.initResizeButton();
+    },
     render(h) {
-        this.$slots.axisTop = addProp(this.$slots.axisTop, this.$props);
-        this.$slots.axisLeft = addProp(this.$slots.axisLeft, this.$props);
-        this.$slots.plot = addProp(this.$slots.plot, this.$props);
-        this.$slots.axisRight = addProp(this.$slots.axisRight, this.$props);
-        this.$slots.axisBottom = addProp(this.$slots.axisBottom, this.$props);
+        const props = Object.assign({}, this.$props);
+        props["pHeight"] = this.pHeight + this.offsetY;
 
-        const downloadChildren = [];
+        this.$slots.axisTop = addProp(this.$slots.axisTop, props);
+        this.$slots.axisLeft = addProp(this.$slots.axisLeft, props);
+        this.$slots.plot = addProp(this.$slots.plot, props);
+        this.$slots.axisRight = addProp(this.$slots.axisRight, props);
+        this.$slots.axisBottom = addProp(this.$slots.axisBottom, props);
+
+        const buttonChildren = [];
         if(this.showDownloadButton) {
-            downloadChildren.push(h('svg', { class: 'vdp-plot-container-dl-btn', attrs: {'width': this.downloadButtonSize, 'height': this.downloadButtonSize, 'viewBox': '0 0 24 24'}, style: {'top': (this.downloadButtonOffsetY + 'px'), 'left': (this.downloadButtonOffsetX + 'px')}, on: { click: ()=>{this.downloadViaButton();} } }, [h('path', {attrs: {'d': DOWNLOAD_PATH, 'fill': this.downloadButtonFill }})]));
+            buttonChildren.push(h('svg', 
+                { 
+                    key: `dl-btn-${this.initialKey}`,
+                    class: 'vdp-plot-container-dl-btn', 
+                    attrs: {
+                        'width': this.downloadButtonSize, 
+                        'height': this.downloadButtonSize, 
+                        'viewBox': '0 0 24 24'
+                    }, 
+                    style: {
+                        'top': (this.downloadButtonOffsetY + 'px'), 
+                        'left': (this.downloadButtonOffsetX + 'px')
+                    }, 
+                    on: { click: ()=>{this.downloadViaButton();} } 
+                }, 
+                [h('path', {attrs: {'d': DOWNLOAD_PATH, 'fill': this.downloadButtonFill }})]
+            ));
+        }
+        if(this.showResizeButton) {
+            buttonChildren.push(h('svg', 
+                { 
+                    ref: 'resizeButton',
+                    class: 'vdp-plot-container-rs-btn', 
+                    attrs: {
+                        'width': this.resizeButtonSize, 
+                        'height': this.resizeButtonSize, 
+                        'viewBox': '0 0 24 24'
+                    }, 
+                    style: {
+                        'left': ((this.pMarginLeft + this.pWidth + this.pMarginRight - this.resizeButtonSize) + 'px'),
+                        'top': ((this.pMarginTop + props["pHeight"] + this.pMarginBottom - this.resizeButtonSize) + 'px'),
+                    }
+                }, 
+                [
+                    h('line', {attrs: {
+                        'x1': 0,
+                        'y1': 26,
+                        'x2': 26,
+                        'y2': 0,
+                        'stroke': this.resizeButtonColor, 
+                        'stroke-width': 1 
+                    }}),
+                    h('line', {attrs: {
+                        'x1': 0,
+                        'y1': 32,
+                        'x2': 32,
+                        'y2': 0,
+                        'stroke': this.resizeButtonColor, 
+                        'stroke-width': 1 
+                    }}),
+                    h('line', {attrs: {
+                        'x1': 0,
+                        'y1': 38,
+                        'x2': 38,
+                        'y2': 0,
+                        'stroke': this.resizeButtonColor, 
+                        'stroke-width': 1 
+                    }}),
+                    h('line', {attrs: {
+                        'x1': 0,
+                        'y1': 44,
+                        'x2': 44,
+                        'y2': 0,
+                        'stroke': this.resizeButtonColor, 
+                        'stroke-width': 1 
+                    }})
+                ]
+            ));
         }
         
         const children = ([]).concat(
-            this.$slots.axisTop, 
-            this.$slots.axisLeft,
-            this.$slots.plot,
-            this.$slots.axisRight,
-            this.$slots.axisBottom,
-            h('div', { key: this.initialKey }, downloadChildren)
+            h('div', { key: `axisTop-${this.initialKey}` }, [ this.$slots.axisTop ]), 
+            h('div', { key: `axisLeft-${this.initialKey}` }, [ this.$slots.axisLeft ]),
+            h('div', { key: `plot-${this.initialKey}` }, [ this.$slots.plot ]),
+            h('div', { key: `axisRight-${this.initialKey}` }, [ this.$slots.axisRight ]),
+            h('div', { key: `axisBottom-${this.initialKey}` }, [ this.$slots.axisBottom ]),
+            h('div', { key: `buttons-${this.initialKey}` }, buttonChildren)
         );  
 
         let classes = ['vdp-plot-container'];
@@ -186,6 +275,9 @@ export default {
             width: this.fullWidth + 'px',
             height: this.fullHeight + 'px'
         };
+
+        this.$nextTick(this.initResizeButton);
+
         return h('div', { class: classes, style: styles }, children);
     },
     computed: {
@@ -193,7 +285,7 @@ export default {
             return this.pMarginLeft + this.pWidth + this.pMarginRight;
         },
         fullHeight() {
-            return this.pMarginTop + this.pHeight + this.pMarginBottom;
+            return this.pMarginTop + this.pHeight + this.offsetY + this.pMarginBottom;
         }
     },
     watch: {
@@ -227,7 +319,42 @@ export default {
             downloadAnchorNode.click();
             downloadAnchorNode.remove();
         },
+        initResizeButton() {
+            if(this.showResizeButton) {
+                if(this.$refs.resizeButton) {
+                    const resizeDiv = d3_select(this.$refs.resizeButton);
+                    resizeDiv.call(
+                        d3_drag()
+                            .on("start", () => {
+                                this.dragState = 0;
+                                this.initialY = d3_event.sourceEvent.pageY - this.offsetY;
+                                this.initialKey++;
+                            })
+                            .on("drag", () => {
+                                this.offsetY = Math.max(-this.pHeight, d3_event.sourceEvent.pageY - this.initialY);
+                                this.initialKey++;
+                            })
+                            .on("end", () => {
+                                this.initialY = d3_event.sourceEvent.pageY;
+                                this.initialKey++;
+                            })
+                    );
+                }
+            }
+        },
         download() {
+            const pHeight = this.pHeight + this.offsetY;
+
+            try {
+                this.$slots.axisTop[0].componentInstance.pHeight = pHeight;
+                this.$slots.axisLeft[0].componentInstance.pHeight = pHeight;
+                this.$slots.plot[0].componentInstance.pHeight = pHeight;
+                this.$slots.axisRight[0].componentInstance.pHeight = pHeight;
+                this.$slots.axisBottom[0].componentInstance.pHeight = pHeight;
+            } catch(e) {
+                console.log(e);
+            }
+
             const svg = d3_create("svg")
                 .attr("width", this.fullWidth)
                 .attr("height", this.fullHeight);
@@ -238,9 +365,16 @@ export default {
             const renderAxisToContext = (axisType) => {
                 if(this.$slots[axisType].length > 0) {
                     const x = this.$slots[axisType][0].componentInstance.computedLeft;
-                    const y = this.$slots[axisType][0].componentInstance.computedTop;
+                    let y = this.$slots[axisType][0].componentInstance.computedTop;
                     const width = this.$slots[axisType][0].componentInstance.computedWidth;
-                    const height = this.$slots[axisType][0].componentInstance.computedHeight;
+                    let height = this.$slots[axisType][0].componentInstance.computedHeight
+                    
+                    if(axisType === "axisLeft" || axisType === "axisRight") {
+                        height += this.offsetY;
+                    }
+                    if(axisType === "axisBottom") {
+                        y += this.offsetY;
+                    }
 
                     defs
                         .append("clipPath")
@@ -273,7 +407,7 @@ export default {
                     const x = this.pMarginLeft;
                     const y = this.pMarginTop;
                     const width = this.pWidth;
-                    const height = this.pHeight;
+                    const height = pHeight;
 
                     defs
                         .append("clipPath")
@@ -322,7 +456,12 @@ export default {
     
 }
 .vdp-plot-container .vdp-plot-container-dl-btn {
-    position: relative;
+    position: absolute;
     cursor: pointer;
+}
+
+.vdp-plot-container .vdp-plot-container-rs-btn {
+    position: absolute;
+    cursor: ns-resize;
 }
 </style>

@@ -22,6 +22,7 @@
       :showDownloadButton="true"
       :downloadButtonOffsetX="(500+190)"
       :downloadButtonOffsetY="80"
+      :showResizeButton="true"
     >
       <Axis
         slot="axisTop"
