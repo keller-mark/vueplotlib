@@ -104,7 +104,7 @@
 <script>
 import Two from '../../two.js';
 import { scaleLinear as d3_scaleLinear, scaleQuantile as d3_scaleQuantile, scaleBand as d3_scaleBand } from 'd3-scale';
-import { select as d3_select } from 'd3-selection';
+import { select as d3_select, create as d3_create } from 'd3-selection';
 import { mouse as d3_mouse, event as d3_event } from 'd3';
 import debounce from 'lodash/debounce';
 import { min as d3_min, max as d3_max, mean as d3_mean } from 'd3-array';
@@ -410,8 +410,14 @@ export default {
                 domElement: canvasNode
             });
 
-            const canvasHidden = d3_select(this.hiddenPlotSelector);
-            const contextHidden = canvasHidden.node().getContext('2d');
+            let canvasHidden, contextHidden;
+            try {
+                canvasHidden = d3_select(this.hiddenPlotSelector);
+                contextHidden = canvasHidden.node().getContext('2d');
+            } catch(e) {
+                canvasHidden = d3_create("canvas");
+                contextHidden = canvasHidden.node().getContext('2d');
+            }
 
             const ratio = getRetinaRatio(contextHidden);
             const scaledWidth = vm.pWidth * ratio;

@@ -56,7 +56,7 @@
 <script>
 import Two from '../../two.js';
 import { scaleBand as d3_scaleBand } from 'd3-scale';
-import { select as d3_select } from 'd3-selection';
+import { select as d3_select, create as d3_create } from 'd3-selection';
 import { mouse as d3_mouse, event as d3_event } from 'd3';
 import debounce from 'lodash/debounce';
 import { TOOLTIP_DEBOUNCE, BAR_MARGIN_X_DEFAULT, BAR_WIDTH_MIN } from './../../constants.js';
@@ -242,8 +242,14 @@ export default {
                 domElement: canvasNode
             });
 
-            const canvasHidden = d3_select(this.hiddenPlotSelector);
-            const contextHidden = canvasHidden.node().getContext('2d');
+            let canvasHidden, contextHidden;
+            try {
+                canvasHidden = d3_select(this.hiddenPlotSelector);
+                contextHidden = canvasHidden.node().getContext('2d');
+            } catch(e) {
+                canvasHidden = d3_create("canvas");
+                contextHidden = canvasHidden.node().getContext('2d');
+            }
 
             const ratio = getRetinaRatio(contextHidden);
             const scaledWidth = vm.pWidth * ratio;
