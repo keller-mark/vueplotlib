@@ -327,7 +327,7 @@ export default {
             }
             
             xScale.domainFiltered.forEach((xVal) => {
-                const yVal = data.filter((el) => (!AbstractScale.isUnknown(el[xVal]) && vm.filterFunction(el[xVal]))).length;
+                const yVal = data.filter((el) => (!AbstractScale.isUnknown(el[xVal]) && vm.filterFunction(el[xVal], el, xVal))).length;
 
                 const col = genColor();
                 colToNode[col] = { "x": xVal, "y": yVal };
