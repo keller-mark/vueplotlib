@@ -106,6 +106,10 @@ export default {
             type: Boolean,
             default: true
         },
+        'autoRemoveTicks': {
+            type: Boolean,
+            default: true
+        },
         'log': {
             type: Boolean,
             default: false
@@ -430,13 +434,13 @@ export default {
             if(varScale instanceof CategoricalScale) {
                 if(vm._orientation === ORIENTATIONS.HORIZONTAL) {
                     const barWidth = vm.pWidth / varScaleDomainFiltered.length;
-                    if(barWidth < textBboxZoomedIn.height) {
+                    if(vm.autoRemoveTicks && barWidth < textBboxZoomedIn.height) {
                         ticksZoomedIn.selectAll("text")
                             .remove();
                     }
                 } else if(vm._orientation === ORIENTATIONS.VERTICAL) {
                     const barHeight = vm.pHeight / varScaleDomainFiltered.length;
-                    if(barHeight < textBboxZoomedIn.height) {
+                    if(vm.autoRemoveTicks && barHeight < textBboxZoomedIn.height) {
                         ticksZoomedIn.selectAll("text")
                             .remove();
                     }
@@ -500,7 +504,7 @@ export default {
                 
                 if(varScale instanceof CategoricalScale) {
                     const barWidth = vm.pWidth / varScaleDomain.length;
-                    if(barWidth < textBboxZoomedOut.height) {
+                    if(vm.autoRemoveTicks && barWidth < textBboxZoomedOut.height) {
                         ticksZoomedOut.selectAll("text")
                             .remove();
                     }
