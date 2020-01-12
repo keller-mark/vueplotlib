@@ -1,36 +1,41 @@
 toc:
-  - name: Vue Components
+  - name: Plot Components
+  - mixin
   - BarPlot
+  - BoxPlot
+  - CountBarPlot
+  - DoubleStratifiedBoxPlot
+  - DoubleStratifiedScatterPlot
+  - DoubleStratifiedSinaPlot
+  - GenomeMultiTrackPlot
+  - GenomeScatterPlot
+  - GenomeStackedBarPlot
+  - GenomeTrackPlot
+  - HierarchicalMultiTrackPlot
+  - MultiBoxPlot
+  - MultiDataRectPlot
+  - MultiDataTrackPlot
+  - MultiTrackPlot
+  - RectPlot
   - ScatterPlot
   - StackedBarPlot
-  - BoxPlot
-  - MultiBoxPlot
-  - TrackPlot
-  - RectPlot
-  - MultiTrackPlot
-  - MultiDataTrackPlot
-  - HierarchicalMultiTrackPlot
-  - GenomeScatterPlot
-  - GenomeTrackPlot
-  - GenomeMultiTrackPlot
-  - GenomeStackedBarPlot
   - StratifiedBoxPlot
-  - DoubleStratifiedBoxPlot
-  - StratifiedSinaPlot
-  - DoubleStratifiedSinaPlot
-  - StratifiedScatterPlot
-  - DoubleStratifiedScatterPlot
   - StratifiedKaplanMeierPlot
-  - CountBarPlot
-  - mixin
+  - StratifiedScatterPlot
+  - StratifiedSinaPlot
+  - TrackPlot
+  - name: Axis Components
   - Axis
   - GenomeAxis
   - DendrogramAxis
+  - name: Container Components
   - PlotContainer
-  - SortOptions
+  - name: Legend Components
   - CategoricalLegend
   - ContinuousLegend
   - Legend
+  - name: Other Components
+  - SortOptions
   - name: Data
   - DataContainer
   - name: History

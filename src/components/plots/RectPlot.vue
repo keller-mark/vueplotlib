@@ -166,8 +166,12 @@ export default {
             this._zScale.emitHighlightDestroy();
             this._cScale.emitHighlightDestroy();
         },
-        highlight() {
-            this.highlightXY = true;
+        highlight(oVal) {
+            if(this.o === oVal) {
+                this.highlightXY = true;
+            } else {
+                this.highlightXY = null;
+            }
         },
         highlightDestroy() {
             this.highlightXY = null;

@@ -410,7 +410,7 @@ export default {
             }
 
             ticksZoomedIn.selectAll("text")	
-                    .style("text-anchor", tickTextAnchor)
+                    .attr("text-anchor", tickTextAnchor)
                     .attr("transform", tickTransformFunction);
 
             

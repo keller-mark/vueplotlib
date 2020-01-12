@@ -909,9 +909,9 @@
     <h3>&lt;MultiDataRectPlot/&gt; with value labels</h3>
     <PlotContainer
       :pWidth="200"
-      :pHeight="80"
+      :pHeight="60"
       :pMarginTop="5"
-      :pMarginLeft="140"
+      :pMarginLeft="100"
       :pMarginRight="40"
       :pMarginBottom="50"
       :showDownloadButton="true"
@@ -939,6 +939,44 @@
         :getData="getData"
         :getScale="getScale"
         :clickHandler="exampleClickHandler"
+      />
+    </PlotContainer>
+
+    <h3>&lt;MultiDataTrackPlot/&gt;</h3>
+    <PlotContainer
+      :pWidth="700"
+      :pHeight="60"
+      :pMarginTop="10"
+      :pMarginLeft="100"
+      :pMarginRight="10"
+      :pMarginBottom="180"
+      :showDownloadButton="true"
+    >
+      <Axis
+        slot="axisLeft"
+        variable="multi_rect_plot_scale"
+        side="left" 
+        :disableBrushing="true"
+        :tickRotation="0"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+      <MultiDataTrackPlot
+        slot="plot"
+        :dataArray="['clinical_data', 'clinical_data']"
+        :cArray="['age', 'sex']"
+        x="sample_id"
+        :getData="getData"
+        :getScale="getScale"
+        :clickHandler="exampleClickHandler"
+      />
+      <Axis
+        slot="axisBottom"
+        variable="sample_id"
+        side="bottom" 
+        :tickRotation="-65"
+        :getScale="getScale"
+        :getStack="getStack"
       />
     </PlotContainer>
 

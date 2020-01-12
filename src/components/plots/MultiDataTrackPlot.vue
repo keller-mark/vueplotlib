@@ -25,7 +25,7 @@
                 'height': (this.pHeight) + 'px', 
                 'width': '1px',
                 'top': (this.pMarginTop) + 'px',
-                'left': (this.pMarginLeft + this.highlightX1 - 0.5) + 'px'
+                'left': (this.pMarginLeft + this.highlightX1 + 1) + 'px'
             }"
             class="vdp-plot-highlight"
         ></div>
@@ -63,11 +63,7 @@
                     <td>{{ this.tooltipInfo.x }}</td>
                 </tr>
                 <tr>
-                    <th>{{ this._yScale.name }}</th>
-                    <td>{{ this.tooltipInfo.y }}</td>
-                </tr>
-                <tr>
-                    <th>{{ this._cScale.name }}</th>
+                    <th>{{ this._cScales[this.tooltipInfo.i].name }}</th>
                     <td>{{ this.tooltipInfo.c }}</td>
                 </tr>
             </table>
@@ -81,6 +77,7 @@ import { scaleBand as d3_scaleBand } from 'd3-scale';
 import { select as d3_select, create as d3_create } from 'd3-selection';
 import { mouse as d3_mouse, event as d3_event } from 'd3';
 import debounce from 'lodash/debounce';
+import range from 'lodash/range';
 import { TOOLTIP_DEBOUNCE, BAR_WIDTH_MIN, BAR_HEIGHT_MIN, BAR_MARGIN_DEFAULT } from './../../constants.js';
 import { getRetinaRatio } from './../../helpers.js';
 
@@ -92,18 +89,17 @@ import mixin from './mixin.js';
 let uuid = 0;
 /**
  * @prop {string} x The x-scale variable key.
- * @prop {string} y The y-scale dataset variable key. Note that this should correspond to a scale whose domain values are the keys of datasets.
- * @prop {string} c The color-scale variable key.
+ * @prop {string} dataArray An array of data keys.
+ * @prop {string} cArray An array of color-scale keys.
  * @prop {number} barMarginX The value for the horizontal margin between bars. Default: 2
  * @prop {number} barMarginY The value for the vertical margin between bars. Default: 2
  * @extends mixin
  * 
  * @example
  * <MultiDataTrackPlot
- *      <!-- note the lack of a data prop -->
  *      x="sample_id" 
- *      y="genes"
- *      c="mut_class"
+ *      :dataArray="['gene_A', 'gene_B', 'gene_C']"
+ *      :cArray="['mut_class', 'mut_class', 'mut_class']"
  *      :pWidth="500"
  *      :pHeight="300"
  *      :pMarginTop="10"
@@ -122,11 +118,11 @@ export default {
         'x': {
             type: String
         },
-        'y': {
-            type: String
+        'dataArray': {
+            type: Array
         },
-        'c': {
-            type: String
+        'cArray': {
+            type: Array
         },
         'barMarginX': {
             type: Number, 
@@ -134,14 +130,14 @@ export default {
         },
         'barMarginY': {
             type: Number, 
-            default: BAR_MARGIN_DEFAULT
+            default: 4
         }
     },
     data() {
         return {
             tooltipInfo: {
                 x: '',
-                y: '',
+                i: 0,
                 c: ''
             },
             highlightX1: null,
@@ -159,54 +155,57 @@ export default {
         uuid += 1;
     },
     created() {
-        // Set scale variables
-        this._xScale = this.getScale(this.x);
-        this._yScale = this.getScale(this.y);
-        this._cScale = this.getScale(this.c);
-        console.assert(this._xScale instanceof AbstractScale);
-        console.assert(this._yScale instanceof AbstractScale);
-        console.assert(this._cScale instanceof AbstractScale);
+        console.assert(this.dataArray.length === this.cArray.length);
 
         // Set data
-        this._dataContainers = {}
-        for(let yVal of this._yScale.domain) {
-            this._dataContainers[yVal] = this.getData(yVal);
-            console.assert(this._dataContainers[yVal] instanceof DataContainer);
-            this._dataContainers[yVal].onUpdate(this.uuid, this.drawPlot);
-        }
+        this._dataContainers = this.dataArray.map((dataKey) => {
+            const dataContainer = this.getData(dataKey);
+            console.assert(dataContainer instanceof DataContainer);
+            return dataContainer;
+        });
+
+        // Set scale variables
+        this._xScale = this.getScale(this.x);
+        console.assert(this._xScale instanceof AbstractScale);
+        this._cScales = this.cArray.map((cKey) => {
+            const cScale = this.getScale(cKey);
+            console.assert(cScale instanceof AbstractScale);
+            return cScale;
+        });
 
         // Subscribe to event publishers here
         this._xScale.onUpdate(this.uuid, this.drawPlot);
-        this._yScale.onUpdate(this.uuid, this.drawPlot);
-        this._cScale.onUpdate(this.uuid, this.drawPlot);
+        this._cScales.forEach((cScale) => {
+            cScale.onUpdate(this.uuid, this.drawPlot);
+        });
+
+        // Subscribe to data mutations here
+        this._dataContainers.forEach((dataContainer) => {
+            dataContainer.onUpdate(this.uuid, this.drawPlot);
+        });
 
         // Subscribe to highlights here
         this._xScale.onHighlight(this.uuid, this.highlightX);
         this._xScale.onHighlightDestroy(this.uuid, this.highlightDestroy);
-
-        this._yScale.onHighlight(this.uuid, this.highlightY);
-        this._yScale.onHighlightDestroy(this.uuid, this.highlightDestroy);
     },
     mounted() {
         this.drawPlot();
     },
     beforeDestroy() {
         // Unsubscribe to events
-        this._yScale.onUpdate(this.uuid, null);
         this._xScale.onUpdate(this.uuid, null);
-        this._cScale.onUpdate(this.uuid, null);
+        this._cScales.forEach((cScale) => {
+            cScale.onUpdate(this.uuid, null);
+        });
         
         // Unsubscribe to data mutations here
-        for(let yVal of this._yScale.domain) {
-            this._dataContainers[yVal].onUpdate(this.uuid, null);
-        }
+        this._dataContainers.forEach((dataContainer) => {
+            dataContainer.onUpdate(this.uuid, null);
+        });
 
         // Unsubscribe to highlights here
         this._xScale.onHighlight(this.uuid, null);
         this._xScale.onHighlightDestroy(this.uuid, null);
-
-        this._yScale.onHighlight(this.uuid, null);
-        this._yScale.onHighlightDestroy(this.uuid, null);
     },
     watch: {
         barMarginX() {
@@ -217,11 +216,11 @@ export default {
         }
     },
     methods: {
-        tooltip: function(mouseX, mouseY, x, y, c) {
+        tooltip(mouseX, mouseY, x, i, c) {
             // Set values
+            this.tooltipInfo.i = i;
             this.tooltipInfo.x = this._xScale.toHuman(x);
-            this.tooltipInfo.y = this._yScale.toHuman(y);
-            this.tooltipInfo.c = this._cScale.toHuman(c);
+            this.tooltipInfo.c = this._cScales[i].toHuman(c);
 
             // Set position
             this.tooltipPosition.left = mouseX;
@@ -229,16 +228,16 @@ export default {
             
             // Dispatch highlights
             this._xScale.emitHighlight(x);
-            this._yScale.emitHighlight(y);
-            this._cScale.emitHighlight(c);
+            this._cScales[i].emitHighlight(c);
         },
-        tooltipDestroy: function() {
+        tooltipDestroy() {
             this.tooltipHide();
 
             // Destroy all highlights here
             this._xScale.emitHighlightDestroy();
-            this._yScale.emitHighlightDestroy();
-            this._cScale.emitHighlightDestroy();
+            this._cScales.forEach((cScale) => {
+                cScale.emitHighlightDestroy();
+            });
         },
         highlightX(value) {
             if(this.highlightXScale) {
@@ -261,28 +260,15 @@ export default {
         drawPlot(d3Node) {
             const vm = this;
 
-            if(vm._xScale.isLoading || vm._yScale.isLoading || vm._cScale.isLoading) {
+            if(vm._dataContainers.reduce((a, h) => (a || h.isLoading), false) || vm._cScales.reduce((a, h) => (a || h.isLoading), false) || vm._xScale.isLoading) {
                 return;
             }
-
-            for(let yVal of vm._yScale.domain) {
-                if(vm._dataContainers[yVal].isLoading) {
-                    return;
-                }
-            }
             
-            const datas = {};
-            for(let yVal of vm._yScale.domain) {
-                datas[yVal] = vm._dataContainers[yVal].dataCopy;
-            }
-
             const xScale = vm._xScale;
-            const yScale = vm._yScale;
-            const cScale = vm._cScale;
-
-            for(let yVal of vm._yScale.domain) {
-                datas[yVal] = datas[yVal].filter((el) => xScale.domainFiltered.includes(el[vm.x]));
-            }
+            const cScales = vm._cScales;
+            const datas = vm._dataContainers
+                .map(dc => dc.dataCopy)
+                .map(d => d.filter((el) => xScale.domainFiltered.includes(el[vm.x])));
 
             const x = d3_scaleBand()
                 .domain(xScale.domainFiltered)
@@ -290,18 +276,19 @@ export default {
 
             vm.highlightXScale = x;
             
+            const numRows = vm._dataContainers.length;
             const y = d3_scaleBand()
-                .domain(yScale.domainFiltered.slice().reverse())
-                .range([vm.pHeight, 0]);
+                .domain(range(numRows))
+                .range([0, vm.pHeight]);
 
             vm.highlightYScale = y;
 
             const barWidth = vm.pWidth / xScale.domainFiltered.length;
             vm.barWidth = barWidth;
 
-            const barHeight = vm.pHeight / yScale.domainFiltered.length;
+            const barHeight = vm.pHeight / numRows;
             vm.barHeight = barHeight;
-              
+            
             
             /*
              * Scale up the canvas
@@ -379,17 +366,23 @@ export default {
                 barMarginY = 0;
             }
             
-            yScale.domainFiltered.forEach((yVar) => {
-                datas[yVar].forEach((d) => {
+            vm.dataArray.forEach((dataKey, i) => {
+                datas[i].forEach((d) => {
+
                     const col = genColor();
-                    colToNode[col] = { "x": d[vm.x], "y": yVar, "c": d[vm.c] };
+                    colToNode[col] = { "x": d[vm.x], "i": i, "c": d[vm.cArray[i]] };
                     contextHidden.fillStyle = col;
 
-                    const rect = two.makeRectangle(x(d[vm.x]) + (barMarginX/2) + (barWidth - barMarginX)/2, y(yVar) + (barMarginY/2) + (barHeight - barMarginY)/2, barWidth - barMarginX, barHeight - barMarginY);
-                    rect.fill = cScale.color(d[vm.c]);
+                    const rect = two.makeRectangle(
+                        x(d[vm.x]) + (barMarginX/2) + (barWidth - barMarginX)/2 + 0.5, 
+                        y(i) + (barMarginY/2) + (barHeight - barMarginY)/2, 
+                        barWidth - barMarginX, 
+                        barHeight - barMarginY
+                    );
+                    rect.fill = cScales[i].color(d[vm.cArray[i]]);
                     rect.noStroke();
 
-                    contextHidden.fillRect(x(d[vm.x]), y(yVar), barWidth, barHeight);
+                    contextHidden.fillRect(x(d[vm.x]) + 0.5, y(i), barWidth, barHeight);
                 });
             });
 
@@ -423,7 +416,7 @@ export default {
                 const mouseViewportY = d3_event.clientY;
 
                 if(node) {
-                    vm.tooltip(mouseViewportX, mouseViewportY, node["x"], node["y"], node["c"]); 
+                    vm.tooltip(mouseViewportX, mouseViewportY, node["x"], node["i"], node["c"]); 
                 } else {
                     debouncedTooltipDestroy();
                 }
@@ -439,7 +432,7 @@ export default {
                     const node = getDataFromMouse(mouseX, mouseY);
 
                     if(node) {
-                        vm.clickHandler(node["x"], node["y"], node["c"]);
+                        vm.clickHandler(node["x"], node["i"], node["c"]);
                     }
                 });
             }

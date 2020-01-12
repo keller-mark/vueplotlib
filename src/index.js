@@ -51,6 +51,29 @@ import Expected from './expected';
 // Other
 import { EVENT_TYPES, EVENT_SUBTYPES, EVENT_SUBTYPE_RESETS } from './history/base-events';
 
+// Reference: https://stackoverflow.com/questions/28282295/getbbox-of-svg-when-hidden
+const _getBBox = SVGGraphicsElement.prototype.getBBox;   
+SVGGraphicsElement.prototype.getBBox = function() {
+  let bbox, tempDiv, tempSvg;
+  if (document.contains(this)) {
+    return _getBBox.apply(this);
+  } else {
+    tempDiv = document.createElement("div");
+    tempDiv.setAttribute("style", "position:absolute; visibility:hidden; width:0; height:0");
+    if (this.tagName === "svg") {
+      tempSvg = this.cloneNode(true);
+     } else {
+      tempSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      tempSvg.appendChild(this.cloneNode(true));
+    }
+    tempDiv.appendChild(tempSvg);
+    document.body.appendChild(tempDiv);
+    bbox = _getBBox.apply(tempSvg);
+    document.body.removeChild(tempDiv);
+    return bbox;
+  }
+};
+
 export {
     // Components
     PlotContainer,

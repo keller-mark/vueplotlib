@@ -20,11 +20,11 @@
                 'left': (this.pMarginLeft) + 'px'
             }"
         ></canvas>
-        <div v-show="this.highlightXY !== null"
+        <div v-show="this.highlightY !== null"
             :style="{
                 'height': (this.highlightHeight - 0.5) + 'px', 
                 'width': (this.highlightWidth - 0.5) + 'px', 
-                'top': (this.pMarginTop - 0.5) + 'px',
+                'top': (this.pMarginTop + this.highlightY - 0.5) + 'px',
                 'left': (this.pMarginLeft - 0.5) + 'px'
             }"
             class="vdp-plot-highlight-rect"
@@ -46,9 +46,11 @@
 
 <script>
 import Two from '../../two.js';
+import { scaleBand as d3_scaleBand } from 'd3-scale';
 import { select as d3_select, create as d3_create } from 'd3-selection';
 import { mouse as d3_mouse, event as d3_event } from 'd3';
 import debounce from 'lodash/debounce';
+import range from 'lodash/range';
 import { TOOLTIP_DEBOUNCE, BAR_WIDTH_MIN } from './../../constants.js';
 import { getRetinaRatio } from './../../helpers.js';
 
@@ -58,19 +60,14 @@ import DataContainer from './../../data/DataContainer.js';
 import mixin from './mixin.js';
 import CategoricalScale from './../../scales/CategoricalScale.js';
 
-const SIDES = Object.freeze({ "TOP": 1, "LEFT": 2, "RIGHT": 3, "BOTTOM": 4 });
-const ORIENTATIONS = Object.freeze({ "VERTICAL": 1, "HORIZONTAL": 2 }); // vertical = left/right, horizontal = top/bottom
-
 let uuid = 0;
 /**
  * @prop {string} dataArray An array of data keys.
  * @prop {string} cArray An array of color-scale variable keys.
  * @prop {string} z The observation-scale variable key.
  * @prop {string} o The observation (observation-scale domain element of interest).
- * @prop {string} orientation One of {'vertical', 'horizontal'}. TODO: implement horizontal.
  * @prop {number} rectMargin The margin between each rect.
  * @prop {number} rectSize The size of rects (only used if text values are enabled).
- * @prop {string} textSide One of {'top', 'left', 'right', 'bottom'} (only used if text values are enabled). TODO: implement top, left, bottom.
  * @prop {boolean} disableText Whether to disable the rendering of text for each value.
  * @prop {boolean} disableTooltip Whether to disable tooltips. Default: false
  * @extends mixin
@@ -81,7 +78,6 @@ let uuid = 0;
  *      :cArray="['mut_class', 'mut_class', 'mut_class']"
  *      z="sample_id" 
  *      o="SA12345"
- *      orientation="vertical"
  *      :pWidth="500"
  *      :pHeight="300"
  *      :pMarginTop="10"
@@ -124,10 +120,6 @@ export default {
             type: String,
             default: "#000"
         },
-        'textSide': {
-            type: String,
-            default: 'right'
-        },
         'disableText': {
             type: Boolean,
             default: true
@@ -144,7 +136,8 @@ export default {
                 c: '',
                 i: 0,
             },
-            highlightXY: null,
+            highlightYScale: null,
+            highlightY: null,
             highlightHeight: null,
             highlightWidth: null,
         }
@@ -154,14 +147,6 @@ export default {
         uuid += 1;
     },
     created() {
-        const orientationString = this.orientation.toUpperCase();
-        console.assert(Object.keys(ORIENTATIONS).includes(orientationString));
-        this._orientation = ORIENTATIONS[orientationString];
-
-        const textSideString = this.textSide.toUpperCase();
-        console.assert(Object.keys(SIDES).includes(textSideString));
-        this._textSide = SIDES[textSideString];
-
         console.assert(this.dataArray.length === this.cArray.length);
 
         // Set data
@@ -232,7 +217,7 @@ export default {
                 this.tooltipPosition.left = mouseX;
                 this.tooltipPosition.top = mouseY;
             }
-            
+
             // Dispatch highlights
             this._zScale.emitHighlight(z);
             this._cScales[i].emitHighlight(c);
@@ -259,12 +244,9 @@ export default {
                 return;
             }
             
-            
             const cScales = vm._cScales;
 
             const point = vm._dataContainers.map((dc) => dc.dataCopy.find((el) => el[vm.z] === vm.o)); // the single data point
-
-            console.log(point);
             
             /*
              * Scale up the canvas
@@ -335,61 +317,38 @@ export default {
              */
 
             // Compute sizes.
+
             const numRects = point.length;
-            let rectHeight, rectWidth, rectMargin, textWidth, textHeight;
+
+            const y = d3_scaleBand()
+                .domain(range(numRects))
+                .range([0, vm.pHeight]);
+
+            let rectHeight, rectWidth, rectMargin, textWidth;
 
             rectMargin = vm.rectMargin;
             
-            if(vm._orientation === ORIENTATIONS.HORIZONTAL) {
-                rectHeight = vm.pHeight;
-                rectWidth = vm.pWidth / numRects;
 
-                if(rectWidth - rectMargin <= BAR_WIDTH_MIN) {
-                    rectMargin = 0;
-                }
+            rectHeight = vm.pHeight / numRects;
+            rectWidth = vm.pWidth;
 
-                if(!vm.disableText && vm.rectSize > 0) {
-                    rectHeight = vm.rectSize;
-                }
-                textWidth = rectWidth;
-                textHeight = vm.pHeight - rectHeight;
-
-                vm.highlightHeight = vm.pHeight;
-                vm.highlightWidth = rectWidth;
-            } else if(vm._orientation === ORIENTATIONS.VERTICAL) {
-                rectHeight = vm.pHeight / numRects;
-                rectWidth = vm.pWidth;
-
-                if(rectHeight - rectMargin <= BAR_WIDTH_MIN) {
-                    rectMargin = 0;
-                }
-
-                if(!vm.disableText && vm.rectSize > 0) {
-                    rectWidth = vm.rectSize;
-                }
-                textHeight = rectHeight;
-                textWidth = vm.pWidth - rectWidth;
-
-                vm.highlightHeight = rectHeight;
-                vm.highlightWidth = vm.pWidth;
+            if(rectHeight - rectMargin <= BAR_WIDTH_MIN) {
+                rectMargin = 0;
             }
 
+            if(!vm.disableText && vm.rectSize > 0) {
+                rectWidth = vm.rectSize;
+            }
+            textWidth = vm.pWidth - rectWidth;
+
+            vm.highlightHeight = rectHeight;
+            vm.highlightWidth = vm.pWidth;
+
             // Compute offsets if text will be on one side.
-            let rectOffsetX = 0;
-            let rectOffsetY = 0;
             let textOffsetX = 0;
-            let textOffsetY = 0;
 
             if(!vm.disableText && vm.rectSize > 0) {
-                if(vm._orientation === ORIENTATIONS.HORIZONTAL && vm._textSide === SIDES.TOP) {
-                    rectOffsetY = textHeight;
-                } else if(vm._orientation === ORIENTATIONS.HORIZONTAL && vm._textSide === SIDES.BOTTOM) {
-                    textOffsetY = rectHeight;
-                } else if(vm._orientation === ORIENTATIONS.VERTICAL && vm._textSide === SIDES.LEFT) {
-                    rectOffsetX = textWidth;
-                } else if(vm._orientation === ORIENTATIONS.VERTICAL && vm._textSide === SIDES.RIGHT) {
-                    textOffsetX = rectWidth;
-                }
+                textOffsetX = rectWidth;
             }
 
             point.forEach((pointValue, i) => {
@@ -399,31 +358,21 @@ export default {
 
                 const textValue = this._cScales[i].toHuman(point[i][vm.cArray[i]]);
 
-                let rect, text;
-                if(vm._orientation === ORIENTATIONS.HORIZONTAL) {
-                    rect = two.makeRectangle(
-                        i*rectWidth + (rectWidth/2) + (rectMargin/2), rectOffsetY + (rectHeight/2), 
-                        rectWidth - rectMargin, rectHeight
-                    );
-                    contextHidden.fillRect(i*rectWidth, 0, rectWidth, rectHeight);
+                const rect = two.makeRectangle(
+                    0.5 + rectWidth/2, y(i) + rectHeight/2, 
+                    rectWidth, rectHeight - rectMargin
+                );
+                contextHidden.fillRect(
+                    0.5, y(i), 
+                    rectWidth, rectHeight
+                );
 
-                    text = two.makeText(
-                        i*textWidth + (textWidth/2), textOffsetY + (textHeight/2),  
-                        textWidth, textHeight, textValue
-                    );
-                } else if(vm._orientation === ORIENTATIONS.VERTICAL) {
-                    rect = two.makeRectangle(
-                        rectOffsetX + (rectWidth/2), i*rectHeight + (rectHeight/2) + (rectMargin/2), 
-                        rectWidth, rectHeight - rectMargin
-                    );
-                    contextHidden.fillRect(0, i*rectHeight, rectWidth, rectHeight);
+                const text = two.makeText(
+                    textOffsetX + 4, y(i) + (rectHeight/2) + 7, 
+                    textWidth, rectHeight, textValue
+                );
 
-                    text = two.makeText(
-                        textOffsetX + 4, i*textHeight + (textHeight/2) + 7, 
-                        textWidth, textHeight, textValue
-                    );
-                    text.textalign = "left";
-                }
+                text.textalign = "left";
                 rect.fill = cScales[i].color(point[i][vm.cArray[i]]);
                 rect.noStroke();
 
