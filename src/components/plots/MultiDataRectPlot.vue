@@ -36,7 +36,7 @@
                     <td>{{ this.tooltipInfo.z }}</td>
                 </tr>
                 <tr>
-                    <th>{{ this._cScales[this.tooltipInfo.i].name }}</th>
+                    <th>{{ this.tooltipInfo.cName }}</th>
                     <td>{{ this.tooltipInfo.c }}</td>
                 </tr>
             </table>
@@ -134,7 +134,7 @@ export default {
             tooltipInfo: {
                 z: '',
                 c: '',
-                i: 0,
+                cName: '',
             },
             highlightYScale: null,
             highlightY: null,
@@ -147,8 +147,6 @@ export default {
         uuid += 1;
     },
     created() {
-        console.assert(this.dataArray.length === this.cArray.length);
-
         // Set data
         this._dataContainers = this.dataArray.map((dataKey) => {
             const dataContainer = this.getData(dataKey);
@@ -203,14 +201,46 @@ export default {
     watch: {
         o() {
             this.drawPlot();
+        },
+        dataArray() {
+            this._dataContainers.forEach((dataContainer) => {
+                dataContainer.onUpdate(this.uuid, null);
+            });
+
+            this._dataContainers = this.dataArray.map((dataKey) => {
+                const dataContainer = this.getData(dataKey);
+                console.assert(dataContainer instanceof DataContainer);
+                return dataContainer;
+            });
+
+            this._dataContainers.forEach((dataContainer) => {
+                dataContainer.onUpdate(this.uuid, this.drawPlot);
+            });
+
+            this.drawPlot();
+        },
+        cArray() {
+            this._cScales.forEach((cScale) => {
+                cScale.onUpdate(this.uuid, null);
+            });
+
+            this._cScales = this.cArray.map((cKey) => {
+                const cScale = this.getScale(cKey);
+                console.assert(cScale instanceof AbstractScale);
+                return cScale;
+            });
+
+            this._cScales.forEach((cScale) => {
+                cScale.onUpdate(this.uuid, this.drawPlot);
+            });
         }
     },
     methods: {
         tooltip(mouseX, mouseY, z, c, i) {
             // Set values
-            this.tooltipInfo.i = i;
             this.tooltipInfo.z = this._zScale.toHuman(z);
             this.tooltipInfo.c = this._cScales[i].toHuman(c);
+            this.tooltipInfo.cName = this._cScales[i].name
 
             // Set position
             if(!this.disableTooltip) {
@@ -240,7 +270,7 @@ export default {
         drawPlot(d3Node) {
             const vm = this;
 
-            if(vm._dataContainers.reduce((a, h) => (a || h.isLoading), false) || vm._cScales.reduce((a, h) => (a || h.isLoading), false) || vm._zScale.isLoading) {
+            if(vm._dataContainers.length !== vm._cScales.length || vm._dataContainers.reduce((a, h) => (a || h.isLoading), false) || vm._cScales.reduce((a, h) => (a || h.isLoading), false) || vm._zScale.isLoading) {
                 return;
             }
             
