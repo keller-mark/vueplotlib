@@ -64,7 +64,7 @@ import { select as d3_select, create as d3_create } from 'd3-selection';
 import { stack as d3_stack, stackOrderNone as d3_stackOrderNone, stackOffsetNone as d3_stackOffsetNone } from 'd3-shape';
 import { mouse as d3_mouse, event as d3_event } from 'd3';
 import debounce from 'lodash/debounce';
-import { TOOLTIP_DEBOUNCE, BAR_WIDTH_MIN, BAR_MARGIN_X_DEFAULT } from './../../constants.js';
+import { TOOLTIP_DEBOUNCE, BAR_WIDTH_MIN, BAR_MARGIN_DEFAULT } from './../../constants.js';
 import { getRetinaRatio } from './../../helpers.js';
 
 import AbstractScale from './../../scales/AbstractScale.js';
@@ -114,7 +114,7 @@ export default {
         },
         'barMarginX': {
             type: Number, 
-            default: BAR_MARGIN_X_DEFAULT
+            default: BAR_MARGIN_DEFAULT
         },
         'filterX': {
             type: Boolean,

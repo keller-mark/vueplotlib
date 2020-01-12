@@ -13,6 +13,7 @@ import BoxPlot from './components/plots/BoxPlot.vue';
 import MultiBoxPlot from './components/plots/MultiBoxPlot.vue';
 import TrackPlot from './components/plots/TrackPlot.vue';
 import RectPlot from './components/plots/RectPlot.vue';
+import MultiDataRectPlot from './components/plots/MultiDataRectPlot.vue';
 import MultiTrackPlot from './components/plots/MultiTrackPlot.vue';
 import MultiDataTrackPlot from './components/plots/MultiDataTrackPlot.vue';
 import HierarchicalMultiTrackPlot from './components/plots/HierarchicalMultiTrackPlot.vue';
@@ -64,6 +65,7 @@ export {
     MultiBoxPlot,
     TrackPlot,
     RectPlot,
+    MultiDataRectPlot,
     MultiTrackPlot,
     MultiDataTrackPlot,
     HierarchicalMultiTrackPlot,

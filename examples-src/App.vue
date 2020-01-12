@@ -906,6 +906,42 @@
       />
     </PlotContainer>
 
+    <h3>&lt;MultiDataRectPlot/&gt; with value labels</h3>
+    <PlotContainer
+      :pWidth="200"
+      :pHeight="80"
+      :pMarginTop="5"
+      :pMarginLeft="140"
+      :pMarginRight="40"
+      :pMarginBottom="50"
+      :showDownloadButton="true"
+    >
+      <Axis
+        slot="axisLeft"
+        variable="multi_rect_plot_scale"
+        side="left" 
+        :disableBrushing="true"
+        :tickRotation="0"
+        :getScale="getScale"
+        :getStack="getStack"
+      />
+      <MultiDataRectPlot
+        slot="plot"
+        :dataArray="['clinical_data', 'clinical_data']"
+        :cArray="['age', 'sex']"
+        z="sample_id"
+        o="SA569952"
+        :disableText="false"
+        :disableTooltip="true"
+        :rectSize="30"
+        :textSize="14"
+        textColor="#2c3e50"
+        :getData="getData"
+        :getScale="getScale"
+        :clickHandler="exampleClickHandler"
+      />
+    </PlotContainer>
+
     <h3>&lt;StratifiedKaplanMeierPlot/&gt;</h3>
     <PlotContainer
       :pWidth="500"
@@ -1055,6 +1091,7 @@ import {
     TrackPlot,
     RectPlot,
     MultiTrackPlot,
+    MultiDataRectPlot,
     MultiDataTrackPlot,
     HierarchicalMultiTrackPlot,
     StratifiedBoxPlot,
@@ -1360,6 +1397,12 @@ const survivalTimeScale = new ContinuousScale(
   [0, 4680]
 );
 
+const multiRectPlotScale = new CategoricalScale(
+  'multi_rect_plot_scale',
+  'Variable',
+  ["Age", "Sex"]
+);
+
 const survivalPatientScale = new CategoricalScale(
   'survival_patient',
   'Patient',
@@ -1417,6 +1460,8 @@ const getScale = function(scaleKey) {
       return survivalTimeScale;
     case 'survival_patient':
       return survivalPatientScale;
+    case 'multi_rect_plot_scale':
+      return multiRectPlotScale;
   }
 };
 
@@ -1455,6 +1500,8 @@ export default {
     TrackPlot,
     RectPlot,
     MultiTrackPlot,
+    MultiDataRectPlot,
+    MultiDataTrackPlot,
     HierarchicalMultiTrackPlot,
     StratifiedBoxPlot,
     DoubleStratifiedBoxPlot,

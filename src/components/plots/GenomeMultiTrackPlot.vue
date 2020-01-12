@@ -66,7 +66,7 @@ import { scaleLinear as d3_scaleLinear, scaleBand as d3_scaleBand } from 'd3-sca
 import { select as d3_select } from 'd3-selection';
 import { mouse as d3_mouse, event as d3_event } from 'd3';
 import debounce from 'lodash/debounce';
-import { TOOLTIP_DEBOUNCE, BAR_HEIGHT_MIN, BAR_MARGIN_Y_DEFAULT } from './../../constants.js';
+import { TOOLTIP_DEBOUNCE, BAR_HEIGHT_MIN, BAR_MARGIN_DEFAULT } from './../../constants.js';
 import { getDelaunay } from './../../helpers.js';
 
 import AbstractScale from './../../scales/AbstractScale.js';
@@ -150,7 +150,7 @@ export default {
         },
         'barMarginY': {
             type: Number, 
-            default: BAR_MARGIN_Y_DEFAULT
+            default: BAR_MARGIN_DEFAULT
         }
     },
     data() {

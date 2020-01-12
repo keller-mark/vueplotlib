@@ -59,7 +59,7 @@ import { scaleBand as d3_scaleBand } from 'd3-scale';
 import { select as d3_select, create as d3_create } from 'd3-selection';
 import { mouse as d3_mouse, event as d3_event } from 'd3';
 import debounce from 'lodash/debounce';
-import { TOOLTIP_DEBOUNCE, BAR_MARGIN_X_DEFAULT, BAR_WIDTH_MIN } from './../../constants.js';
+import { TOOLTIP_DEBOUNCE, BAR_MARGIN_DEFAULT, BAR_WIDTH_MIN } from './../../constants.js';
 import { getRetinaRatio } from './../../helpers.js';
 
 import AbstractScale from './../../scales/AbstractScale.js';
@@ -105,7 +105,7 @@ export default {
         },
         'barMarginX': {
             type: Number, 
-            default: BAR_MARGIN_X_DEFAULT
+            default: BAR_MARGIN_DEFAULT
         }
     },
     data() {

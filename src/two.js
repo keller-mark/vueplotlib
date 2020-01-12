@@ -79,6 +79,28 @@ class TwoPath {
     }
 }
 
+class TwoText {
+    constructor(x, y, width, height, text) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+
+        this.text = text
+
+        this.fill = "#000";
+
+        this.fontsize = 14;
+        this.font = 'Avenir,Helvetica,Arial,sans-serif';
+        this.textalign = "center";
+
+        this.linewidth = 1;
+        this.opacity = 1;
+        this.rotation = null;
+
+    }
+}
+
 export default class Two {
 
     constructor({ width, height, domElement }) {
@@ -161,6 +183,12 @@ export default class Two {
         return path;
     }
 
+    makeText(x, y, width, height, text) {
+        const obj = new TwoText(x, y, width, height, text);
+        this.elements.push(obj);
+        return obj;
+    }
+
     renderSvg() {
         const g = this.g;
         this.elements.forEach((d) => {
@@ -241,6 +269,16 @@ export default class Two {
                         .attr("stroke", d.stroke);
                 }
                 path.attr("d", pathD);
+            } else if(d instanceof TwoText) {
+                g.append("text")
+                    .attr("x", d.x)
+                    .attr("y", d.y)
+                    .attr("text-anchor", (d.textalign === 'center' ? 'middle' : (d.textalign === 'left' ? 'start' : 'end')))
+                    .attr("opacity", d.opacity)
+                    .attr("fill", d.fill)
+                    .attr("font-size", d.fontsize)
+                    .attr("font-family", d.font)
+                    .text(d.text);
             }
         });
     }
@@ -312,6 +350,11 @@ export default class Two {
                 if(d.stroke != null) {
                     context.stroke();
                 }
+            } else if(d instanceof TwoText) {
+                context.font = `${d.fontsize}px ${d.font}`;
+                context.fillStyle = d.fill;
+                context.textAlign = d.textalign;
+                context.fillText(d.text, d.x, d.y); 
             }
         });
     }
