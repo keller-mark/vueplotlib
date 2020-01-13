@@ -10,6 +10,11 @@ class TwoRectangle {
         this.width = width;
         this.height = height;
 
+        if(this.height < 0) {
+            // To fix bug with bar plots that have bars representing negative values.
+            this.height = this.height * -1;
+        }
+
         this.stroke = "#000";
         this.fill = "#000";
         this.linewidth = 1;
