@@ -58,6 +58,7 @@ import AbstractScale from './../../scales/AbstractScale.js';
 import DataContainer from './../../data/DataContainer.js';
 
 import mixin from './mixin.js';
+import ContinuousScale from './../../scales/ContinuousScale.js';
 import CategoricalScale from './../../scales/CategoricalScale.js';
 
 let uuid = 0;
@@ -382,32 +383,42 @@ export default {
             }
 
             point.forEach((pointValue, i) => {
-                const col = genColor();
-                colToNode[col] = { "i": i, "c": point[i][vm.cArray[i]] };
-                contextHidden.fillStyle = col;
+                const d = point[i][vm.cArray[i]];
+                if(
+                    AbstractScale.isUnknown(d) ||
+                    (
+                        (cScales[i] instanceof CategoricalScale && cScales[i].domainFiltered.includes(d))
+                        || 
+                        (cScales[i] instanceof ContinuousScale && cScales[i].domainFiltered[0] <= d && cScales[i].domainFiltered[1] >= d)
+                    )
+                ) {
+                    const col = genColor();
+                    colToNode[col] = { "i": i, "c": d };
+                    contextHidden.fillStyle = col;
 
-                const textValue = this._cScales[i].toHuman(point[i][vm.cArray[i]]);
+                    const textValue = this._cScales[i].toHuman(d);
 
-                const rect = two.makeRectangle(
-                    0.5 + rectWidth/2, y(i) + rectHeight/2, 
-                    rectWidth, rectHeight - rectMargin
-                );
-                contextHidden.fillRect(
-                    0.5, y(i), 
-                    rectWidth, rectHeight
-                );
+                    const rect = two.makeRectangle(
+                        0.5 + rectWidth/2, y(i) + rectHeight/2, 
+                        rectWidth, rectHeight - rectMargin
+                    );
+                    contextHidden.fillRect(
+                        0.5, y(i), 
+                        rectWidth, rectHeight
+                    );
 
-                const text = two.makeText(
-                    textOffsetX + 4, y(i) + (rectHeight/2) + 7, 
-                    textWidth, rectHeight, textValue
-                );
+                    const text = two.makeText(
+                        textOffsetX + 4, y(i) + (rectHeight/2) + 7, 
+                        textWidth, rectHeight, textValue
+                    );
 
-                text.textalign = "left";
-                rect.fill = cScales[i].color(point[i][vm.cArray[i]]);
-                rect.noStroke();
+                    text.textalign = "left";
+                    rect.fill = cScales[i].color(d);
+                    rect.noStroke();
 
-                text.fontsize = vm.textSize;
-                text.fill = vm.textColor;
+                    text.fontsize = vm.textSize;
+                    text.fill = vm.textColor;
+                }
             });
             
 

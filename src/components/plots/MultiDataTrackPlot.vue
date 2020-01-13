@@ -85,6 +85,8 @@ import AbstractScale from './../../scales/AbstractScale.js';
 import DataContainer from './../../data/DataContainer.js';
 
 import mixin from './mixin.js';
+import ContinuousScale from './../../scales/ContinuousScale.js';
+import CategoricalScale from './../../scales/CategoricalScale.js';
 
 let uuid = 0;
 /**
@@ -398,21 +400,29 @@ export default {
             
             vm.dataArray.forEach((dataKey, i) => {
                 datas[i].forEach((d) => {
+                    if(
+                        AbstractScale.isUnknown(d[vm.cArray[i]]) ||
+                        (
+                            (cScales[i] instanceof CategoricalScale && cScales[i].domainFiltered.includes(d[vm.cArray[i]]))
+                            || 
+                            (cScales[i] instanceof ContinuousScale && cScales[i].domainFiltered[0] <= d[vm.cArray[i]] && cScales[i].domainFiltered[1] >= d[vm.cArray[i]])
+                        )
+                    ) {
+                        const col = genColor();
+                        colToNode[col] = { "x": d[vm.x], "i": i, "c": d[vm.cArray[i]] };
+                        contextHidden.fillStyle = col;
 
-                    const col = genColor();
-                    colToNode[col] = { "x": d[vm.x], "i": i, "c": d[vm.cArray[i]] };
-                    contextHidden.fillStyle = col;
+                        const rect = two.makeRectangle(
+                            x(d[vm.x]) + (barMarginX/2) + (barWidth - barMarginX)/2 + 0.5, 
+                            y(i) + (barMarginY/2) + (barHeight - barMarginY)/2, 
+                            barWidth - barMarginX, 
+                            barHeight - barMarginY
+                        );
+                        rect.fill = cScales[i].color(d[vm.cArray[i]]);
+                        rect.noStroke();
 
-                    const rect = two.makeRectangle(
-                        x(d[vm.x]) + (barMarginX/2) + (barWidth - barMarginX)/2 + 0.5, 
-                        y(i) + (barMarginY/2) + (barHeight - barMarginY)/2, 
-                        barWidth - barMarginX, 
-                        barHeight - barMarginY
-                    );
-                    rect.fill = cScales[i].color(d[vm.cArray[i]]);
-                    rect.noStroke();
-
-                    contextHidden.fillRect(x(d[vm.x]) + 0.5, y(i), barWidth, barHeight);
+                        contextHidden.fillRect(x(d[vm.x]) + 0.5, y(i), barWidth, barHeight);
+                    }
                 });
             });
 
