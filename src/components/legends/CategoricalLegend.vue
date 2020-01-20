@@ -28,6 +28,7 @@
 <script>
 import { scaleBand as d3_scaleBand } from 'd3-scale';
 import { select as d3_select } from 'd3-selection';
+import { create as d3_create } from 'd3';
 
 
 import CategoricalScale from './../../scales/CategoricalScale.js';
@@ -37,8 +38,10 @@ import HistoryStack from './../../history/HistoryStack.js';
 import ColorScalePicker from './../modals/ColorScalePicker.vue';
 import ColorPicker from './../modals/ColorPicker.vue';
 
-import { COLOR_PICKER_PATH, EYE_PATH, EYE_DISABLED_PATH, PAINT_BUCKET_PATH } from './../../icons.js';
+import { COLOR_PICKER_PATH, EYE_PATH, EYE_DISABLED_PATH, PAINT_BUCKET_PATH, DOWNLOAD_PATH } from './../../icons.js';
 import { EVENT_TYPES, EVENT_SUBTYPES } from '../../history/base-events.js';
+
+import { downloadSvg } from './../../helpers.js';
 
 const STYLES = Object.freeze({ "BAR": 1, "DOT": 2, "LINE": 3, "SHAPE": 4 });
 
@@ -89,6 +92,14 @@ export default {
         },
         'clickHandler': {
             type: Function
+        },
+        'showDownloadButton': {
+            type: Boolean,
+            default: false
+        },
+        'downloadName': {
+            type: String,
+            default: 'legend'
         }
     },
     data() {
@@ -193,7 +204,7 @@ export default {
                 [scaleKey]
             ));
         },
-        drawLegend() {
+        drawLegend(d3Node) {
             const vm = this;
             vm.removeLegend();
             
@@ -204,43 +215,38 @@ export default {
             const textOffset = 30;
             const marginX = 4;
             const marginY = 2;
+            const buttonWidth = 16;
 
             vm.lHeight = vm.lItemHeight * varScale.domain.length + titleHeight;
 
             /*
              * Create the SVG elements
              */
-
-            const container = d3_select(vm.legendSelector)
-                .append("svg")
-                    .attr("width", vm.computedWidth)
-                    .attr("height", vm.computedHeight);
+            let container;
+            if(d3Node) {
+                container = d3Node;
+            } else {
+                container = d3_select(vm.legendSelector)
+                    .append("svg")
+                        .attr("width", vm.computedWidth)
+                        .attr("height", vm.computedHeight);
+            }
             
             const legend = container.append("g")
                     .attr("class", "legend")
                     .attr("transform", "translate(" + vm.computedTranslateX + "," + vm.computedTranslateY + ")");
-
-            
             
             const title = legend.append("g")
                 .attr("width", vm.lWidth);
             
             const titleText = title.append("text")
                 .style("text-anchor", "start")
+                .style("font-family", "Avenir")
                 .text(varScale.name);
             const titleTextBbox = titleText.node().getBBox();
             titleText.attr("transform", "translate(" + 0 + "," + titleTextBbox.height + ")");
 
-            title.append("path")
-                .attr("d", PAINT_BUCKET_PATH)
-                .attr("width", 20)
-                .attr("height", 20)
-                .attr("transform", "translate(" + (vm.lWidth - 1.5*marginX) + "," + (titleTextBbox.height/2) + ") scale(-0.7 0.7)")
-                .style("cursor", "pointer")
-                .attr("fill", "silver")
-                .on("click", () => {
-                    vm.showColorScalePicker = true;
-                });
+            
 
             const legendInner = legend.append("g")
                 .attr("class", "legend-inner");
@@ -254,7 +260,8 @@ export default {
                 .attr("width", vm.lWidth)
                 .attr("height", "1px")
                 .attr("fill", "black")
-                .attr("fill-opacity", 0);
+                .attr("fill-opacity", 0)
+                .style("user-select", "none");
             
             highlight.append("rect")
                 .attr("x", 0)
@@ -263,7 +270,8 @@ export default {
                 .attr("height", 1)
                 .attr("fill", "black")
                 .attr("fill-opacity", 0)
-                .attr("transform", "translate(0," + (vm.lItemHeight) + ")");
+                .attr("transform", "translate(0," + (vm.lItemHeight) + ")")
+                .style("user-select", "none");
 
             
             
@@ -299,6 +307,7 @@ export default {
 
             const itemText = items.append("text")
                 .style("text-anchor", "start")
+                .style("font-family", "Avenir")
                 .attr("y", scale.bandwidth() - 5)
                 .attr("x", (textOffset + marginX) + "px")
                 .style("font-size", "13px")
@@ -323,10 +332,49 @@ export default {
                     .attr("fill", (d) => varScale.color(d))
                     .attr("fill-opacity", (d) => varScale.domainFiltered.includes(d) ? 1 : 0);
             }
-                
+
+            if(d3Node) {
+                return; /* SVG passed in to function, so not interactive */
+            }
+            
             
             // Action buttons
-            const buttonWidth = 16;
+
+            const colorScaleButtonG = title
+                .append("g")
+                    .attr("width", 20)
+                    .attr("height", 20)
+                    .attr("transform", "translate(" + (vm.lWidth - 1.5*marginX) + "," + (titleTextBbox.height/2) + ") scale(-0.7 0.7)")
+                    .style("cursor", "pointer")
+                    .on("click", () => {
+                        vm.showColorScalePicker = true;
+                    });
+                colorScaleButtonG.append("rect")
+                        .attr("width", 20)
+                        .attr("height", 20)
+                        .attr("fill", "transparent");
+                colorScaleButtonG.append("path")
+                    .attr("d", PAINT_BUCKET_PATH)
+                    .attr("fill", "silver");
+            
+            if(vm.showDownloadButton) {
+                const downloadButtonG = title
+                    .append("g")
+                        .attr("width", 20)
+                        .attr("height", 20)
+                        .attr("transform", "translate(" + (vm.lWidth - 2*(buttonWidth) + marginX/2) + "," + (titleTextBbox.height/2) + ") scale(-0.7 0.7)")
+                        .style("cursor", "pointer")
+                        .on("click", vm.downloadViaButton);
+                    
+                    downloadButtonG.append("rect")
+                        .attr("width", 20)
+                        .attr("height", 20)
+                        .attr("fill", "transparent");
+                    downloadButtonG.append("path")
+                        .attr("d", DOWNLOAD_PATH)
+                        .attr("fill", "silver");
+                        
+            }
 
             const filterButtons = items.append("g")
                 .attr("transform", "translate(" + (vm.lWidth - 2*(buttonWidth + 2*marginX)) + ",0)")
@@ -409,6 +457,21 @@ export default {
                 .attr("transform", "scale(0.7 0.7)")
                 .attr("fill", "silver");
             
+        },
+        download() {
+            const svg = d3_create("svg")
+                .attr("width", this.computedWidth)
+                .attr("height", this.computedHeight)
+                .attr("viewBox", `0 0 ${this.computedWidth} ${this.computedHeight}`);
+            
+            this.drawLegend(svg);
+            this.drawLegend();
+
+            return svg;
+        },
+        downloadViaButton() {
+            const svg = this.download();
+            downloadSvg(svg, this.downloadName);
         }
     }
 }

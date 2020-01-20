@@ -1,8 +1,10 @@
 <script>
-import { DOWNLOAD_PATH } from './../icons.js';
 import { create as d3_create, event as d3_event } from 'd3';
 import { select as d3_select } from 'd3-selection';
 import { drag as d3_drag } from 'd3-drag';
+
+import { DOWNLOAD_PATH } from './../icons.js';
+import { downloadSvg } from './../helpers.js';
 
 
 /**
@@ -28,33 +30,6 @@ const addProp = function(slotArray, newProps) {
     }
     return [];
 }
-
-/**
- * Given an SVG DOM node, return the SVG contents as a data URI that can be saved to a file.
- * @private
- * @param {any} svg The SVG node.
- * @returns {string}
- */
-const svgToUri = function(svg) {
-    // Reference: https://stackoverflow.com/a/23218877
-    const serializer = new XMLSerializer();
-    var source = serializer.serializeToString(svg);
-
-    // Add namespace.
-    if(!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)){
-        source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
-    }
-    if(!source.match(/^<svg[^>]+"http\:\/\/www\.w3\.org\/1999\/xlink"/)){
-        source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
-    }
-
-    // Add xml declaration.
-    source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
-
-    // Convert svg source to URI.
-    //return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
-    return source;
-};
 
 
 /**
@@ -310,14 +285,8 @@ export default {
     },
     methods: {
         downloadViaButton() {
-            const blob = this.download();
-            const url = URL.createObjectURL(blob);
-            const downloadAnchorNode = document.createElement('a');
-            downloadAnchorNode.setAttribute("href", url);
-            downloadAnchorNode.setAttribute("download", this.downloadName + ".svg");
-            document.body.appendChild(downloadAnchorNode); // required for firefox
-            downloadAnchorNode.click();
-            downloadAnchorNode.remove();
+            const svg = this.download();
+            downloadSvg(svg, this.downloadName);
         },
         initResizeButton() {
             if(this.showResizeButton) {
@@ -347,7 +316,8 @@ export default {
 
             const svg = d3_create("svg")
                 .attr("width", this.fullWidth)
-                .attr("height", this.fullHeight);
+                .attr("height", this.fullHeight)
+                .attr("viewBox", `0 0 ${this.fullWidth} ${this.fullHeight}`);
             
             const defs = svg
                 .append("defs");
@@ -443,11 +413,7 @@ export default {
             renderAxisToContext("axisRight");
             renderAxisToContext("axisBottom");
 
-            const svgContent = svgToUri(svg.node());
-
-            const blob = new Blob([svgContent], {'type': 'image/svg+xml'});
-
-            return blob;
+            return svg;
         }
     }
 }

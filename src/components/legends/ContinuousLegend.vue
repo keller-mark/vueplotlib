@@ -17,6 +17,7 @@
         ></div>
         <div>
             <Axis
+                ref="continuous-legend-axis"
                 :pWidth="30"
                 :pHeight="this.lHeight - 30"
                 :pMarginTop="30"
@@ -38,7 +39,7 @@
 <script>
 import { scaleLinear as d3_scaleLinear } from 'd3-scale';
 import { select as d3_select } from 'd3-selection';
-import { mouse as d3_mouse } from 'd3';
+import { mouse as d3_mouse, create as d3_create } from 'd3';
 
 import ContinuousScale from './../../scales/ContinuousScale.js';
 import HistoryEvent from './../../history/HistoryEvent.js';
@@ -47,8 +48,10 @@ import HistoryStack from './../../history/HistoryStack.js';
 import ColorScalePicker from './../modals/ColorScalePicker.vue';
 import Axis from './../axes/Axis.vue';
 
-import { PAINT_BUCKET_PATH } from './../../icons.js';
+import { PAINT_BUCKET_PATH, DOWNLOAD_PATH } from './../../icons.js';
 import { EVENT_TYPES, EVENT_SUBTYPES } from '../../history/base-events.js';
+
+import { downloadSvg } from './../../helpers.js';
 
 
 let uuid = 0;
@@ -89,6 +92,14 @@ export default {
         },
         'getStack': {
             type: Function
+        },
+        'showDownloadButton': {
+            type: Boolean,
+            default: false
+        },
+        'downloadName': {
+            type: String,
+            default: 'legend'
         }
     },
     data() {
@@ -192,7 +203,7 @@ export default {
                 [scaleKey]
             ));
         },
-        drawLegend() {
+        drawLegend(d3Node) {
             const vm = this;
             vm.removeLegend();
             
@@ -202,21 +213,24 @@ export default {
             const titleHeight = 30
             const textOffset = 30;
             const marginX = 4;
+            const buttonWidth = 16;
 
             /*
              * Create the SVG elements
              */
-            
-
-            const container = d3_select(vm.legendSelector)
-                .append("svg")
-                    .attr("width", vm.computedWidth)
-                    .attr("height", vm.computedHeight);
+            let container;
+            if(d3Node) {
+                container = d3Node;
+            } else {
+                container = d3_select(vm.legendSelector)
+                    .append("svg")
+                        .attr("width", vm.computedWidth)
+                        .attr("height", vm.computedHeight);
+            }
             
             const legend = container.append("g")
                     .attr("class", "legend")
                     .attr("transform", "translate(" + vm.computedTranslateX + "," + vm.computedTranslateY + ")");
-
             
             
             const title = legend.append("g")
@@ -224,24 +238,14 @@ export default {
             
             const titleText = title.append("text")
                 .style("text-anchor", "start")
+                .style("font-family", "Avenir")
                 .text(varScale.name);
             const titleTextBbox = titleText.node().getBBox();
             titleText.attr("transform", "translate(" + 0 + "," + titleTextBbox.height + ")");
-
-            title.append("path")
-                .attr("d", PAINT_BUCKET_PATH)
-                .attr("width", 20)
-                .attr("height", 20)
-                .attr("transform", "translate(" + (vm.lWidth - 1.5*marginX) + "," + (titleTextBbox.height/2) + ") scale(-0.7 0.7)")
-                .style("cursor", "pointer")
-                .attr("fill", "silver")
-                .on("click", () => {
-                    vm.showColorScalePicker = true;
-                });
+                
 
             const legendInner = legend.append("g")
                 .attr("class", "legend-inner");
-           
 
             const innerHeight = (vm.lHeight - titleHeight);
 
@@ -268,6 +272,47 @@ export default {
                 .attr("height", innerHeight)
                 .attr("fill", "url(" + vm.gradientSelector + ")")
                 .attr("transform", "rotate(180)");
+
+            if(d3Node) {
+                return; /* SVG passed in to function, so not interactive */
+            }
+
+            const colorScaleButtonG = title
+                .append("g")
+                    .attr("width", 20)
+                    .attr("height", 20)
+                    .attr("transform", "translate(" + (vm.lWidth - 1.5*marginX) + "," + (titleTextBbox.height/2) + ") scale(-0.7 0.7)")
+                    .style("cursor", "pointer")
+                    .on("click", () => {
+                        vm.showColorScalePicker = true;
+                    });
+            
+            colorScaleButtonG.append("rect")
+                .attr("width", 20)
+                .attr("height", 20)
+                .attr("fill", "transparent");
+            colorScaleButtonG.append("path")
+                .attr("d", PAINT_BUCKET_PATH)
+                .attr("fill", "silver")
+            
+            if(vm.showDownloadButton) {
+                const downloadButtonG = title
+                    .append("g")
+                        .attr("width", 20)
+                        .attr("height", 20)
+                        .attr("transform", "translate(" + (vm.lWidth - 2*(buttonWidth) + marginX/2) + "," + (titleTextBbox.height/2) + ") scale(-0.7 0.7)")
+                        .style("cursor", "pointer")
+                        .on("click", vm.downloadViaButton);
+                    
+                    downloadButtonG.append("rect")
+                        .attr("width", 20)
+                        .attr("height", 20)
+                        .attr("fill", "transparent");
+                    downloadButtonG.append("path")
+                        .attr("d", DOWNLOAD_PATH)
+                        .attr("fill", "silver");
+                        
+            }
             
             const hoverRect = legendInner.append("rect")
                 .attr("x", marginX)
@@ -297,6 +342,7 @@ export default {
 
             vm.highlightScale = y;
             
+            
 
             hoverRect.on("mousemove", () => {
                 const mouse = d3_mouse(hoverRectNode);
@@ -309,8 +355,40 @@ export default {
             .on("mouseleave", () => {
                 varScale.emitHighlightDestroy();
             });
+        },
+        download() {
+            const svg = d3_create("svg")
+                .attr("width", this.computedWidth)
+                .attr("height", this.computedHeight+5)
+                .attr("viewBox", `0 0 ${this.computedWidth} ${this.computedHeight+5}`);
             
+            this.drawLegend(svg);
+            this.drawLegend();
+
+            const axisWidth = this.lWidth - 100;
+            const axisHeight = this.lHeight - 30 + 5;
+
+            const axisSvg = d3_create("svg")
+                .attr("width", axisWidth)
+                .attr("height", axisHeight);
+
+            this.$refs["continuous-legend-axis"].drawAxis(axisSvg, true);
+            this.$refs["continuous-legend-axis"].drawAxis();
+
+            const axisG = svg
+                .append("g")
+                    .attr("class", 'download-g-legend-axis')
+                    .attr("width", axisWidth)
+                    .attr("height", axisHeight)
+                    .attr("transform", `translate(${30},${0})`);
             
+            axisG.html(axisSvg.node().innerHTML);
+
+            return svg;
+        },
+        downloadViaButton() {
+            const svg = this.download();
+            downloadSvg(svg, this.downloadName);
         }
     }
 }

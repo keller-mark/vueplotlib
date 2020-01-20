@@ -15,13 +15,13 @@
     <PlotContainer
       :pWidth="500"
       :pHeight="dynamicPlotHeight"
-      :pMarginTop="120"
-      :pMarginLeft="120"
-      :pMarginRight="120"
+      :pMarginTop="100"
+      :pMarginLeft="100"
+      :pMarginRight="100"
       :pMarginBottom="100"
       :showDownloadButton="true"
       :downloadButtonOffsetX="0"
-      :downloadButtonOffsetY="0"
+      :downloadButtonOffsetY="60"
       :showResizeButton="true"
     >
       <Axis
@@ -119,6 +119,7 @@
       :lWidth="250"
       :getScale="getScale"
       :getStack="getStack"
+      :showDownloadButton="true"
     />
 
     <h3>&lt;ContinuousLegend/&gt;</h3>
@@ -127,6 +128,7 @@
       :lWidth="250"
       :getScale="getScale"
       :getStack="getStack"
+      :showDownloadButton="true"
     />
 
     <h3>&lt;BarPlot/&gt;</h3>
@@ -1663,6 +1665,5 @@ a {
   padding: 3px;
   margin-bottom: 5px;
 }
-
 
 </style>

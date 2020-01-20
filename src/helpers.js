@@ -110,3 +110,48 @@ export const seededRandom = (seed) => {
         return x - Math.floor(x);
     }
 }
+
+/**
+ * Given an SVG DOM node, return the SVG contents as a data URI that can be saved to a file.
+ * @private
+ * @param {any} svg The SVG node.
+ * @returns {string}
+ */
+export const svgToUri = (svg) => {
+    // Reference: https://stackoverflow.com/a/23218877
+    const serializer = new XMLSerializer();
+    var source = serializer.serializeToString(svg);
+
+    // Add namespace.
+    if(!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)){
+        source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+    }
+    if(!source.match(/^<svg[^>]+"http\:\/\/www\.w3\.org\/1999\/xlink"/)){
+        source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+    }
+
+    // Add xml declaration.
+    source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
+
+    // Convert svg source to URI.
+    //return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
+    return source;
+};
+
+/**
+ * Save an SVG object to a file.
+ * @private
+ * @param {any} svg The SVG as a D3 object.
+ */
+export const downloadSvg = (svg, fileName) => {
+    const svgContent = svgToUri(svg.node());
+    const blob = new Blob([svgContent], {'type': 'image/svg+xml'});
+
+    const url = URL.createObjectURL(blob);
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", url);
+    downloadAnchorNode.setAttribute("download", `${fileName}.svg`);
+    document.body.appendChild(downloadAnchorNode); // required for firefox
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+};
