@@ -50,6 +50,7 @@ import Expected from './expected';
 
 // Other
 import { EVENT_TYPES, EVENT_SUBTYPES, EVENT_SUBTYPE_RESETS } from './history/base-events';
+import { downloadSvg } from './helpers';
 
 // Reference: https://stackoverflow.com/questions/28282295/getbbox-of-svg-when-hidden
 const _getBBox = SVGGraphicsElement.prototype.getBBox;   
@@ -120,4 +121,5 @@ export {
     // Other
     computedParam,
     EVENT_TYPES, EVENT_SUBTYPES, EVENT_SUBTYPE_RESETS,
+    downloadSvg,
 }

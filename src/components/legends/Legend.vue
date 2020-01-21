@@ -8,6 +8,8 @@
             :getScale="getScale"
             :getStack="getStack"
             :clickHandler="clickHandler"
+            :showDownloadButton="showDownloadButton"
+            :downloadName="downloadName"
          />
         <ContinuousLegend v-if="legendType === 'continuous'" 
             :variable="variable"
@@ -15,6 +17,8 @@
             :lItemHeight="lItemHeight"
             :getScale="getScale"
             :getStack="getStack"
+            :showDownloadButton="showDownloadButton"
+            :downloadName="downloadName"
         />
     </div>
 </template>
@@ -69,6 +73,14 @@ export default {
         },
         'clickHandler': {
             type: Function
+        },
+        'showDownloadButton': {
+            type: Boolean,
+            default: false
+        },
+        'downloadName': {
+            type: String,
+            default: 'legend'
         }
     },
     data() {
