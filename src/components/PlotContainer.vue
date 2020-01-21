@@ -31,6 +31,19 @@ const addProp = function(slotArray, newProps) {
     return [];
 }
 
+/**
+ * Returns a uuid string.
+ * Reference: https://stackoverflow.com/a/2117523
+ * @private
+ * @return {string}
+ */
+const uuidv4 = function() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
 
 /**
  * This component is a container for axis and plot components, 
@@ -343,9 +356,10 @@ export default {
                         y += this.offsetY;
                     }
 
+                    const clipPathUid = uuidv4();
                     defs
                         .append("clipPath")
-                            .attr("id", `cp-${axisType}`)
+                            .attr("id", `cp-${clipPathUid}`)
                         .append("rect")
                             .attr("width", width)
                             .attr("height", height);
@@ -363,7 +377,7 @@ export default {
                             .attr("width", width)
                             .attr("height", height)
                             .attr("transform", `translate(${x},${y})`)
-                            .attr("clip-path", `url(#cp-${axisType})`);
+                            .attr("clip-path", `url(#cp-${clipPathUid})`);
                     
                     axisG.html(axisSvg.node().innerHTML);
                 }
@@ -382,9 +396,10 @@ export default {
                     const width = this.pWidth;
                     const height = pHeight;
 
+                    const clipPathUid = uuidv4();
                     defs
                         .append("clipPath")
-                            .attr("id", `cp-plot`)
+                            .attr("id", `cp-${clipPathUid}`)
                         .append("rect")
                             .attr("width", width)
                             .attr("height", height);
@@ -402,7 +417,7 @@ export default {
                             .attr("width", width)
                             .attr("height", height)
                             .attr("transform", `translate(${x},${y})`)
-                            .attr("clip-path", `url(#cp-plot)`);
+                            .attr("clip-path", `url(#cp-${clipPathUid})`);
                     plotG.html(plotSvg.node().innerHTML);
                 }
             };
