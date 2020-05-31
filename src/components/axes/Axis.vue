@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import { scaleBand as d3_scaleBand, scaleLinear as d3_scaleLinear, scaleLog as d3_scaleLog } from 'd3-scale';
+import { scaleBand as d3_scaleBand, scaleLinear as d3_scaleLinear, scaleLog as d3_scaleLog, scaleTime as d3_scaleTime } from 'd3-scale';
 import { select as d3_select } from 'd3-selection';
 import { axisTop as d3_axisTop, axisLeft as d3_axisLeft, axisRight as d3_axisRight, axisBottom as d3_axisBottom } from 'd3-axis';
 import { brushX as d3_brushX, brushY as d3_brushY } from 'd3-brush';
@@ -43,6 +43,7 @@ let uuid = 0;
  * @prop {function} getStack Function that returns a HistoryStack instance.
  * @prop {boolean} disableBrushing Whether to disable brushing functionality and hide the zoomed-out "context" view. Default: false
  * @prop {boolean} log Whether to have log scaled variable. Default: false
+ * @prop {boolean} time Whether to have time scaled variable. Default: false
  * @prop {boolean} showLabel Whether to show the label. Default: true
  * @prop {number} maxCharacters The maximum number of characters, where the rest will be trimmed. Optional.
  * 
@@ -111,6 +112,10 @@ export default {
             default: true
         },
         'log': {
+            type: Boolean,
+            default: false
+        },
+        'time': {
             type: Boolean,
             default: false
         },
@@ -202,6 +207,9 @@ export default {
             this.drawAxis();
         },
         log() {
+            this.drawAxis();
+        },
+        time() {
             this.drawAxis();
         }
     },
@@ -305,6 +313,8 @@ export default {
                 let continuousScaleFunc = d3_scaleLinear;
                 if(vm.log) {
                     continuousScaleFunc = d3_scaleLog;
+                } else if (vm.time) {
+                    continuousScaleFunc = d3_scaleTime;
                 }
                 scaleZoomedOut = continuousScaleFunc()
                     .domain(varScaleDomain)
