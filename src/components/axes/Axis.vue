@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import { scaleBand as d3_scaleBand, scaleLinear as d3_scaleLinear, scaleLog as d3_scaleLog } from 'd3-scale';
+import { scaleBand as d3_scaleBand, scaleLinear as d3_scaleLinear, scaleLog as d3_scaleLog, scaleTime as d3_scaleTime } from 'd3-scale';
 import { select as d3_select } from 'd3-selection';
 import { axisTop as d3_axisTop, axisLeft as d3_axisLeft, axisRight as d3_axisRight, axisBottom as d3_axisBottom } from 'd3-axis';
 import { brushX as d3_brushX, brushY as d3_brushY } from 'd3-brush';
